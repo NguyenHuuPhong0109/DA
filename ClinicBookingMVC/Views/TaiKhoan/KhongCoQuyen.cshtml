@@ -8,10 +8,10 @@
     <h1 class="error-page__title">Không có quyền truy cập</h1>
     <p class="error-page__desc">
         Tài khoản của bạn không có quyền xem trang này.
-        Vui lòng đăng nhập bằng tài khoản phù hợp.
+        Vui lòng đăng nhập bằng tài khoản có phân quyền phù hợp.
     </p>
-    <div class="error-page__actions">
-        <a asp-controller="Home" asp-action="Index" class="btn btn--ghost">Về trang chủ</a>
-        <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn--primary">Đăng nhập lại</a>
+    <div class="btn-list" style="justify-content:center">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Về trang chủ</a>
+        <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-primary">Đăng nhập lại</a>
     </div>
 </div>

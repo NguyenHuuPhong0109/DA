@@ -1,68 +1,78 @@
 ﻿@{
-    ViewData["Title"] = "Trang chủ — ClinicBook";
+    ViewData["Title"] = "Trang chủ — Phòng Khám Đa Khoa";
 }
 
-<section class="hero">
+<section class="hero" style="background:#ffffff;border-bottom:1px solid var(--color-rule);padding:var(--space-3xl) 0">
     <div class="container">
-        <div class="hero__inner">
+        <div class="hero__inner" style="display:grid;grid-template-columns:1fr auto;gap:var(--space-3xl);align-items:center">
             <div class="hero__text">
-                <p class="hero__label">Hệ thống đặt lịch khám trực tuyến</p>
-                <h1 class="hero__title">Đặt lịch khám<br>nhanh chóng, tiện lợi</h1>
-                <p class="hero__desc">
-                    Chọn chuyên khoa, bác sĩ và khung giờ phù hợp từ xa.
-                    Nhận mã xác nhận ngay sau khi đặt lịch thành công.
+                <p class="hero__label" style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.08em;color:var(--color-primary);font-weight:700;margin-bottom:var(--space-xs)">
+                    Hệ thống đặt lịch khám trực tuyến
                 </p>
-                <div class="hero__actions">
+                <h1 class="hero__title" style="margin-bottom:var(--space-md)">
+                    Đặt lịch khám bệnh<br>nhanh chóng, tiện lợi
+                </h1>
+                <p class="lead" style="margin-bottom:var(--space-xl);color:var(--color-muted)">
+                    Chủ động lựa chọn chuyên khoa, bác sĩ và khung giờ khám bệnh phù hợp.
+                    Nhận mã đặt hẹn điện tử và mã QR ngay lập tức, giảm thiểu tối đa thời gian chờ đợi.
+                </p>
+                <div class="btn-list">
                     @if (User.Identity!.IsAuthenticated)
                     {
                         <a asp-controller="DatLich" asp-action="Index"
-                           class="btn btn--primary btn--lg">Đặt lịch ngay</a>
+                           class="btn btn-primary btn-lg">📅 Đặt lịch khám ngay</a>
                         <a asp-controller="DatLich" asp-action="TraCuu"
-                           class="btn btn--outline btn--lg">Tra cứu lịch hẹn</a>
+                           class="btn btn-outline-secondary btn-lg">🔍 Tra cứu lịch hẹn</a>
                     }
                     else
                     {
                         <a asp-controller="TaiKhoan" asp-action="DangKy"
-                           class="btn btn--primary btn--lg">Đăng ký miễn phí</a>
+                           class="btn btn-primary btn-lg">Đăng ký tài khoản</a>
                         <a asp-controller="TaiKhoan" asp-action="DangNhap"
-                           class="btn btn--outline btn--lg">Đăng nhập</a>
+                           class="btn btn-outline-secondary btn-lg">Đăng nhập</a>
+                        <a asp-controller="DatLich" asp-action="TraCuu"
+                           class="btn btn-outline-secondary btn-lg">Tra cứu nhanh</a>
                     }
                 </div>
             </div>
-            <div class="hero__visual" aria-hidden="true">
-                <div class="hero__mockcard">
-                    <div class="hero__mockcard-label">Phiếu đặt hẹn</div>
-                    <div class="hero__mockcard-code font-mono">DH-20261119-001</div>
-                    <span class="badge badge--da-xac-nhan">Đã xác nhận</span>
-                    <div class="hero__mockcard-time font-mono">08:30 · Tim mạch</div>
+            <div class="hero__visual" aria-hidden="true" style="display:flex;justify-content:center">
+                <div class="card card--lifted" style="min-width:260px;padding:var(--space-lg);border-radius:12px;background:#ffffff">
+                    <div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-muted);font-weight:600">Phiếu đặt hẹn điện tử</div>
+                    <div class="font-mono" style="font-size:1.6rem;font-weight:700;color:var(--color-primary);margin:var(--space-xs) 0">BK261120-001</div>
+                    <span class="badge badge--da-xac-nhan" style="margin-bottom:var(--space-sm)">Đã xác nhận</span>
+                    <div class="font-mono text-muted text-sm">08:30 · Tim mạch · P.102</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="features container section-pad">
-    <h2 class="section-title">Quy trình 3 bước đơn giản</h2>
-    <div class="features-grid">
-        <div class="feature-step">
-            <div class="feature-step__num font-mono">01</div>
-            <h3 class="feature-step__title">Chọn lịch khám</h3>
-            <p class="feature-step__desc">
-                Chọn chuyên khoa, bác sĩ và khung giờ trống phù hợp lịch của bạn.
+<section class="container" style="padding-block:var(--space-3xl)">
+    <div style="text-align:center;max-width:600px;margin:0 auto var(--space-2xl) auto">
+        <h2 style="margin-bottom:var(--space-xs)">Quy trình 3 bước đơn giản</h2>
+        <p class="text-muted">Đặt lịch nhanh chỉ trong 1 phút và trải nghiệm khám chữa bệnh chuyên nghiệp</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:var(--space-lg)">
+        <div class="card" style="margin-bottom:0">
+            <div class="font-mono" style="font-size:1.5rem;font-weight:700;color:var(--color-primary);margin-bottom:var(--space-xs)">01</div>
+            <h3 style="font-size:var(--text-md);margin-bottom:var(--space-xs)">Chọn lịch khám</h3>
+            <p class="text-muted text-sm">
+                Chọn chuyên khoa, bác sĩ và khung giờ trống phù hợp với thời gian biểu của bạn.
             </p>
         </div>
-        <div class="feature-step">
-            <div class="feature-step__num font-mono">02</div>
-            <h3 class="feature-step__title">Nhận mã xác nhận</h3>
-            <p class="feature-step__desc">
-                Hệ thống gửi mã đặt hẹn tức thì. Lưu mã để tra cứu khi cần.
+        <div class="card" style="margin-bottom:0">
+            <div class="font-mono" style="font-size:1.5rem;font-weight:700;color:var(--color-primary);margin-bottom:var(--space-xs)">02</div>
+            <h3 style="font-size:var(--text-md);margin-bottom:var(--space-xs)">Nhận mã xác nhận</h3>
+            <p class="text-muted text-sm">
+                Hệ thống gửi mã đặt hẹn và mã QR điện tử tức thì. Dễ dàng lưu hoặc in phiếu hẹn.
             </p>
         </div>
-        <div class="feature-step">
-            <div class="feature-step__num font-mono">03</div>
-            <h3 class="feature-step__title">Check-in tại quầy</h3>
-            <p class="feature-step__desc">
-                Trình mã đặt hẹn tại lễ tân. Hệ thống xếp số tự động, không phải chờ lâu.
+        <div class="card" style="margin-bottom:0">
+            <div class="font-mono" style="font-size:1.5rem;font-weight:700;color:var(--color-primary);margin-bottom:var(--space-xs)">03</div>
+            <h3 style="font-size:var(--text-md);margin-bottom:var(--space-xs)">Check-in tại quầy</h3>
+            <p class="text-muted text-sm">
+                Trình mã đặt hẹn tại lễ tân. Hệ thống tự động cấp số thứ tự ưu tiên A-xxx vào khám đúng giờ.
             </p>
         </div>
     </div>

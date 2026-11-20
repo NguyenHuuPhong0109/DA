@@ -1,67 +1,76 @@
 @model ClinicBookingMVC.Models.Entities.CaTruc
 @{
     Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Chi tiết Khung giờ";
     ViewData["ActiveMenu"] = "CaTruc";
 }
 
 <div class="portal-content__head">
     <div>
-        <h1 class="portal-content__title">Khung giờ — Ca @Model.CaLamViec</h1>
+        <h1 class="portal-content__title">Danh sách Khung giờ — Ca @Model.CaLamViec</h1>
         <p class="portal-content__sub">
             @(Model.BacSi?.HoTenBacSi) &middot;
             @(Model.PhongKham?.TenPhong) &middot;
             @Model.NgayTruc.ToString("dd/MM/yyyy")
         </p>
     </div>
-    <a asp-action="CaTruc" asp-route-ngay="@Model.NgayTruc.ToString("yyyy-MM-dd")"
-       class="btn btn--ghost">← Danh sách ca</a>
+    <div class="btn-list">
+        <a asp-action="CaTruc" asp-route-ngay="@Model.NgayTruc.ToString("yyyy-MM-dd")"
+           class="btn btn-outline-secondary">← Danh sách ca trực</a>
+    </div>
 </div>
 
-@if (TempData["Success"] != null) { <div class="alert alert--success">@TempData["Success"]</div> }
-@if (TempData["Error"] != null)   { <div class="alert alert--error">@TempData["Error"]</div> }
+@if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
 
 <div class="schedule-grid">
     @foreach (var kg in Model.KhungGios.OrderBy(k => k.GioBatDau))
     {
-        var slotCss = kg.LoaiKhungGio == "KhungDem"  ? "slot slot--dem"     :
-                      kg.TrangThai    == "DaDat"      ? "slot slot--da-dat"  :
-                      kg.TrangThai    == "TamKhoa"    ? "slot slot--tam-khoa": "slot slot--trong";
-        <div class="@slotCss">
-            <div class="slot__time font-mono">
+        var slotClass = kg.LoaiKhungGio == "KhungDem"  ? "sched-slot sched-slot--buffer" :
+                        kg.TrangThai    == "DaDat"     ? "sched-slot sched-slot--taken"  :
+                        kg.TrangThai    == "TamKhoa"   ? "sched-slot sched-slot--locked" : "sched-slot";
+        var badgeClass = kg.TrangThai switch {
+            "ConTrong" => "badge--con-trong",
+            "DaDat"    => "badge--da-dat",
+            "TamKhoa"  => "badge--tam-khoa",
+            _          => "badge--con-trong"
+        };
+        var trangThaiText = kg.TrangThai switch {
+            "ConTrong" => "Còn trống",
+            "DaDat"    => "Đã đặt",
+            "TamKhoa"  => "Tạm khóa",
+            _          => kg.TrangThai
+        };
+
+        <div class="@slotClass">
+            <div class="sched-slot__time font-mono">
                 @kg.GioBatDau.ToString("HH:mm") – @kg.GioKetThuc.ToString("HH:mm")
             </div>
-            <div class="slot__type">
-                @(kg.LoaiKhungGio == "KhungDem" ? "Walk-in" : "Đặt hẹn")
+            <div class="sched-slot__type">
+                @(kg.LoaiKhungGio == "KhungDem" ? "Walk-in (Đệm)" : "Đặt hẹn trước")
             </div>
-            <div class="slot__status">
-                <span class="badge badge--@(kg.TrangThai.ToLower().Replace("contr", "con-tr"))">
-                    @(kg.TrangThai switch {
-                        "ConTrong" => "Còn trống",
-                        "DaDat"    => "Đã đặt",
-                        "TamKhoa"  => "Tạm khóa",
-                        _          => kg.TrangThai
-                    })
-                </span>
+            <div style="margin:var(--space-2xs) 0">
+                <span class="badge @badgeClass">@trangThaiText</span>
             </div>
             @if (kg.TrangThai == "ConTrong")
             {
-                <div class="slot__actions">
-                    <form method="post" asp-action="KhoaKhungGio" style="display:inline">
+                <div style="margin-top:var(--space-xs)">
+                    <form method="post" asp-action="KhoaKhungGio" style="display:inline;margin:0">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id"    value="@kg.MaKhungGio" />
                         <input type="hidden" name="maCa"  value="@Model.MaCa" />
-                        <button type="submit" class="btn btn--danger btn--xs">Khóa</button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger" style="width:100%">Khóa slot</button>
                     </form>
                 </div>
             }
             else if (kg.TrangThai == "TamKhoa")
             {
-                <div class="slot__actions">
-                    <form method="post" asp-action="MoKhungGio" style="display:inline">
+                <div style="margin-top:var(--space-xs)">
+                    <form method="post" asp-action="MoKhungGio" style="display:inline;margin:0">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id"    value="@kg.MaKhungGio" />
                         <input type="hidden" name="maCa"  value="@Model.MaCa" />
-                        <button type="submit" class="btn btn--ghost btn--xs">Mở khóa</button>
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" style="width:100%">Mở khóa</button>
                     </form>
                 </div>
             }
@@ -69,6 +78,8 @@
     }
     @if (!Model.KhungGios.Any())
     {
-        <p class="table-empty">Ca trực chưa có khung giờ nào.</p>
+        <div class="card" style="grid-column:1/-1;text-align:center;padding:var(--space-xl);color:var(--color-muted)">
+            Ca trực chưa có khung giờ nào được khởi tạo.
+        </div>
     }
 </div>

@@ -18,10 +18,10 @@
     };
 }
 
-<div class="container section-pad">
+<div class="container" style="padding-block:var(--space-2xl)">
     <div class="ticket-layout">
 
-        {{!-- Phiếu hẹn điện tử --}}
+        @* Phiếu hẹn điện tử *@
         <div class="e-ticket" id="phieuHen">
             <div class="e-ticket__header">
                 <div class="e-ticket__brand">
@@ -64,7 +64,7 @@
                 </div>
                 <div class="e-ticket__row">
                     <span class="e-ticket__key">Giờ khám</span>
-                    <span class="e-ticket__val font-mono">
+                    <span class="e-ticket__val font-mono" style="color:var(--color-primary)">
                         @Model.GioBatDau.ToString("HH:mm") – @Model.GioKetThuc.ToString("HH:mm")
                     </span>
                 </div>
@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        {{!-- Hành động --}}
+        @* Hành động *@
         <div class="ticket-actions">
             @if (Model.CoCanhBao && Model.TrangThaiHen == "ChoXacNhan")
             {
@@ -94,11 +94,11 @@
                 </div>
             }
 
-            <div class="ticket-action-group">
-                <button class="btn btn--primary" onclick="inPhieu()">In phiếu hẹn</button>
+            <div class="btn-list btn-list-column">
+                <button type="button" class="btn btn-primary" onclick="inPhieu()">🖨️ In phiếu hẹn</button>
                 <a asp-action="TraCuu" asp-route-q="@Model.MaDatHen"
-                   class="btn btn--ghost">Tra cứu trạng thái</a>
-                <a asp-action="Index" class="btn btn--ghost">Đặt lịch khác</a>
+                   class="btn btn-outline-secondary">🔍 Tra cứu trạng thái</a>
+                <a asp-action="Index" class="btn btn-outline-secondary">📅 Đặt lịch khác</a>
             </div>
         </div>
 
@@ -112,7 +112,7 @@
 QRCode.toCanvas(
     document.getElementById('qrcode'),
     '@Model.MaDatHen',
-    { width: 160, margin: 1, color: { dark: '#1a1209', light: '#faf8f4' } },
+    { width: 160, margin: 1, color: { dark: '#182433', light: '#FFFFFF' } },
     function(err) { if(err) console.warn('QR error', err); }
 );
 

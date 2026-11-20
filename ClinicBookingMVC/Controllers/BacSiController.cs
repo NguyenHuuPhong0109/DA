@@ -125,7 +125,9 @@ public class BacSiController : Controller
 
         ViewBag.HangDoiPhong    = hangDoiPhong;
         ViewBag.MaPhongList     = maPhongList;
-        ViewBag.TenPhongMap     = caTrucs.ToDictionary(c => c.MaPhong, c => c.PhongKham.TenPhong);
+        ViewBag.TenPhongMap     = caTrucs
+            .DistinctBy(c => c.MaPhong)
+            .ToDictionary(c => c.MaPhong, c => c.PhongKham.TenPhong);
 
         var vm = new BacSiDashboardVM
         {

@@ -6,18 +6,23 @@
 }
 
 <div class="portal-content__head">
-    <div><h1 class="portal-content__title">Sửa Phòng khám</h1></div>
-    <a asp-action="PhongKham" class="btn btn--ghost">← Quay lại</a>
+    <div>
+        <h1 class="portal-content__title">Cập nhật Phòng khám</h1>
+        <p class="portal-content__sub">Chỉnh sửa thông tin phòng khám #@Model.MaPhong</p>
+    </div>
+    <div class="btn-list">
+        <a asp-action="PhongKham" class="btn btn-outline-secondary">← Quay lại</a>
+    </div>
 </div>
 
-<div class="form-card">
+<div class="card" style="max-width:640px">
     <form method="post" asp-action="SuaPhongKham" novalidate>
         @Html.AntiForgeryToken()
         <input asp-for="MaPhong" type="hidden" />
         <div class="form-group">
             <label asp-for="TenPhong" class="form-label"></label>
             <input asp-for="TenPhong" class="form-control" />
-            <span asp-validation-for="TenPhong" class="form-error"></span>
+            <span asp-validation-for="TenPhong" class="field-validation-error"></span>
         </div>
         <div class="form-group">
             <label asp-for="ViTri" class="form-label"></label>
@@ -28,7 +33,7 @@
             <select asp-for="MaChuyenKhoa" asp-items="ViewBag.ChuyenKhoaList" class="form-control">
                 <option value="">-- Chọn chuyên khoa --</option>
             </select>
-            <span asp-validation-for="MaChuyenKhoa" class="form-error"></span>
+            <span asp-validation-for="MaChuyenKhoa" class="field-validation-error"></span>
         </div>
         <div class="form-group">
             <label asp-for="TrangThai" class="form-label"></label>
@@ -37,9 +42,9 @@
                 <option value="NgungHoatDong">Ngừng hoạt động</option>
             </select>
         </div>
-        <div class="form-actions">
-            <button type="submit" class="btn btn--primary">Cập nhật</button>
-            <a asp-action="PhongKham" class="btn btn--ghost">Hủy</a>
+        <div class="btn-list" style="margin-top:var(--space-lg)">
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+            <a asp-action="PhongKham" class="btn btn-outline-secondary">Hủy</a>
         </div>
     </form>
 </div>

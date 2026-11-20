@@ -7,7 +7,7 @@
 
 @section Styles {
 <style>
-/* ── BI Dashboard Styles ── */
+/* ── BI Dashboard Styles (Chuẩn Tabler Light) ── */
 .bi-toolbar {
   display: flex;
   justify-content: space-between;
@@ -15,10 +15,11 @@
   flex-wrap: wrap;
   gap: var(--space-md);
   padding: var(--space-md) var(--space-lg);
-  background: var(--color-paper-2);
-  border: var(--rule-hair) solid var(--color-rule);
+  background: #ffffff;
+  border: 1px solid var(--color-rule);
   border-radius: var(--radius-card);
-  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-card);
+  margin-bottom: var(--space-lg);
 }
 .bi-filter-form {
   display: flex;
@@ -34,19 +35,22 @@
 .bi-filter-group label {
   font-size: var(--text-xs);
   color: var(--color-muted);
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .bi-kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
 }
 .bi-kpi-card {
   padding: var(--space-lg);
-  border: var(--rule-hair) solid var(--color-rule);
+  border: 1px solid var(--color-rule);
   border-radius: var(--radius-card);
-  background: var(--color-paper);
+  background: #ffffff;
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -76,29 +80,31 @@
   font-size: var(--text-xs);
   color: var(--color-muted);
 }
-.bi-kpi-card--accent .bi-kpi-card__val { color: var(--color-accent); }
-.bi-kpi-card--warning .bi-kpi-card__val { color: oklch(50% 0.18 30); }
-.bi-kpi-card--success .bi-kpi-card__val { color: oklch(50% 0.15 150); }
+.bi-kpi-card--accent .bi-kpi-card__val { color: var(--color-primary); }
+.bi-kpi-card--warning .bi-kpi-card__val { color: #D97706; }
+.bi-kpi-card--success .bi-kpi-card__val { color: #15803D; }
 
 /* Charts Layout */
 .bi-charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
 }
 @@media (max-width: 60rem) {
   .bi-charts-grid { grid-template-columns: 1fr; }
 }
 .bi-chart-card {
   padding: var(--space-lg);
-  border: var(--rule-hair) solid var(--color-rule);
+  border: 1px solid var(--color-rule);
   border-radius: var(--radius-card);
-  background: var(--color-paper);
+  background: #ffffff;
+  box-shadow: var(--shadow-card);
 }
 .bi-chart-card__title {
   font-size: var(--text-sm);
   font-weight: 600;
+  color: var(--color-ink);
   margin-bottom: var(--space-md);
   display: flex;
   justify-content: space-between;
@@ -114,17 +120,19 @@
 .stats-mini-bar {
   display: flex;
   gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
   flex-wrap: wrap;
 }
 .stats-mini-item {
   flex: 1;
   min-width: 140px;
   padding: var(--space-sm) var(--space-md);
-  border: var(--rule-hair) solid var(--color-rule-2);
+  border: 1px solid var(--color-rule);
   border-radius: var(--radius-card);
-  background: var(--color-paper-2);
+  background: #ffffff;
+  box-shadow: var(--shadow-card);
   font-size: var(--text-xs);
+  color: var(--color-muted);
 }
 .stats-mini-item span {
   font-family: var(--font-outlier);
@@ -141,11 +149,11 @@
         <h1 class="portal-content__title">BI Dashboard &amp; Thống kê Hoạt động</h1>
         <p class="portal-content__sub">Giám sát chất lượng dịch vụ, lưu lượng hàng đợi và kiểm soát tỷ lệ vắng hẹn</p>
     </div>
-    <div style="display:flex;gap:var(--space-xs);align-items:center">
+    <div class="btn-list">
         <!-- Nút quét quá hạn ngay -->
         <form asp-action="QuetQuaHanNgay" method="post" style="display:inline">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn--quiet btn--sm" title="Quét ngay các lịch hẹn quá 30 phút chưa check-in và gửi nhắc lịch ngày mai">
+            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Quét ngay các lịch hẹn quá 30 phút chưa check-in và gửi nhắc lịch ngày mai">
                 ⏱️ Quét quá hạn ngay
             </button>
         </form>
@@ -155,7 +163,7 @@
            asp-route-DenNgay="@Model.Filter.DenNgay?.ToString("yyyy-MM-dd")"
            asp-route-MaChuyenKhoa="@Model.Filter.MaChuyenKhoa"
            asp-route-MaBacSi="@Model.Filter.MaBacSi"
-           class="btn btn--sm" title="Xuất báo cáo định dạng CSV hỗ trợ mở bằng Microsoft Excel tiếng Việt">
+           class="btn btn-sm btn-outline-secondary" title="Xuất báo cáo định dạng CSV hỗ trợ mở bằng Microsoft Excel tiếng Việt">
             📥 Xuất CSV (Excel)
         </a>
     </div>
@@ -227,8 +235,10 @@
                 }
             </select>
         </div>
-        <button type="submit" class="btn btn--sm btn--accent" style="height:36px">Lọc dữ liệu</button>
-        <a asp-action="Index" class="btn btn--quiet btn--sm" style="height:36px">Đặt lại</a>
+        <div class="btn-list">
+            <button type="submit" class="btn btn-sm btn-primary">Lọc dữ liệu</button>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Đặt lại</a>
+        </div>
     </form>
     <div style="font-size:var(--text-xs);color:var(--color-muted)">
         Kỳ báo cáo: <strong class="font-mono">@Model.Filter.TuNgay?.ToString("dd/MM/yyyy")</strong> — <strong class="font-mono">@Model.Filter.DenNgay?.ToString("dd/MM/yyyy")</strong>
@@ -312,10 +322,10 @@
 </div>
 
 <!-- Bảng Bệnh nhân bị bật cờ cảnh báo vắng hẹn (CoCanhBao == true) -->
-<div class="bi-chart-card" style="margin-top:var(--space-xl)">
+<div class="bi-chart-card" style="margin-top:var(--space-lg)">
     <div class="bi-chart-card__title">
         <div style="display:flex;align-items:center;gap:var(--space-xs)">
-            <span style="color:oklch(50% 0.22 25)">⚠️ Danh sách Bệnh nhân có Cảnh báo Vắng hẹn</span>
+            <span style="color:#D63939">⚠️ Danh sách Bệnh nhân có Cảnh báo Vắng hẹn</span>
             <span class="badge badge--canh-bao">@Model.DanhSachCanhBao.Count bệnh nhân</span>
         </div>
         <span style="font-size:var(--text-xs);color:var(--color-muted);font-weight:400">
@@ -325,14 +335,14 @@
 
     @if (!Model.DanhSachCanhBao.Any())
     {
-        <p class="empty-notice" style="padding:var(--space-lg);text-align:center">
+        <p class="empty-notice" style="padding:var(--space-lg);text-align:center;color:var(--color-muted)">
             Hiện không có bệnh nhân nào có cờ cảnh báo vắng hẹn.
         </p>
     }
     else
     {
         <div class="table-wrap">
-            <table class="data-table">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Mã BN</th>
@@ -373,6 +383,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // Cấu hình chung cho Chart.js chuẩn Tabler Light
+    Chart.defaults.color = '#667382';
+    Chart.defaults.font.family = '"Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
     // 1. Dữ liệu Biểu đồ Lưu lượng theo giờ
     const rawLuuLuong = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LuuLuongTheoGio));
     const labelsLuuLuong = rawLuuLuong.map(x => x.KhungGio);
@@ -387,8 +401,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [{
                     label: 'Số lượng bệnh nhân',
                     data: dataLuuLuong,
-                    backgroundColor: 'rgba(217, 83, 79, 0.75)',
-                    borderColor: 'rgb(217, 83, 79)',
+                    backgroundColor: 'rgba(15, 118, 110, 0.85)',
+                    borderColor: '#0F766E',
                     borderWidth: 1,
                     borderRadius: 4
                 }]
@@ -399,6 +413,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        backgroundColor: '#182433',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        borderColor: '#DCE1E7',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function (context) {
                                 return ` Lượt khám: ${context.parsed.y} bệnh nhân`;
@@ -409,11 +430,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1, font: { family: 'JetBrains Mono' } },
-                        grid: { color: 'rgba(0,0,0,0.05)' }
+                        ticks: {
+                            stepSize: 1,
+                            color: '#667382',
+                            font: { family: 'JetBrains Mono', size: 11 }
+                        },
+                        grid: { color: '#E6E7E9' }
                     },
                     x: {
-                        ticks: { font: { size: 10 } },
+                        ticks: { color: '#667382', font: { size: 10 } },
                         grid: { display: false }
                     }
                 }
@@ -437,8 +462,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [{
                     label: 'Tỷ lệ vắng hẹn (%)',
                     data: dataTyLeVang,
-                    backgroundColor: 'rgba(230, 126, 34, 0.75)',
-                    borderColor: 'rgb(230, 126, 34)',
+                    backgroundColor: 'rgba(217, 119, 6, 0.85)',
+                    borderColor: '#D97706',
                     borderWidth: 1,
                     borderRadius: 4
                 }]
@@ -450,6 +475,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        backgroundColor: '#182433',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        borderColor: '#DCE1E7',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function (context) {
                                 const idx = context.dataIndex;
@@ -464,12 +496,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         max: Math.max(50, Math.ceil(Math.max(...dataTyLeVang, 10) / 10) * 10),
                         ticks: {
                             callback: function(val) { return val + '%'; },
-                            font: { family: 'JetBrains Mono' }
+                            color: '#667382',
+                            font: { family: 'JetBrains Mono', size: 11 }
                         },
-                        grid: { color: 'rgba(0,0,0,0.05)' }
+                        grid: { color: '#E6E7E9' }
                     },
                     y: {
-                        ticks: { font: { size: 11, weight: '500' } },
+                        ticks: { color: '#182433', font: { size: 11, weight: '500' } },
                         grid: { display: false }
                     }
                 }

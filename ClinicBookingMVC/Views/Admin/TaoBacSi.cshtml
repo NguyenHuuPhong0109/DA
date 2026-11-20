@@ -6,62 +6,63 @@
 }
 
 <div class="portal-content__head">
-    <div><h1 class="portal-content__title">Thêm Bác sĩ</h1></div>
-    <a asp-action="BacSi" class="btn btn--ghost">← Quay lại</a>
+    <div>
+        <h1 class="portal-content__title">Thêm Bác sĩ mới</h1>
+        <p class="portal-content__sub">Tạo hồ sơ bác sĩ và tài khoản đăng nhập</p>
+    </div>
+    <div class="btn-list">
+        <a asp-action="BacSi" class="btn btn-outline-secondary">← Quay lại</a>
+    </div>
 </div>
 
-<div class="form-card">
+<div class="card" style="max-width:680px">
     <form method="post" asp-action="TaoBacSi" novalidate>
         @Html.AntiForgeryToken()
 
-        <fieldset class="form-section">
-            <legend class="form-section__title">Thông tin bác sĩ</legend>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label asp-for="HoTenBacSi" class="form-label"></label>
-                    <input asp-for="HoTenBacSi" class="form-control" placeholder="BS. Nguyễn Văn A" />
-                    <span asp-validation-for="HoTenBacSi" class="form-error"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="HocVi" class="form-label"></label>
-                    <input asp-for="HocVi" class="form-control" placeholder="ThS., TS., PGS.TS." />
-                </div>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label asp-for="SoDienThoai" class="form-label"></label>
-                    <input asp-for="SoDienThoai" class="form-control" placeholder="0901234567" />
-                    <span asp-validation-for="SoDienThoai" class="form-error"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="MaChuyenKhoa" class="form-label"></label>
-                    <select asp-for="MaChuyenKhoa" asp-items="ViewBag.ChuyenKhoaList" class="form-control">
-                        <option value="">-- Chọn chuyên khoa --</option>
-                    </select>
-                    <span asp-validation-for="MaChuyenKhoa" class="form-error"></span>
-                </div>
-            </div>
-        </fieldset>
-
-        <fieldset class="form-section">
-            <legend class="form-section__title">Tài khoản đăng nhập</legend>
+        <h3 style="font-size:var(--text-md);margin-bottom:var(--space-md);color:var(--color-primary)">Thông tin bác sĩ</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
             <div class="form-group">
-                <label asp-for="TenTaiKhoan" class="form-label"></label>
-                <input asp-for="TenTaiKhoan" class="form-control"
-                       placeholder="VD: bs.nguyenvana" autocomplete="off" />
-                <span asp-validation-for="TenTaiKhoan" class="form-error"></span>
+                <label asp-for="HoTenBacSi" class="form-label"></label>
+                <input asp-for="HoTenBacSi" class="form-control" placeholder="BS. Nguyễn Văn A" />
+                <span asp-validation-for="HoTenBacSi" class="field-validation-error"></span>
             </div>
             <div class="form-group">
-                <label asp-for="MatKhau" class="form-label"></label>
-                <input asp-for="MatKhau" class="form-control"
-                       placeholder="Ít nhất 6 ký tự" autocomplete="new-password" />
-                <span asp-validation-for="MatKhau" class="form-error"></span>
+                <label asp-for="HocVi" class="form-label"></label>
+                <input asp-for="HocVi" class="form-control" placeholder="ThS., TS., PGS.TS." />
             </div>
-        </fieldset>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
+            <div class="form-group">
+                <label asp-for="SoDienThoai" class="form-label"></label>
+                <input asp-for="SoDienThoai" class="form-control font-mono" placeholder="0901234567" />
+                <span asp-validation-for="SoDienThoai" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaChuyenKhoa" class="form-label"></label>
+                <select asp-for="MaChuyenKhoa" asp-items="ViewBag.ChuyenKhoaList" class="form-control">
+                    <option value="">-- Chọn chuyên khoa --</option>
+                </select>
+                <span asp-validation-for="MaChuyenKhoa" class="field-validation-error"></span>
+            </div>
+        </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn--primary">Tạo bác sĩ</button>
-            <a asp-action="BacSi" class="btn btn--ghost">Hủy</a>
+        <h3 style="font-size:var(--text-md);margin:var(--space-lg) 0 var(--space-md) 0;color:var(--color-primary)">Tài khoản đăng nhập</h3>
+        <div class="form-group">
+            <label asp-for="TenTaiKhoan" class="form-label"></label>
+            <input asp-for="TenTaiKhoan" class="form-control"
+                   placeholder="VD: bs.nguyenvana" autocomplete="off" />
+            <span asp-validation-for="TenTaiKhoan" class="field-validation-error"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="MatKhau" class="form-label"></label>
+            <input asp-for="MatKhau" class="form-control"
+                   placeholder="Ít nhất 6 ký tự" autocomplete="new-password" />
+            <span asp-validation-for="MatKhau" class="field-validation-error"></span>
+        </div>
+
+        <div class="btn-list" style="margin-top:var(--space-lg)">
+            <button type="submit" class="btn btn-primary">Tạo bác sĩ</button>
+            <a asp-action="BacSi" class="btn btn-outline-secondary">Hủy</a>
         </div>
     </form>
 </div>

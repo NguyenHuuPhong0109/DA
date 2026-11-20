@@ -6,14 +6,19 @@
 }
 
 <div class="portal-content__head">
-    <div><h1 class="portal-content__title">Tạo Ca trực mới</h1></div>
-    <a asp-action="CaTruc" class="btn btn--ghost">← Quay lại</a>
+    <div>
+        <h1 class="portal-content__title">Tạo Ca trực mới</h1>
+        <p class="portal-content__sub">Phân công bác sĩ, phòng khám và tự động sinh danh sách khung giờ</p>
+    </div>
+    <div class="btn-list">
+        <a asp-action="CaTruc" class="btn btn-outline-secondary">← Quay lại</a>
+    </div>
 </div>
 
 @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
 {
-    <div class="alert alert--error">
-        <strong>Có lỗi:</strong>
+    <div class="alert alert--error" style="margin-bottom:var(--space-md)">
+        <strong>Có lỗi trong quá trình nhập liệu:</strong>
         <ul style="margin:.4rem 0 0 1.2rem">
             @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
             {
@@ -23,32 +28,32 @@
     </div>
 }
 
-<div class="form-card">
+<div class="card" style="max-width:720px">
     <form method="post" asp-action="TaoCaTruc" novalidate>
         @Html.AntiForgeryToken()
 
-        <div class="form-row-2">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
             <div class="form-group">
                 <label asp-for="MaBacSi" class="form-label"></label>
                 <select asp-for="MaBacSi" asp-items="ViewBag.BacSiList" class="form-control">
                     <option value="">-- Chọn bác sĩ --</option>
                 </select>
-                <span asp-validation-for="MaBacSi" class="form-error"></span>
+                <span asp-validation-for="MaBacSi" class="field-validation-error"></span>
             </div>
             <div class="form-group">
                 <label asp-for="MaPhong" class="form-label"></label>
                 <select asp-for="MaPhong" asp-items="ViewBag.PhongKhamList" class="form-control">
                     <option value="">-- Chọn phòng --</option>
                 </select>
-                <span asp-validation-for="MaPhong" class="form-error"></span>
+                <span asp-validation-for="MaPhong" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div class="form-row-2">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
             <div class="form-group">
                 <label asp-for="NgayTruc" class="form-label"></label>
                 <input asp-for="NgayTruc" type="date" class="form-control font-mono" />
-                <span asp-validation-for="NgayTruc" class="form-error"></span>
+                <span asp-validation-for="NgayTruc" class="field-validation-error"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CaLamViec" class="form-label"></label>
@@ -60,20 +65,20 @@
             </div>
         </div>
 
-        <div class="form-row-2">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
             <div class="form-group">
                 <label asp-for="GioBatDauCa" class="form-label"></label>
                 <input asp-for="GioBatDauCa" type="time" class="form-control font-mono" />
-                <span asp-validation-for="GioBatDauCa" class="form-error"></span>
+                <span asp-validation-for="GioBatDauCa" class="field-validation-error"></span>
             </div>
             <div class="form-group">
                 <label asp-for="GioKetThucCa" class="form-label"></label>
                 <input asp-for="GioKetThucCa" type="time" class="form-control font-mono" />
-                <span asp-validation-for="GioKetThucCa" class="form-error"></span>
+                <span asp-validation-for="GioKetThucCa" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div class="form-row-2">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
             <div class="form-group">
                 <label asp-for="ThoiLuong" class="form-label"></label>
                 <select asp-for="ThoiLuong" class="form-control">
@@ -83,24 +88,24 @@
                     <option value="45">45 phút</option>
                     <option value="60">60 phút</option>
                 </select>
-                <span asp-validation-for="ThoiLuong" class="form-error"></span>
+                <span asp-validation-for="ThoiLuong" class="field-validation-error"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TanSuatKhungDem" class="form-label"></label>
                 <input asp-for="TanSuatKhungDem" type="number"
-                       class="form-control" min="0" max="10" />
-                <small class="form-hint">
+                       class="form-control font-mono" min="0" max="10" />
+                <small class="text-muted text-xs">
                     0 = không tạo khung đệm · 3 = cứ 3 slot đặt hẹn chèn 1 slot walk-in
                 </small>
-                <span asp-validation-for="TanSuatKhungDem" class="form-error"></span>
+                <span asp-validation-for="TanSuatKhungDem" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn--primary">
+        <div class="btn-list" style="margin-top:var(--space-lg)">
+            <button type="submit" class="btn btn-primary">
                 Tạo ca trực &amp; sinh khung giờ
             </button>
-            <a asp-action="CaTruc" class="btn btn--ghost">Hủy</a>
+            <a asp-action="CaTruc" class="btn btn-outline-secondary">Hủy</a>
         </div>
     </form>
 </div>

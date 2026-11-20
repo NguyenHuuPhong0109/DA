@@ -86,14 +86,15 @@ public class TC01_HappyPathTests
         Assert.Equal(0, bn.SoLanVangHen);
         Assert.False(bn.CoCanhBao);
 
-        // 2. Tạo Ca trực mới với ngày tương lai gần (đảm bảo cách hiện tại > 30 phút)
-        var gioBatDau = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(40));
-        var gioKetThuc = gioBatDau.AddHours(2);
+        // 2. Tạo Ca trực mới vào ngày mai (đảm bảo cách hiện tại > 30 phút và không bị ảnh hưởng bởi giờ chạy test)
+        var ngayKham = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+        var gioBatDau = new TimeOnly(8, 0);
+        var gioKetThuc = new TimeOnly(10, 0);
         var ca = new CaTruc
         {
             MaBacSi = bacSi.MaBacSi,
             MaPhong = phong.MaPhong,
-            NgayTruc = today,
+            NgayTruc = ngayKham,
             CaLamViec = "TestCa_" + Guid.NewGuid().ToString("N")[..6],
             GioBatDauCa = gioBatDau,
             GioKetThucCa = gioKetThuc,
@@ -121,7 +122,7 @@ public class TC01_HappyPathTests
 
         Assert.True(okDatLich, $"Đặt lịch thất bại: {loiMsg}");
         Assert.NotNull(phieu);
-        Assert.StartsWith($"BK{today:yyMMdd}-", phieu.MaDatHen);
+        Assert.StartsWith($"BK{ngayKham:yyMMdd}-", phieu.MaDatHen);
         Assert.Equal("DaXacNhan", phieu.TrangThaiHen);
 
         // Khung giờ đã chuyển sang DaDat
@@ -182,5 +183,32 @@ public class TC01_HappyPathTests
         Assert.NotNull(sttCuoiCung);
         Assert.Equal("HoanTat", sttCuoiCung.TrangThaiPhieu);
         Assert.NotNull(sttCuoiCung.ThoiGianHoanTat);
+    }
+
+    [Fact]
+    public async Task BacSiController_DangNhapBacSi02_NhieuCaTrucCungPhongTrongNgay_KhongBiLoiToDictionary()
+    {
+        using var db = TestDbFixture.CreateContext();
+        var bacSi02 = await db.BacSis.FirstAsync(b => b.SoDienThoai == "0901234562");
+        var hangDoiService = new HangDoiService(db);
+        var controller = new ClinicBookingMVC.Controllers.BacSiController(db, hangDoiService);
+
+        var user = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity(new[]
+        {
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, bacSi02.MaTaiKhoan.ToString()),
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "bacsi02"),
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "BacSi")
+        }, "mock"));
+
+        controller.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext
+        {
+            HttpContext = new Microsoft.AspNetCore.Http.DefaultHttpContext { User = user }
+        };
+
+        var result = await controller.Index();
+        Assert.NotNull(result);
+        var viewResult = Assert.IsType<Microsoft.AspNetCore.Mvc.ViewResult>(result);
+        Assert.NotNull(viewResult.Model);
+        Assert.NotNull(controller.ViewBag.TenPhongMap);
     }
 }

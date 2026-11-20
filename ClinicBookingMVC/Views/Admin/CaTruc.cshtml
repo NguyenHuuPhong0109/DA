@@ -8,23 +8,25 @@
 
 <div class="portal-content__head">
     <div>
-        <h1 class="portal-content__title">Quản lý Ca trực</h1>
-        <p class="portal-content__sub">@ngayFilter.ToString("dd/MM/yyyy")</p>
+        <h1 class="portal-content__title">Quản lý Ca trực &amp; Khung giờ</h1>
+        <p class="portal-content__sub">Lịch trực ngày @ngayFilter.ToString("dd/MM/yyyy")</p>
     </div>
-    <a asp-action="TaoCaTruc" class="btn btn--primary">+ Tạo ca trực</a>
+    <div class="btn-list">
+        <a asp-action="TaoCaTruc" class="btn btn-primary">+ Tạo ca trực mới</a>
+    </div>
 </div>
 
-@if (TempData["Success"] != null) { <div class="alert alert--success">@TempData["Success"]</div> }
-@if (TempData["Error"] != null)   { <div class="alert alert--error">@TempData["Error"]</div> }
+@if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
 
-<form method="get" class="filter-bar">
-    <div class="form-group form-group--inline">
-        <label class="form-label">Lọc ngày</label>
-        <input type="date" name="ngay" class="form-control font-mono"
+<div class="card" style="margin-bottom:var(--space-lg);padding:12px 16px">
+    <form method="get" style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap">
+        <label class="form-label" style="margin:0;font-size:var(--text-xs);text-transform:uppercase;font-weight:600;color:var(--color-muted)">Lọc theo ngày:</label>
+        <input type="date" name="ngay" class="form-control form-control--sm font-mono" style="width:160px"
                value="@ngayFilter.ToString("yyyy-MM-dd")" />
-        <button type="submit" class="btn btn--ghost">Lọc</button>
-    </div>
-</form>
+        <button type="submit" class="btn btn-sm btn-outline-secondary">Lọc dữ liệu</button>
+    </form>
+</div>
 
 <div class="table-wrap">
     <table class="table">
@@ -36,14 +38,14 @@
                 <th>Ca</th>
                 <th>Giờ</th>
                 <th>Trạng thái</th>
-                <th style="width:160px">Thao tác</th>
+                <th style="text-align:right">Thao tác</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var ca in Model)
             {
                 <tr>
-                    <td>@(ca.BacSi?.HoTenBacSi ?? "—")</td>
+                    <td><strong>@(ca.BacSi?.HoTenBacSi ?? "—")</strong></td>
                     <td>@(ca.PhongKham?.TenPhong ?? "—")</td>
                     <td class="font-mono">@ca.NgayTruc.ToString("dd/MM/yyyy")</td>
                     <td>@ca.CaLamViec</td>
@@ -53,22 +55,24 @@
                     <td>
                         <span class="badge badge--hoat-dong">@ca.TrangThaiCa</span>
                     </td>
-                    <td class="table-actions">
-                        <a asp-action="KhungGioDetail" asp-route-id="@ca.MaCa"
-                           class="btn btn--ghost btn--sm">Khung giờ</a>
-                        <form method="post" asp-action="XoaCaTruc" asp-route-id="@ca.MaCa"
-                              style="display:inline"
-                              onsubmit="return confirm('Xóa ca trực này và toàn bộ khung giờ?')">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn--danger btn--sm">Xóa</button>
-                        </form>
+                    <td style="text-align:right">
+                        <div class="btn-list btn-list-end">
+                            <a asp-action="KhungGioDetail" asp-route-id="@ca.MaCa"
+                               class="btn btn-sm btn-outline-secondary">Khung giờ</a>
+                            <form method="post" asp-action="XoaCaTruc" asp-route-id="@ca.MaCa"
+                                  style="display:inline;margin:0"
+                                  onsubmit="return confirm('Xóa ca trực này và toàn bộ khung giờ?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             }
             @if (!Model.Any())
             {
                 <tr>
-                    <td colspan="7" class="table-empty">
+                    <td colspan="7" style="text-align:center;padding:var(--space-xl);color:var(--color-muted)">
                         Không có ca trực nào ngày @ngayFilter.ToString("dd/MM/yyyy").
                     </td>
                 </tr>

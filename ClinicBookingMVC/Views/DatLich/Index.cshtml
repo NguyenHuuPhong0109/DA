@@ -5,7 +5,7 @@
 
 <div class="booking-page">
 
-    {{!-- Thanh tiến trình 4 bước --}}
+    @* Thanh tiến trình 4 bước *@
     <div class="container">
         <div class="booking-steps">
             <div class="booking-step active" data-step="1">
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    {{!-- Step 1: Chọn chuyên khoa --}}
+    @* Step 1: Chọn chuyên khoa *@
     <section class="booking-panel" id="step-1">
         <div class="container">
             <h2 class="booking-panel__title">Chọn chuyên khoa</h2>
@@ -50,12 +50,12 @@
         </div>
     </section>
 
-    {{!-- Step 2: Chọn bác sĩ + ngày --}}
+    @* Step 2: Chọn bác sĩ + ngày *@
     <section class="booking-panel" id="step-2" style="display:none">
         <div class="container">
             <div class="booking-panel__head">
-                <button class="btn btn--ghost btn--sm" onclick="quayLai(1)">← Quay lại</button>
-                <h2 class="booking-panel__title">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="quayLai(1)">← Quay lại</button>
+                <h2 class="booking-panel__title" style="margin-bottom:0">
                     Bác sĩ — <span id="tenChuyenKhoa" class="text-accent"></span>
                 </h2>
             </div>
@@ -68,26 +68,26 @@
                        onchange="layDanhSachBacSi()" />
             </div>
 
-            <div id="loading-bacsi" style="display:none" class="loading-text">Đang tải danh sách bác sĩ...</div>
+            <div id="loading-bacsi" style="display:none;color:var(--color-muted);padding:var(--space-md) 0">Đang tải danh sách bác sĩ...</div>
             <div id="ds-bacsi" class="doctor-grid"></div>
-            <div id="no-bacsi" style="display:none" class="empty-notice">
+            <div id="no-bacsi" style="display:none;color:var(--color-muted);padding:var(--space-md) 0">
                 Không có bác sĩ nào có lịch trống trong ngày này. Vui lòng chọn ngày khác.
             </div>
         </div>
     </section>
 
-    {{!-- Step 3: Lưới khung giờ --}}
+    @* Step 3: Lưới khung giờ *@
     <section class="booking-panel" id="step-3" style="display:none">
         <div class="container">
             <div class="booking-panel__head">
-                <button class="btn btn--ghost btn--sm" onclick="quayLai(2)">← Quay lại</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="quayLai(2)">← Quay lại</button>
                 <div>
-                    <h2 class="booking-panel__title" id="tenBacSiSlot"></h2>
+                    <h2 class="booking-panel__title" id="tenBacSiSlot" style="margin-bottom:0"></h2>
                     <p class="booking-panel__sub" id="infoSlot"></p>
                 </div>
             </div>
 
-            <div id="loading-slot" style="display:none" class="loading-text">Đang tải khung giờ...</div>
+            <div id="loading-slot" style="display:none;color:var(--color-muted);padding:var(--space-md) 0">Đang tải khung giờ...</div>
             <div id="luoi-khung-gio" class="slots-grid"></div>
         </div>
     </section>
@@ -165,7 +165,7 @@ async function chonBacSi(id, ten, hocVi) {
 
     if (!data) {
         document.getElementById('luoi-khung-gio').innerHTML =
-            '<p class="empty-notice">Không tìm thấy ca trực.</p>';
+            '<p class="empty-notice" style="color:var(--color-muted);padding:var(--space-md) 0">Không tìm thấy ca trực.</p>';
         return;
     }
 
@@ -174,14 +174,14 @@ async function chonBacSi(id, ten, hocVi) {
 
     const grid = document.getElementById('luoi-khung-gio');
     if (!data.slots || data.slots.length === 0) {
-        grid.innerHTML = '<p class="empty-notice">Không có khung giờ trống.</p>';
+        grid.innerHTML = '<p class="empty-notice" style="color:var(--color-muted);padding:var(--space-md) 0">Không có khung giờ trống.</p>';
         return;
     }
 
     grid.innerHTML = data.slots.map(s => {
         const disabled = s.trangThai !== 'ConTrong';
         const css = disabled
-            ? (s.trangThai === 'DaDat' ? 'slot--da-dat' : 'slot--tam-khoa')
+            ? (s.trangThai === 'DaDat' ? 'slot--da-dat is-taken' : 'slot--tam-khoa is-locked')
             : 'slot--trong';
         const label = disabled
             ? (s.trangThai === 'DaDat' ? 'Đã đặt' : 'Tạm khóa')
@@ -194,7 +194,7 @@ async function chonBacSi(id, ten, hocVi) {
                 <span class="slot-btn__time font-mono">
                     ${s.gioBatDau.substring(0,5)} – ${s.gioKetThuc.substring(0,5)}
                 </span>
-                ${label ? `<span class="slot-btn__status">${label}</span>` : ''}
+                ${label ? `<span class="slot-btn__status font-mono" style="font-size:0.6875rem;margin-top:2px">${label}</span>` : ''}
             </button>
         `;
     }).join('');

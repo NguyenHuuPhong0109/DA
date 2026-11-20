@@ -9,39 +9,43 @@
     string hoTen  = ViewBag.HoTenBacSi ?? "";
 }
 
-<div class="page-header" style="margin-bottom:var(--space-xl)">
+<div class="page-header" style="margin-bottom:var(--space-lg)">
     <div>
         <h1 class="page-title">Lịch sử ca trực</h1>
-        <p class="page-sub">@hoTen</p>
+        <p class="page-sub">Bác sĩ: <strong>@hoTen</strong></p>
     </div>
-    <a href="/BacSi" class="btn btn--quiet btn--sm">← Hôm nay</a>
+    <div class="btn-list">
+        <a href="/BacSi" class="btn btn-sm btn-outline-secondary">← Về trang hôm nay</a>
+    </div>
 </div>
 
-<div class="toolbar-row" style="margin-bottom:var(--space-lg)">
-    <a href="/BacSi/LichSuCa?tuan=@(tuanOffset - 1)" class="btn btn--quiet btn--sm">← Tuần trước</a>
-    <span class="font-mono" style="padding:0 var(--space-md)">
-        @tuanBD.ToString("dd/MM") — @tuanKT.ToString("dd/MM/yyyy")
-    </span>
-    @if (tuanOffset < 0)
-    {
-        <a href="/BacSi/LichSuCa?tuan=@(tuanOffset + 1)" class="btn btn--quiet btn--sm">Tuần sau →</a>
-    }
-    else
-    {
-        <span class="btn btn--quiet btn--sm" style="opacity:.4;cursor:default">Tuần sau →</span>
-    }
+<div class="card" style="margin-bottom:var(--space-lg);padding:10px 16px">
+    <div class="btn-list" style="align-items:center">
+        <a href="/BacSi/LichSuCa?tuan=@(tuanOffset - 1)" class="btn btn-sm btn-outline-secondary">← Tuần trước</a>
+        <span class="font-mono text-muted text-sm" style="padding:0 var(--space-xs);font-weight:600">
+            @tuanBD.ToString("dd/MM") — @tuanKT.ToString("dd/MM/yyyy")
+        </span>
+        @if (tuanOffset < 0)
+        {
+            <a href="/BacSi/LichSuCa?tuan=@(tuanOffset + 1)" class="btn btn-sm btn-outline-secondary">Tuần sau →</a>
+        }
+        else
+        {
+            <span class="btn btn-sm btn-outline-secondary disabled" style="opacity:.4;cursor:not-allowed">Tuần sau →</span>
+        }
+    </div>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="empty-state">
-        <p class="empty-state__text">Không có ca trực nào trong tuần này.</p>
+    <div class="card" style="text-align:center;padding:var(--space-2xl);color:var(--color-muted)">
+        Không có ca trực nào trong khoảng thời gian tuần này.
     </div>
 }
 else
 {
     <div class="table-wrap">
-        <table class="data-table">
+        <table class="table">
             <thead>
                 <tr>
                     <th>Ngày</th>
@@ -76,11 +80,11 @@ else
                         "DaKham"  => "badge--da-kham",
                         "TamDong" => "badge--cho-xac-nhan",
                         "Huy"     => "badge--da-huy",
-                        _         => ""
+                        _         => "badge--cho-xac-nhan"
                     };
                     <tr>
                         <td class="font-mono">@ca.NgayTruc.ToString("dd/MM/yyyy")</td>
-                        <td>@caLabel</td>
+                        <td><strong>@caLabel</strong></td>
                         <td>@ca.PhongKham?.TenPhong</td>
                         <td class="font-mono">@ca.GioBatDauCa.ToString(@"HH\:mm")</td>
                         <td class="font-mono">@ca.GioKetThucCa.ToString(@"HH\:mm")</td>

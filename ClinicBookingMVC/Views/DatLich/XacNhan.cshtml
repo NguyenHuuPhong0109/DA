@@ -3,10 +3,10 @@
     ViewData["Title"] = "Xác nhận đặt lịch";
 }
 
-<div class="container section-pad">
+<div class="container" style="padding-block:var(--space-2xl)">
 
     <div class="confirm-layout">
-        {{!-- Bên trái: tóm tắt lịch hẹn --}}
+        @* Bên trái: tóm tắt lịch hẹn *@
         <div class="confirm-summary">
             <div class="confirm-card">
                 <div class="confirm-card__label">Chi tiết lịch khám</div>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="confirm-row">
                     <span class="confirm-row__key">Giờ khám</span>
-                    <span class="confirm-row__val font-mono">
+                    <span class="confirm-row__val font-mono" style="color:var(--color-primary)">
                         @Model.GioBatDau.ToString("HH:mm") – @Model.GioKetThuc.ToString("HH:mm")
                     </span>
                 </div>
@@ -40,13 +40,13 @@
             </div>
         </div>
 
-        {{!-- Bên phải: form thông tin bệnh nhân --}}
-        <div class="confirm-form-wrap">
+        @* Bên phải: form thông tin bệnh nhân *@
+        <div class="confirm-form-wrap card">
             <h1 class="page-title" style="margin-bottom:var(--space-lg)">Thông tin bệnh nhân</h1>
 
             @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
             {
-                <div class="alert alert--error">
+                <div class="alert alert--error" style="margin-bottom:var(--space-md)">
                     @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                     {
                         <div>@err.ErrorMessage</div>
@@ -71,22 +71,22 @@
                                oninput="traCuuBenhNhan(this.value)" />
                         <span id="sdt-status" class="input-status"></span>
                     </div>
-                    <span asp-validation-for="SoDienThoai" class="form-error"></span>
+                    <span asp-validation-for="SoDienThoai" class="field-validation-error"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="TenBenhNhan" class="form-label"></label>
                     <input asp-for="TenBenhNhan" id="tenBenhNhan"
                            class="form-control" placeholder="Nguyễn Văn A" />
-                    <span asp-validation-for="TenBenhNhan" class="form-error"></span>
+                    <span asp-validation-for="TenBenhNhan" class="field-validation-error"></span>
                 </div>
 
-                <div class="form-row-2">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
                     <div class="form-group">
                         <label asp-for="NamSinh" class="form-label"></label>
                         <input asp-for="NamSinh" id="namSinh" type="number"
-                               class="form-control font-mono" placeholder="1990" min="1920" max="2024" />
-                        <span asp-validation-for="NamSinh" class="form-error"></span>
+                               class="form-control font-mono" placeholder="1990" min="1920" max="2026" />
+                        <span asp-validation-for="NamSinh" class="field-validation-error"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="GioiTinh" class="form-label"></label>
@@ -103,7 +103,7 @@
                     <label asp-for="Email" class="form-label"></label>
                     <input asp-for="Email" id="email" class="form-control"
                            placeholder="email@example.com (không bắt buộc)" />
-                    <span asp-validation-for="Email" class="form-error"></span>
+                    <span asp-validation-for="Email" class="field-validation-error"></span>
                 </div>
 
                 <div class="form-group">
@@ -112,18 +112,18 @@
                               placeholder="Triệu chứng hoặc lý do khám (không bắt buộc)"></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-check">
-                        <input asp-for="GuiNhacLich" type="checkbox" />
+                <div class="form-group" style="margin-bottom:var(--space-lg)">
+                    <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:var(--text-sm)">
+                        <input asp-for="GuiNhacLich" type="checkbox" style="width:16px;height:16px;accent-color:var(--color-primary)" />
                         <span>Nhận nhắc lịch trước giờ hẹn</span>
                     </label>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn--primary btn--lg">
+                <div class="btn-list">
+                    <button type="submit" class="btn btn-primary">
                         Xác nhận đặt lịch
                     </button>
-                    <a asp-action="Index" class="btn btn--ghost">Chọn lại</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Chọn lại</a>
                 </div>
             </form>
         </div>

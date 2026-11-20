@@ -1,50 +1,56 @@
 /* ============================================================
-   clinic-phase5.css — CSS bổ sung Giai đoạn 5
+   clinic-phase5.css — CSS bổ sung Giai đoạn 5 (Tabler Light)
    (Lưới phòng, Check-in nhanh, Walk-in preview, Queue colors)
    ============================================================ */
 
 /* ── Lưới phòng (LeTan tổng quan khi chưa chọn phòng) ───────────── */
 .phong-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--space-md);
-  margin-top: var(--space-lg);
+  margin-top: var(--space-md);
 }
 .phong-card {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-lg);
-  border: var(--rule-hair) solid var(--color-rule-2);
+  padding: var(--space-md);
+  border: 1px solid var(--color-rule);
   border-radius: var(--radius-card);
-  background: var(--color-paper);
+  background: #ffffff;
   text-decoration: none;
   color: inherit;
-  transition: border-color var(--dur-short), box-shadow var(--dur-short);
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--dur-short), box-shadow var(--dur-short), transform var(--dur-micro);
 }
 .phong-card:hover {
-  border-color: var(--color-accent);
+  border-color: var(--color-primary);
   box-shadow: var(--shadow-lift);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: inherit;
 }
 .phong-card--busy {
-  border-color: oklch(74% 0.14 25);
-  background: oklch(97% 0.03 25);
+  border-color: #FCA5A5;
+  background: #FEF2F2;
 }
-.phong-card__ten   { font-weight: 700; font-size: var(--text-md); }
-.phong-card__ck    { font-size: var(--text-sm); color: var(--color-muted); }
+.phong-card__ten   { font-weight: 700; font-size: var(--text-md); color: var(--color-ink); }
+.phong-card__ck    { font-size: var(--text-xs); color: var(--color-muted); }
 .phong-card__stats {
   display: flex;
   align-items: baseline;
   gap: var(--space-xs);
   margin-top: auto;
+  padding-top: var(--space-sm);
 }
 .phong-card__num {
   font-family: var(--font-outlier);
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
   line-height: 1;
+  color: var(--color-primary);
 }
-.phong-card__label { font-size: var(--text-xs); color: var(--color-muted); }
+.phong-card__label { font-size: var(--text-xs); color: var(--color-muted); font-weight: 500; }
 
 /* ── Check-in nhanh bar ──────────────────────────────────────────── */
 .checkin-nhanh-bar   { position: relative; }
@@ -53,12 +59,12 @@
   top: calc(100% + 4px);
   left: 0;
   z-index: 100;
-  background: var(--color-paper);
-  border: var(--rule-hair) solid var(--color-rule-2);
+  background: #ffffff;
+  border: 1px solid var(--color-rule);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-lift);
   padding: var(--space-md);
-  min-width: 300px;
+  min-width: 320px;
 }
 .checkin-popup__head {
   display: flex;
@@ -75,37 +81,40 @@
 /* ── Bệnh nhân preview (walk-in sidebar auto-fill) ───────────────── */
 .benhnhan-preview {
   padding: var(--space-sm) var(--space-md);
-  background: var(--color-paper-2);
+  background: #F8FAFC;
   border-radius: var(--radius-input);
   font-size: var(--text-sm);
   margin-bottom: var(--space-sm);
-  border: var(--rule-hair) solid var(--color-rule);
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink);
 }
 
-/* ── Màu số thứ tự theo loại khách ──────────────────────────────── */
-.color-walkin { color: oklch(40% 0.12 220); }   /* W- xanh dương */
-.color-late   { color: oklch(40% 0.12 30);  }   /* L- cam       */
+/* ── Màu số thứ tự theo loại khách (Tương phản cao trên nền trắng) ── */
+.color-hen    { color: #0F766E; }   /* A- xanh y tế teal */
+.color-walkin { color: #0284C7; }   /* W- xanh dương Sky */
+.color-late   { color: #D97706; }   /* L- cam hổ phách   */
 
 /* ── Phiếu có cảnh báo ───────────────────────────────────────────── */
 .phieu-item--canh-bao {
-  border-color: oklch(74% 0.14 25);
-  background: oklch(97% 0.03 25);
+  border-color: #FCA5A5;
+  background: #FEF2F2;
 }
 
 /* ── Badge cảnh báo đỏ nổi bật ──────────────────────────────────── */
 .badge--canh-bao {
-  background: oklch(45% 0.22 25);
-  color: #fff;
+  background: #D63939;
+  color: #ffffff;
   font-weight: 700;
+  border: 1px solid #B91C1C;
   animation: pulse-badge 1.4s ease-in-out infinite;
 }
 @keyframes pulse-badge {
   0%, 100% { opacity: 1; }
-  50%       { opacity: .65; }
+  50%       { opacity: .75; }
 }
 
-/* ── Hàng đặt trước trong bảng Lễ tân ───────────────────────────── */
-tr.row--canh-bao td { background: oklch(98% 0.02 25); }
+/* ── Hàng đặt trước trong bảng Lễ tân có cảnh báo ────────────────── */
+tr.row--canh-bao td { background: #FEF2F2; }
 tr.row--canh-bao td:first-child {
-  border-left: 3px solid oklch(50% 0.22 25);
+  border-left: 3px solid #D63939;
 }

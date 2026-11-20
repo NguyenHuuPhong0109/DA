@@ -10,60 +10,64 @@
 
 @* ── Thanh lọc: Chọn phòng + chuyên khoa ── *@
 <div class="page-toolbar">
-    <form method="get" action="/LeTan" class="toolbar-form">
-        <div class="form-row-inline">
-            <select name="maPhong" class="form-control form-control--sm"
-                    onchange="this.form.submit()" aria-label="Chọn phòng khám">
-                <option value="">— Chọn phòng —</option>
-                @foreach (var p in thongKePhong)
-                {
-                    if (p.MaPhong == maPhong)
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-md);width:100%">
+        <form method="get" action="/LeTan" class="toolbar-form" style="margin:0">
+            <div class="form-row-inline">
+                <select name="maPhong" class="form-control form-control--sm"
+                        onchange="this.form.submit()" aria-label="Chọn phòng khám" style="min-width:200px">
+                    <option value="">— Chọn phòng khám —</option>
+                    @foreach (var p in thongKePhong)
                     {
-                        <option value="@p.MaPhong" selected>
-                            @p.TenPhong — @p.SoDangCho chờ
-                        </option>
+                        if (p.MaPhong == maPhong)
+                        {
+                            <option value="@p.MaPhong" selected>
+                                @p.TenPhong — @p.SoDangCho chờ
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@p.MaPhong">
+                                @p.TenPhong — @p.SoDangCho chờ
+                            </option>
+                        }
                     }
-                    else
-                    {
-                        <option value="@p.MaPhong">
-                            @p.TenPhong — @p.SoDangCho chờ
-                        </option>
-                    }
-                }
-            </select>
-            <span class="font-mono" style="color:var(--color-muted);font-size:var(--text-sm)">
-                @Model.NgayHienTai.ToString("dd/MM/yyyy")
-            </span>
-        </div>
-    </form>
-
-    @* Khung check-in nhanh theo MaDatHen / SoDienThoai + Nút quét quá hạn *@
-    <div style="display:flex;align-items:center;gap:var(--space-sm)">
-        <div class="checkin-nhanh-bar">
-            <input type="text" id="inp-checkin-nhanh" class="form-control form-control--sm font-mono"
-                   placeholder="Nhập mã BKxxxxxx hoặc SĐT..." autocomplete="off"
-                   style="width:240px" oninput="traTimPhieuNhanh(this.value)" />
-            <div id="kq-checkin-nhanh" class="checkin-nhanh-popup" style="display:none"></div>
-        </div>
-
-        <form method="post" asp-action="QuetQuaHanNgay" style="margin:0">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="maPhong" value="@Model.MaPhongDangChon" />
-            <button type="submit" class="btn btn--quiet btn--sm" title="Quét vắng hẹn quá 30 phút và gửi nhắc lịch">
-                ⏱️ Quét quá hạn ngay
-            </button>
+                </select>
+                <span class="font-mono text-muted text-sm">
+                    📅 @Model.NgayHienTai.ToString("dd/MM/yyyy")
+                </span>
+            </div>
         </form>
+
+        @* Khung check-in nhanh theo MaDatHen / SoDienThoai + Nút quét quá hạn *@
+        <div class="btn-list">
+            <div class="checkin-nhanh-bar">
+                <input type="text" id="inp-checkin-nhanh" class="form-control form-control--sm font-mono"
+                       placeholder="Nhập mã BKxxxxxx hoặc SĐT..." autocomplete="off"
+                       style="width:240px" oninput="traTimPhieuNhanh(this.value)" />
+                <div id="kq-checkin-nhanh" class="checkin-nhanh-popup" style="display:none"></div>
+            </div>
+
+            <form method="post" asp-action="QuetQuaHanNgay" style="margin:0">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="maPhong" value="@Model.MaPhongDangChon" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Quét vắng hẹn quá 30 phút và gửi nhắc lịch">
+                    ⏱️ Quét quá hạn ngay
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
 @if (!Model.MaPhongDangChon.HasValue)
 {
     @* Hiển thị lưới phòng + tổng quan khi chưa chọn phòng *@
-    <section style="margin-top:var(--space-xl)">
-        <h2 class="section-heading">Tổng quan hàng đợi hôm nay</h2>
+    <section style="margin-top:var(--space-lg)">
+        <h2 class="section-heading">Tổng quan hàng đợi phòng khám</h2>
         @if (!thongKePhong.Any())
         {
-            <p class="empty-notice">Chưa có phòng khám nào đang hoạt động.</p>
+            <p class="empty-notice" style="color:var(--color-muted);padding:var(--space-xl) 0;text-align:center">
+                Chưa có phòng khám nào đang hoạt động hôm nay.
+            </p>
         }
         else
         {
@@ -79,7 +83,7 @@
                         </div>
                         @if (p.SoDangGoi > 0)
                         {
-                            <div class="badge badge--da-xac-nhan" style="margin-top:var(--space-xs)">Đang gọi</div>
+                            <div class="badge badge--da-xac-nhan" style="margin-top:var(--space-xs)">Đang gọi: @p.SoDangGoi</div>
                         }
                     </a>
                 }
@@ -90,21 +94,21 @@
 else
 {
     @* ── Thống kê 4 ô ── *@
-    <div class="stats-grid" style="margin-bottom:var(--space-xl)">
+    <div class="stats-grid" style="margin-bottom:var(--space-lg)">
         <div class="stat-card">
-            <div class="stat-card__val font-mono">@Model.SoDangCho</div>
+            <div class="stat-card__value font-mono">@Model.SoDangCho</div>
             <div class="stat-card__label">Đang chờ</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card__val font-mono">@Model.SoDangGoi</div>
+            <div class="stat-card__value font-mono" style="color:var(--color-info)">@Model.SoDangGoi</div>
             <div class="stat-card__label">Đang gọi</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card__val font-mono">@Model.SoDangKham</div>
+            <div class="stat-card__value font-mono" style="color:var(--color-success)">@Model.SoDangKham</div>
             <div class="stat-card__label">Đang khám</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card__val font-mono">@Model.SoHoanTat</div>
+            <div class="stat-card__value font-mono" style="color:var(--color-muted)">@Model.SoHoanTat</div>
             <div class="stat-card__label">Hoàn tất</div>
         </div>
     </div>
@@ -113,16 +117,21 @@ else
 
         @* ── CỘT TRÁI: Hàng đợi ── *@
         <section>
-            <h2 class="section-heading">Hàng đợi thực tế</h2>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md)">
+                <h2 class="section-heading" style="margin-bottom:0">Hàng đợi thực tế</h2>
+                <span class="text-xs text-muted">Tự động cập nhật mỗi 30 giây</span>
+            </div>
 
             @if (!Model.HangDoi.Any())
             {
-                <p class="empty-notice">Chưa có bệnh nhân check-in hôm nay.</p>
+                <div class="card" style="text-align:center;padding:var(--space-2xl);color:var(--color-muted)">
+                    Chưa có bệnh nhân check-in hôm nay tại phòng khám này.
+                </div>
             }
             else
             {
                 <div class="table-wrap">
-                    <table class="data-table" id="tbl-hangdoi">
+                    <table class="table" id="tbl-hangdoi">
                         <thead>
                             <tr>
                                 <th>Số</th>
@@ -130,7 +139,7 @@ else
                                 <th>Loại</th>
                                 <th>Giờ hẹn</th>
                                 <th>Trạng thái</th>
-                                <th>Thao tác</th>
+                                <th style="text-align:right">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -139,11 +148,11 @@ else
                                 var prefix = ClinicBookingMVC.Services.HangDoiService.LoaiKhachToPrefix(h.LoaiKhach);
                                 var soHien = $"{prefix}-{h.SoThuTu:D3}";
                                 var badgeCls = h.TrangThaiPhieu switch {
-                                    "DangCho"  => "badge--cho-xac-nhan",
-                                    "DangGoi"  => "badge--da-xac-nhan",
-                                    "DangKham" => "badge--da-check-in",
-                                    "QuaLuot"  => "badge--da-huy",
-                                    "HoanTat"  => "badge--da-kham",
+                                    "DangCho"  => "badge--dang-cho",
+                                    "DangGoi"  => "badge--dang-goi",
+                                    "DangKham" => "badge--dang-kham",
+                                    "QuaLuot"  => "badge--qua-luot",
+                                    "HoanTat"  => "badge--hoan-tat",
                                     _ => ""
                                 };
                                 var tenTT = h.TrangThaiPhieu switch {
@@ -165,51 +174,51 @@ else
 
                                 <tr class="@(coCanhBao ? "row--canh-bao" : "")">
                                     <td>
-                                        <span class="font-mono queue-num--sm @(prefix == "W" ? "color-walkin" : prefix == "L" ? "color-late" : "")">
+                                        <span class="font-mono queue-num--sm @(prefix == "W" ? "color-walkin" : prefix == "L" ? "color-late" : "color-hen")">
                                             @soHien
                                         </span>
                                     </td>
                                     <td>
-                                        @h.BenhNhan?.TenBenhNhan
+                                        <strong>@h.BenhNhan?.TenBenhNhan</strong>
                                         @if (coCanhBao)
                                         {
-                                            <span class="badge badge--vang-hen" title="Vắng hẹn @h.BenhNhan?.SoLanVangHen lần">
-                                                &#9888;
+                                            <span class="badge badge--canh-bao" title="Vắng hẹn @h.BenhNhan?.SoLanVangHen lần" style="margin-left:4px">
+                                                &#9888; Cảnh báo
                                             </span>
                                         }
                                     </td>
-                                    <td style="font-size:var(--text-xs);color:var(--color-muted)">@loaiLabel</td>
+                                    <td class="text-xs text-muted">@loaiLabel</td>
                                     <td class="font-mono">
                                         @(h.GioHen.HasValue ? h.GioHen.Value.ToString(@"HH\:mm") : "—")
                                     </td>
                                     <td><span class="badge @badgeCls">@tenTT</span></td>
-                                    <td>
-                                        <div class="action-row">
+                                    <td style="text-align:right">
+                                        <div class="btn-list btn-list-end">
                                             @if (h.TrangThaiPhieu == "DangCho")
                                             {
-                                                <form method="post" action="/LeTan/BatDauKham">
+                                                <form method="post" action="/LeTan/BatDauKham" style="margin:0">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="maPhieu" value="@h.MaPhieu" />
                                                     <input type="hidden" name="maPhong" value="@maPhong" />
-                                                    <button type="submit" class="btn btn--success btn--xs">Vào khám</button>
+                                                    <button type="submit" class="btn btn-sm btn-success">Vào khám</button>
                                                 </form>
                                             }
                                             @if (h.TrangThaiPhieu == "DangKham")
                                             {
-                                                <form method="post" action="/LeTan/HoanTat">
+                                                <form method="post" action="/LeTan/HoanTat" style="margin:0">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="maPhieu" value="@h.MaPhieu" />
                                                     <input type="hidden" name="maPhong" value="@maPhong" />
-                                                    <button type="submit" class="btn btn--quiet btn--xs">Hoàn tất</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Hoàn tất</button>
                                                 </form>
                                             }
                                             @if (h.TrangThaiPhieu == "QuaLuot")
                                             {
-                                                <form method="post" action="/LeTan/KhoiPhuc">
+                                                <form method="post" action="/LeTan/KhoiPhuc" style="margin:0">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="maPhieu" value="@h.MaPhieu" />
                                                     <input type="hidden" name="maPhong" value="@maPhong" />
-                                                    <button type="submit" class="btn btn--quiet btn--xs"
+                                                    <button type="submit" class="btn btn-sm btn-warning"
                                                             title="Đưa bệnh nhân về cuối hàng chờ">
                                                         ↩ Khôi phục
                                                     </button>
@@ -246,7 +255,7 @@ else
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="maPhong" value="@maPhong" />
                     <input type="hidden" id="sdt-hidden" name="soDienThoai" />
-                    <button type="submit" class="btn btn--accent" style="width:100%;margin-top:var(--space-md)"
+                    <button type="submit" class="btn btn-primary" style="width:100%;margin-top:var(--space-sm)"
                             onclick="document.getElementById('sdt-hidden').value = document.getElementById('sdt-vanglai').value">
                         Check-in Walk-in
                     </button>
@@ -266,12 +275,12 @@ else
                         {
                             <div class="phieu-item @(p.BenhNhan?.CoCanhBao == true ? "phieu-item--canh-bao" : "")">
                                 <div class="phieu-item__head">
-                                    <span class="font-mono" style="font-size:var(--text-sm);font-weight:600">
+                                    <span class="font-mono" style="font-size:var(--text-sm);font-weight:700;color:var(--color-primary)">
                                         @p.MaDatHen
                                     </span>
                                     @if (p.BenhNhan?.CoCanhBao == true)
                                     {
-                                        <span class="badge badge--vang-hen"
+                                        <span class="badge badge--canh-bao"
                                               title="Đã vắng hẹn @p.BenhNhan?.SoLanVangHen lần">
                                             &#9888; Cảnh báo
                                         </span>
@@ -282,18 +291,18 @@ else
                                     @p.KhungGio?.GioBatDau.ToString(@"HH\:mm")
                                     — @p.KhungGio?.CaTruc?.BacSi?.HoTenBacSi
                                 </div>
-                                <div class="phieu-item__actions">
-                                    <form method="post" action="/LeTan/XacNhanPhieu" style="display:inline">
+                                <div class="btn-list" style="margin-top:var(--space-xs)">
+                                    <form method="post" action="/LeTan/XacNhanPhieu" style="display:inline;margin:0">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="maPhieuHen" value="@p.MaPhieuHen" />
                                         <input type="hidden" name="maPhong"    value="@maPhong" />
-                                        <button type="submit" class="btn btn--success btn--xs">Xác nhận</button>
+                                        <button type="submit" class="btn btn-sm btn-success">Xác nhận</button>
                                     </form>
-                                    <form method="post" action="/LeTan/CheckIn" style="display:inline">
+                                    <form method="post" action="/LeTan/CheckIn" style="display:inline;margin:0">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="maPhieuHen" value="@p.MaPhieuHen" />
                                         <input type="hidden" name="maPhong"    value="@maPhong" />
-                                        <button type="submit" class="btn btn--accent btn--xs">Check-in</button>
+                                        <button type="submit" class="btn btn-sm btn-primary">Check-in</button>
                                     </form>
                                 </div>
                             </div>
@@ -320,15 +329,15 @@ else
                 if (!d) { box.style.display = 'none'; return; }
 
                 const canh = d.coCanhBao
-                    ? `<span class="badge badge--vang-hen" title="Đã vắng hẹn ${d.soLanVangHen} lần">&#9888;</span>`
+                    ? `<span class="badge badge--canh-bao" title="Đã vắng hẹn ${d.soLanVangHen} lần">&#9888; Cảnh báo</span>`
                     : '';
 
                 box.innerHTML = `
                     <div class="checkin-popup__head">
                         <strong>${d.tenBenhNhan}</strong> ${canh}
-                        <span class="font-mono" style="color:var(--color-muted);font-size:var(--text-xs)">${d.maDatHen}</span>
+                        <span class="font-mono text-muted text-xs">${d.maDatHen}</span>
                     </div>
-                    <div style="font-size:var(--text-xs);color:var(--color-muted)">
+                    <div style="font-size:var(--text-xs);color:var(--color-muted);margin:4px 0">
                         ${d.gioHen} · ${d.tenBacSi} · ${d.tenPhong}
                     </div>
                     <div class="checkin-popup__status">Trạng thái: <strong>${d.trangThaiHen}</strong></div>
@@ -337,7 +346,7 @@ else
                         <input type="hidden" name="__RequestVerificationToken" value="${document.querySelector('input[name=__RequestVerificationToken]').value}" />
                         <input type="hidden" name="maPhieuHen" value="${d.maPhieuHen}" />
                         <input type="hidden" name="maPhong"    value="${d.maPhong}" />
-                        <button type="submit" class="btn btn--accent btn--xs">Check-in ngay</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Check-in ngay</button>
                     </form>` : ''}
                 `;
                 box.style.display = '';
@@ -363,7 +372,7 @@ else
                     statusEl.textContent = '✓ Khách quen';
                     statusEl.className   = 'input-status input-status--ok';
                     const soLanVang = d.soLanVangHen > 0
-                        ? `<span class="badge badge--vang-hen" style="margin-left:4px">&#9888; Vắng ${d.soLanVangHen} lần</span>`
+                        ? `<span class="badge badge--canh-bao" style="margin-left:4px">&#9888; Vắng ${d.soLanVangHen} lần</span>`
                         : '';
                     infoEl.innerHTML = `
                         <strong>${d.tenBenhNhan}</strong>${soLanVang}

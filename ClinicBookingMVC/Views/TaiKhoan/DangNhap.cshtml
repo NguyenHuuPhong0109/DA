@@ -16,7 +16,7 @@
 
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert--error" role="alert">@TempData["Error"]</div>
+            <div class="alert alert--error" role="alert" style="margin-bottom:var(--space-md)">@TempData["Error"]</div>
         }
 
         <form method="post" asp-action="DangNhap" novalidate>
@@ -27,29 +27,29 @@
                 <label asp-for="TenTaiKhoan" class="form-label"></label>
                 <input asp-for="TenTaiKhoan" class="form-control" autocomplete="username"
                        placeholder="Tên tài khoản" />
-                <span asp-validation-for="TenTaiKhoan" class="form-error"></span>
+                <span asp-validation-for="TenTaiKhoan" class="field-validation-error"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="MatKhau" class="form-label"></label>
                 <input asp-for="MatKhau" class="form-control" autocomplete="current-password"
                        placeholder="Mật khẩu" />
-                <span asp-validation-for="MatKhau" class="form-error"></span>
+                <span asp-validation-for="MatKhau" class="field-validation-error"></span>
             </div>
 
-            <div class="form-group">
-                <label class="form-check">
-                    <input asp-for="GhiNho" type="checkbox" />
+            <div class="form-group" style="margin-bottom:var(--space-lg)">
+                <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:var(--text-sm)">
+                    <input asp-for="GhiNho" type="checkbox" style="width:16px;height:16px;accent-color:var(--color-primary)" />
                     <span>Ghi nhớ đăng nhập</span>
                 </label>
             </div>
 
-            <button type="submit" class="btn btn--primary btn--full">Đăng nhập</button>
+            <button type="submit" class="btn btn-primary" style="width:100%">Đăng nhập</button>
         </form>
 
         <div class="auth-card__footer">
             Chưa có tài khoản?
-            <a asp-action="DangKy" class="link">Đăng ký ngay</a>
+            <a asp-action="DangKy">Đăng ký ngay</a>
         </div>
     </div>
 </div>

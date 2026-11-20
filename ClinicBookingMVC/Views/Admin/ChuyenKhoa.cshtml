@@ -8,52 +8,56 @@
 <div class="portal-content__head">
     <div>
         <h1 class="portal-content__title">Quản lý Chuyên khoa</h1>
-        <p class="portal-content__sub">@Model.Count() chuyên khoa</p>
+        <p class="portal-content__sub">Tổng cộng @Model.Count() chuyên khoa</p>
     </div>
-    <a asp-action="TaoChuyenKhoa" class="btn btn--primary">+ Thêm</a>
+    <div class="btn-list">
+        <a asp-action="TaoChuyenKhoa" class="btn btn-primary">+ Thêm chuyên khoa</a>
+    </div>
 </div>
 
-@if (TempData["Success"] != null) { <div class="alert alert--success">@TempData["Success"]</div> }
-@if (TempData["Error"] != null)   { <div class="alert alert--error">@TempData["Error"]</div> }
+@if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
 
 <div class="table-wrap">
     <table class="table">
         <thead>
             <tr>
-                <th class="font-mono" style="width:60px">#</th>
+                <th class="font-mono" style="width:70px">Mã CK</th>
                 <th>Tên chuyên khoa</th>
                 <th>Mô tả</th>
                 <th>Trạng thái</th>
-                <th style="width:140px">Thao tác</th>
+                <th style="text-align:right">Thao tác</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var ck in Model)
             {
                 <tr>
-                    <td class="font-mono">@ck.MaChuyenKhoa</td>
-                    <td>@ck.TenChuyenKhoa</td>
-                    <td>@(ck.MoTa ?? "—")</td>
+                    <td class="font-mono">#@ck.MaChuyenKhoa</td>
+                    <td><strong>@ck.TenChuyenKhoa</strong></td>
+                    <td class="text-muted text-sm">@(ck.MoTa ?? "—")</td>
                     <td>
-                        <span class="badge @(ck.TrangThai == "HoatDong" ? "badge--hoat-dong" : "badge--ngung")">
+                        <span class="badge @(ck.TrangThai == "HoatDong" ? "badge--hoat-dong" : "badge--tam-ngung")">
                             @(ck.TrangThai == "HoatDong" ? "Hoạt động" : "Ngừng")
                         </span>
                     </td>
-                    <td class="table-actions">
-                        <a asp-action="SuaChuyenKhoa" asp-route-id="@ck.MaChuyenKhoa"
-                           class="btn btn--ghost btn--sm">Sửa</a>
-                        <form method="post" asp-action="XoaChuyenKhoa" asp-route-id="@ck.MaChuyenKhoa"
-                              style="display:inline"
-                              onsubmit="return confirm('Xóa chuyên khoa «@ck.TenChuyenKhoa»?')">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn--danger btn--sm">Xóa</button>
-                        </form>
+                    <td style="text-align:right">
+                        <div class="btn-list btn-list-end">
+                            <a asp-action="SuaChuyenKhoa" asp-route-id="@ck.MaChuyenKhoa"
+                               class="btn btn-sm btn-outline-secondary">Sửa</a>
+                            <form method="post" asp-action="XoaChuyenKhoa" asp-route-id="@ck.MaChuyenKhoa"
+                                  style="display:inline;margin:0"
+                                  onsubmit="return confirm('Xóa chuyên khoa «@ck.TenChuyenKhoa»?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             }
             @if (!Model.Any())
             {
-                <tr><td colspan="5" class="table-empty">Chưa có chuyên khoa nào.</td></tr>
+                <tr><td colspan="5" style="text-align:center;padding:var(--space-xl);color:var(--color-muted)">Chưa có chuyên khoa nào.</td></tr>
             }
         </tbody>
     </table>

@@ -22,16 +22,15 @@ public class TC03_NgoaiLeVaHangDoiTests
         using var db = TestDbFixture.CreateContext();
         var datLichService = new DatLichService(db);
 
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var gioHen15Phut = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(15));
-        var gioHen45Phut = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(45));
+        var target15 = DateTime.Now.AddMinutes(15);
+        var target45 = DateTime.Now.AddMinutes(45);
 
         // Cách hiện tại 15 phút (< 30 phút) -> Bị chặn
-        var loiDat15 = datLichService.KiemTraThoiDiemDatHen(today, gioHen15Phut);
+        var loiDat15 = datLichService.KiemTraThoiDiemDatHen(DateOnly.FromDateTime(target15), TimeOnly.FromDateTime(target15));
         Assert.Equal("Chỉ được đặt lịch trước giờ khám ít nhất 30 phút.", loiDat15);
 
         // Cách hiện tại 45 phút (>= 30 phút) -> Hợp lệ
-        var loiDat45 = datLichService.KiemTraThoiDiemDatHen(today, gioHen45Phut);
+        var loiDat45 = datLichService.KiemTraThoiDiemDatHen(DateOnly.FromDateTime(target45), TimeOnly.FromDateTime(target45));
         Assert.Null(loiDat45);
     }
 
@@ -41,19 +40,19 @@ public class TC03_NgoaiLeVaHangDoiTests
         using var db = TestDbFixture.CreateContext();
         var datLichService = new DatLichService(db);
 
-        var today = DateOnly.FromDateTime(DateTime.Today);
-
         // Phiếu hẹn còn 1 giờ nữa là khám (< 2 giờ)
-        var caTruc1H = new CaTruc { NgayTruc = today };
-        var kg1H = new KhungGio { CaTruc = caTruc1H, GioBatDau = TimeOnly.FromDateTime(DateTime.Now.AddHours(1)) };
+        var target1H = DateTime.Now.AddHours(1);
+        var caTruc1H = new CaTruc { NgayTruc = DateOnly.FromDateTime(target1H) };
+        var kg1H = new KhungGio { CaTruc = caTruc1H, GioBatDau = TimeOnly.FromDateTime(target1H) };
         var phieu1H = new PhieuDatHen { KhungGio = kg1H, TrangThaiHen = "DaXacNhan" };
 
         var loiHuy1H = datLichService.KiemTraDieuKienHuy(phieu1H);
         Assert.Equal("Chỉ được hủy lịch trước giờ hẹn ít nhất 2 giờ.", loiHuy1H);
 
         // Phiếu hẹn còn 3 giờ nữa mới khám (>= 2 giờ)
-        var caTruc3H = new CaTruc { NgayTruc = today };
-        var kg3H = new KhungGio { CaTruc = caTruc3H, GioBatDau = TimeOnly.FromDateTime(DateTime.Now.AddHours(3)) };
+        var target3H = DateTime.Now.AddHours(3);
+        var caTruc3H = new CaTruc { NgayTruc = DateOnly.FromDateTime(target3H) };
+        var kg3H = new KhungGio { CaTruc = caTruc3H, GioBatDau = TimeOnly.FromDateTime(target3H) };
         var phieu3H = new PhieuDatHen { KhungGio = kg3H, TrangThaiHen = "DaXacNhan" };
 
         var loiHuy3H = datLichService.KiemTraDieuKienHuy(phieu3H);
