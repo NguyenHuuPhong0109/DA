@@ -37,12 +37,22 @@
         </div>
     </form>
 
-    @* Khung check-in nhanh theo MaDatHen / SoDienThoai *@
-    <div class="checkin-nhanh-bar">
-        <input type="text" id="inp-checkin-nhanh" class="form-control form-control--sm font-mono"
-               placeholder="Nhập mã BKxxxxxx hoặc SĐT..." autocomplete="off"
-               style="width:240px" oninput="traTimPhieuNhanh(this.value)" />
-        <div id="kq-checkin-nhanh" class="checkin-nhanh-popup" style="display:none"></div>
+    @* Khung check-in nhanh theo MaDatHen / SoDienThoai + Nút quét quá hạn *@
+    <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <div class="checkin-nhanh-bar">
+            <input type="text" id="inp-checkin-nhanh" class="form-control form-control--sm font-mono"
+                   placeholder="Nhập mã BKxxxxxx hoặc SĐT..." autocomplete="off"
+                   style="width:240px" oninput="traTimPhieuNhanh(this.value)" />
+            <div id="kq-checkin-nhanh" class="checkin-nhanh-popup" style="display:none"></div>
+        </div>
+
+        <form method="post" asp-action="QuetQuaHanNgay" style="margin:0">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="maPhong" value="@Model.MaPhongDangChon" />
+            <button type="submit" class="btn btn--quiet btn--sm" title="Quét vắng hẹn quá 30 phút và gửi nhắc lịch">
+                ⏱️ Quét quá hạn ngay
+            </button>
+        </form>
     </div>
 </div>
 

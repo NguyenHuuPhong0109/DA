@@ -1,40 +1,481 @@
+@model ClinicBookingMVC.Models.ViewModels.BaoCaoDashboardVM
 @{
     Layout = "~/Views/Shared/_PortalLayout.cshtml";
-    ViewData["Title"] = "Bảng điều khiển";
+    ViewData["Title"] = "BI Dashboard & Thống kê KPI";
     ViewData["ActiveMenu"] = "Dashboard";
 }
 
-<div class="portal-content__head">
+@section Styles {
+<style>
+/* ── BI Dashboard Styles ── */
+.bi-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  margin-bottom: var(--space-xl);
+}
+.bi-filter-form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+.bi-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bi-filter-group label {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  font-weight: 500;
+}
+.bi-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.bi-kpi-card {
+  padding: var(--space-lg);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.bi-kpi-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-xs);
+}
+.bi-kpi-card__title {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+.bi-kpi-card__val {
+  font-family: var(--font-outlier);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-ink);
+  margin: var(--space-xs) 0;
+}
+.bi-kpi-card__sub {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+.bi-kpi-card--accent .bi-kpi-card__val { color: var(--color-accent); }
+.bi-kpi-card--warning .bi-kpi-card__val { color: oklch(50% 0.18 30); }
+.bi-kpi-card--success .bi-kpi-card__val { color: oklch(50% 0.15 150); }
+
+/* Charts Layout */
+.bi-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+@@media (max-width: 60rem) {
+  .bi-charts-grid { grid-template-columns: 1fr; }
+}
+.bi-chart-card {
+  padding: var(--space-lg);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper);
+}
+.bi-chart-card__title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bi-chart-container {
+  position: relative;
+  height: 280px;
+  width: 100%;
+}
+
+/* Overview Row */
+.stats-mini-bar {
+  display: flex;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  flex-wrap: wrap;
+}
+.stats-mini-item {
+  flex: 1;
+  min-width: 140px;
+  padding: var(--space-sm) var(--space-md);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-2);
+  font-size: var(--text-xs);
+}
+.stats-mini-item span {
+  font-family: var(--font-outlier);
+  font-size: var(--text-md);
+  font-weight: 700;
+  display: block;
+  color: var(--color-ink);
+}
+</style>
+}
+
+<div class="portal-content__head" style="margin-bottom:var(--space-md);display:flex;justify-content:space-between;align-items:flex-start">
     <div>
-        <h1 class="portal-content__title">Bảng điều khiển</h1>
-        <p class="portal-content__sub">@DateTime.Today.ToString("dd/MM/yyyy")</p>
+        <h1 class="portal-content__title">BI Dashboard &amp; Thống kê Hoạt động</h1>
+        <p class="portal-content__sub">Giám sát chất lượng dịch vụ, lưu lượng hàng đợi và kiểm soát tỷ lệ vắng hẹn</p>
+    </div>
+    <div style="display:flex;gap:var(--space-xs);align-items:center">
+        <!-- Nút quét quá hạn ngay -->
+        <form asp-action="QuetQuaHanNgay" method="post" style="display:inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn--quiet btn--sm" title="Quét ngay các lịch hẹn quá 30 phút chưa check-in và gửi nhắc lịch ngày mai">
+                ⏱️ Quét quá hạn ngay
+            </button>
+        </form>
+        <!-- Nút xuất CSV -->
+        <a asp-action="ExportBaoCaoCsv"
+           asp-route-TuNgay="@Model.Filter.TuNgay?.ToString("yyyy-MM-dd")"
+           asp-route-DenNgay="@Model.Filter.DenNgay?.ToString("yyyy-MM-dd")"
+           asp-route-MaChuyenKhoa="@Model.Filter.MaChuyenKhoa"
+           asp-route-MaBacSi="@Model.Filter.MaBacSi"
+           class="btn btn--sm" title="Xuất báo cáo định dạng CSV hỗ trợ mở bằng Microsoft Excel tiếng Việt">
+            📥 Xuất CSV (Excel)
+        </a>
     </div>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-card__label">Chuyên khoa</div>
-        <div class="stat-card__value font-mono">@ViewBag.SoChuyenKhoa</div>
-        <a asp-action="ChuyenKhoa" class="stat-card__link">Quản lý →</a>
+<!-- Thống kê tài nguyên nền tảng -->
+<div class="stats-mini-bar">
+    <div class="stats-mini-item">
+        <span>@ViewBag.SoChuyenKhoa</span> Chuyên khoa
     </div>
-    <div class="stat-card">
-        <div class="stat-card__label">Phòng khám</div>
-        <div class="stat-card__value font-mono">@ViewBag.SoPhongKham</div>
-        <a asp-action="PhongKham" class="stat-card__link">Quản lý →</a>
+    <div class="stats-mini-item">
+        <span>@ViewBag.SoPhongKham</span> Phòng khám
     </div>
-    <div class="stat-card">
-        <div class="stat-card__label">Bác sĩ</div>
-        <div class="stat-card__value font-mono">@ViewBag.SoBacSi</div>
-        <a asp-action="BacSi" class="stat-card__link">Quản lý →</a>
+    <div class="stats-mini-item">
+        <span>@ViewBag.SoBacSi</span> Bác sĩ trực
     </div>
-    <div class="stat-card">
-        <div class="stat-card__label">Tài khoản</div>
-        <div class="stat-card__value font-mono">@ViewBag.SoTaiKhoan</div>
-        <a asp-action="TaiKhoan" class="stat-card__link">Quản lý →</a>
+    <div class="stats-mini-item">
+        <span>@ViewBag.SoTaiKhoan</span> Tài khoản
     </div>
-    <div class="stat-card">
-        <div class="stat-card__label">Ca trực hôm nay</div>
-        <div class="stat-card__value font-mono">@ViewBag.SoCaTrucHomNay</div>
-        <a asp-action="CaTruc" class="stat-card__link">Xem chi tiết →</a>
+    <div class="stats-mini-item">
+        <span>@ViewBag.SoCaTrucHomNay</span> Ca trực hôm nay
     </div>
 </div>
+
+<!-- Bộ lọc BI Dashboard -->
+<div class="bi-toolbar">
+    <form method="get" asp-action="Index" class="bi-filter-form">
+        <div class="bi-filter-group">
+            <label for="TuNgay">Từ ngày</label>
+            <input type="date" id="TuNgay" name="TuNgay" class="form-control form-control--sm font-mono"
+                   value="@Model.Filter.TuNgay?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="bi-filter-group">
+            <label for="DenNgay">Đến ngày</label>
+            <input type="date" id="DenNgay" name="DenNgay" class="form-control form-control--sm font-mono"
+                   value="@Model.Filter.DenNgay?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="bi-filter-group">
+            <label for="MaChuyenKhoa">Chuyên khoa</label>
+            <select id="MaChuyenKhoa" name="MaChuyenKhoa" class="form-control form-control--sm">
+                <option value="">— Tất cả chuyên khoa —</option>
+                @foreach (var ck in Model.DanhSachChuyenKhoa)
+                {
+                    if (Model.Filter.MaChuyenKhoa == ck.MaChuyenKhoa)
+                    {
+                        <option value="@ck.MaChuyenKhoa" selected>@ck.TenChuyenKhoa</option>
+                    }
+                    else
+                    {
+                        <option value="@ck.MaChuyenKhoa">@ck.TenChuyenKhoa</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="bi-filter-group">
+            <label for="MaBacSi">Bác sĩ</label>
+            <select id="MaBacSi" name="MaBacSi" class="form-control form-control--sm">
+                <option value="">— Tất cả bác sĩ —</option>
+                @foreach (var bs in Model.DanhSachBacSi)
+                {
+                    if (Model.Filter.MaBacSi == bs.MaBacSi)
+                    {
+                        <option value="@bs.MaBacSi" selected>@bs.HoTenBacSi (@bs.ChuyenKhoa?.TenChuyenKhoa)</option>
+                    }
+                    else
+                    {
+                        <option value="@bs.MaBacSi">@bs.HoTenBacSi (@bs.ChuyenKhoa?.TenChuyenKhoa)</option>
+                    }
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn btn--sm btn--accent" style="height:36px">Lọc dữ liệu</button>
+        <a asp-action="Index" class="btn btn--quiet btn--sm" style="height:36px">Đặt lại</a>
+    </form>
+    <div style="font-size:var(--text-xs);color:var(--color-muted)">
+        Kỳ báo cáo: <strong class="font-mono">@Model.Filter.TuNgay?.ToString("dd/MM/yyyy")</strong> — <strong class="font-mono">@Model.Filter.DenNgay?.ToString("dd/MM/yyyy")</strong>
+    </div>
+</div>
+
+<!-- 4 Chỉ số KPI cốt lõi -->
+<div class="bi-kpi-grid">
+    <!-- KPI 1: Tỷ lệ vắng hẹn -->
+    <div class="bi-kpi-card bi-kpi-card--warning">
+        <div class="bi-kpi-card__head">
+            <span class="bi-kpi-card__title">Tỷ lệ vắng hẹn</span>
+            <span class="badge badge--vang-hen">No-Show</span>
+        </div>
+        <div class="bi-kpi-card__val">@Model.KPI.TyLeVangHen%</div>
+        <div class="bi-kpi-card__sub font-mono">
+            <strong>@Model.KPI.SoPhieuVangHen</strong> vắng / @Model.KPI.TongPhieuVangHenMauSo phiếu hợp lệ
+        </div>
+    </div>
+
+    <!-- KPI 2: Tỷ lệ hoàn thành khám -->
+    <div class="bi-kpi-card bi-kpi-card--success">
+        <div class="bi-kpi-card__head">
+            <span class="bi-kpi-card__title">Tỷ lệ hoàn tất khám</span>
+            <span class="badge badge--da-kham">Completed</span>
+        </div>
+        <div class="bi-kpi-card__val">@Model.KPI.TyLeHoanThanh%</div>
+        <div class="bi-kpi-card__sub font-mono">
+            <strong>@Model.KPI.SoPhieuDaKham</strong> đã khám / @Model.KPI.TongPhieuDatHenTrongKy phiếu đặt
+        </div>
+    </div>
+
+    <!-- KPI 3: Thời gian chờ trung bình -->
+    <div class="bi-kpi-card bi-kpi-card--accent">
+        <div class="bi-kpi-card__head">
+            <span class="bi-kpi-card__title">Thời gian chờ TB</span>
+            <span class="badge badge--da-check-in">Avg Wait</span>
+        </div>
+        <div class="bi-kpi-card__val">@Model.KPI.ThoiGianChoTrungBinh <span style="font-size:1.1rem;font-weight:400">phút</span></div>
+        <div class="bi-kpi-card__sub font-mono">
+            Dựa trên <strong>@Model.KPI.SoLuotDaGoiSo</strong> lượt check-in &rarr; gọi số
+        </div>
+    </div>
+
+    <!-- KPI 4: Tỷ lệ lấp đầy khung giờ -->
+    <div class="bi-kpi-card">
+        <div class="bi-kpi-card__head">
+            <span class="bi-kpi-card__title">Lấp đầy khung hẹn</span>
+            <span class="badge badge--da-xac-nhan">Utilization</span>
+        </div>
+        <div class="bi-kpi-card__val">@Model.KPI.TyLeLapDay%</div>
+        <div class="bi-kpi-card__sub font-mono">
+            <strong>@Model.KPI.SoKhungGioDaDat</strong> slot đã đặt / @Model.KPI.TongKhungGioDatHen slot mở
+        </div>
+    </div>
+</div>
+
+<!-- Lưới 2 biểu đồ Chart.js -->
+<div class="bi-charts-grid">
+    <!-- Biểu đồ 1: Lưu lượng bệnh nhân theo khung giờ (tìm giờ cao điểm) -->
+    <div class="bi-chart-card">
+        <div class="bi-chart-card__title">
+            <span>📈 Lưu lượng bệnh nhân theo khung giờ</span>
+            <span style="font-size:var(--text-xs);color:var(--color-muted);font-weight:400">Giờ cao điểm phòng khám</span>
+        </div>
+        <div class="bi-chart-container">
+            <canvas id="chartLuuLuong"></canvas>
+        </div>
+    </div>
+
+    <!-- Biểu đồ 2: Tỷ lệ vắng hẹn theo từng bác sĩ -->
+    <div class="bi-chart-card">
+        <div class="bi-chart-card__title">
+            <span>📊 Tỷ lệ vắng hẹn theo Bác sĩ</span>
+            <span style="font-size:var(--text-xs);color:var(--color-muted);font-weight:400">So sánh no-show rate (%)</span>
+        </div>
+        <div class="bi-chart-container">
+            <canvas id="chartVangHenBacSi"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Bệnh nhân bị bật cờ cảnh báo vắng hẹn (CoCanhBao == true) -->
+<div class="bi-chart-card" style="margin-top:var(--space-xl)">
+    <div class="bi-chart-card__title">
+        <div style="display:flex;align-items:center;gap:var(--space-xs)">
+            <span style="color:oklch(50% 0.22 25)">⚠️ Danh sách Bệnh nhân có Cảnh báo Vắng hẹn</span>
+            <span class="badge badge--canh-bao">@Model.DanhSachCanhBao.Count bệnh nhân</span>
+        </div>
+        <span style="font-size:var(--text-xs);color:var(--color-muted);font-weight:400">
+            Quy tắc BR-06: Vắng hẹn &ge; 2 lần &rarr; Lịch hẹn mới phải chuyển trạng thái <em>Chờ xác nhận</em>
+        </span>
+    </div>
+
+    @if (!Model.DanhSachCanhBao.Any())
+    {
+        <p class="empty-notice" style="padding:var(--space-lg);text-align:center">
+            Hiện không có bệnh nhân nào có cờ cảnh báo vắng hẹn.
+        </p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mã BN</th>
+                        <th>Họ và tên</th>
+                        <th>Số điện thoại</th>
+                        <th style="text-align:center">Số lần vắng hẹn</th>
+                        <th>Mức độ cảnh báo</th>
+                        <th>Lần vắng gần nhất</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var bn in Model.DanhSachCanhBao)
+                    {
+                        <tr class="row--canh-bao">
+                            <td class="font-mono">BN-@bn.MaBenhNhan.ToString("D4")</td>
+                            <td><strong>@bn.TenBenhNhan</strong></td>
+                            <td class="font-mono">@bn.SoDienThoai</td>
+                            <td style="text-align:center">
+                                <span class="badge badge--vang-hen font-mono" style="font-weight:700">@bn.SoLanVangHen lần</span>
+                            </td>
+                            <td>
+                                <span class="badge badge--canh-bao">
+                                    &#9888; CẢNH BÁO CAO
+                                </span>
+                            </td>
+                            <td class="font-mono" style="color:var(--color-muted)">
+                                @(bn.LanVangGanNhat.HasValue ? bn.LanVangGanNhat.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // 1. Dữ liệu Biểu đồ Lưu lượng theo giờ
+    const rawLuuLuong = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LuuLuongTheoGio));
+    const labelsLuuLuong = rawLuuLuong.map(x => x.KhungGio);
+    const dataLuuLuong = rawLuuLuong.map(x => x.SoLuongBenhNhan);
+
+    const ctxLuuLuong = document.getElementById('chartLuuLuong')?.getContext('2d');
+    if (ctxLuuLuong) {
+        new Chart(ctxLuuLuong, {
+            type: 'bar',
+            data: {
+                labels: labelsLuuLuong,
+                datasets: [{
+                    label: 'Số lượng bệnh nhân',
+                    data: dataLuuLuong,
+                    backgroundColor: 'rgba(217, 83, 79, 0.75)',
+                    borderColor: 'rgb(217, 83, 79)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return ` Lượt khám: ${context.parsed.y} bệnh nhân`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { family: 'JetBrains Mono' } },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        ticks: { font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Dữ liệu Biểu đồ Tỷ lệ vắng hẹn theo Bác sĩ
+    const rawVangHen = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.VangHenTheoBacSi));
+    const labelsVangHen = rawVangHen.map(x => x.HoTenBacSi);
+    const dataTyLeVang = rawVangHen.map(x => x.TyLeVangHen);
+    const dataTongHen = rawVangHen.map(x => x.TongHen);
+    const dataSoVang = rawVangHen.map(x => x.SoVangHen);
+
+    const ctxVangHen = document.getElementById('chartVangHenBacSi')?.getContext('2d');
+    if (ctxVangHen) {
+        new Chart(ctxVangHen, {
+            type: 'bar',
+            data: {
+                labels: labelsVangHen,
+                datasets: [{
+                    label: 'Tỷ lệ vắng hẹn (%)',
+                    data: dataTyLeVang,
+                    backgroundColor: 'rgba(230, 126, 34, 0.75)',
+                    borderColor: 'rgb(230, 126, 34)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Biểu đồ ngang
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const idx = context.dataIndex;
+                                return ` Vắng hẹn: ${dataTyLeVang[idx]}% (${dataSoVang[idx]}/${dataTongHen[idx]} ca)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: Math.max(50, Math.ceil(Math.max(...dataTyLeVang, 10) / 10) * 10),
+                        ticks: {
+                            callback: function(val) { return val + '%'; },
+                            font: { family: 'JetBrains Mono' }
+                        },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    y: {
+                        ticks: { font: { size: 11, weight: '500' } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+}

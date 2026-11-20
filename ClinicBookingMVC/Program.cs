@@ -13,6 +13,9 @@ builder.Services.AddDbContext<ClinicDbContext>(options =>
 builder.Services.AddScoped<CaTrucService>();
 builder.Services.AddScoped<DatLichService>();
 builder.Services.AddScoped<HangDoiService>();
+builder.Services.AddScoped<VangHenService>();
+builder.Services.AddScoped<BaoCaoService>();
+builder.Services.AddHostedService<VangHenBackgroundService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

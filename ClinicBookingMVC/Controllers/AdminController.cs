@@ -14,25 +14,53 @@ public class AdminController : Controller
 {
     private readonly ClinicDbContext _db;
     private readonly CaTrucService _caTrucService;
+    private readonly BaoCaoService _baoCaoService;
+    private readonly VangHenService _vangHenService;
 
-    public AdminController(ClinicDbContext db, CaTrucService caTrucService)
+    public AdminController(
+        ClinicDbContext db,
+        CaTrucService caTrucService,
+        BaoCaoService baoCaoService,
+        VangHenService vangHenService)
     {
         _db = db;
         _caTrucService = caTrucService;
+        _baoCaoService = baoCaoService;
+        _vangHenService = vangHenService;
     }
 
-    // ─── Dashboard ───────────────────────────────────────────────────────────
-    public async Task<IActionResult> Index()
+    // ─── BI Dashboard Thống kê KPI ──────────────────────────────────────────
+    public async Task<IActionResult> Index(BaoCaoFilterVM filter)
     {
-        ViewData["Title"] = "Bảng điều khiển";
+        ViewData["Title"] = "BI Dashboard & Thống kê KPI";
         ViewData["ActiveMenu"] = "Dashboard";
+
         ViewBag.SoChuyenKhoa      = await _db.ChuyenKhoas.CountAsync();
         ViewBag.SoPhongKham       = await _db.PhongKhams.CountAsync();
         ViewBag.SoBacSi           = await _db.BacSis.CountAsync();
         ViewBag.SoTaiKhoan        = await _db.TaiKhoans.CountAsync();
         ViewBag.SoCaTrucHomNay    = await _db.CaTrucs
             .CountAsync(c => c.NgayTruc == DateOnly.FromDateTime(DateTime.Today));
-        return View();
+
+        var dashboardVM = await _baoCaoService.LayBaoCaoDashboardAsync(filter);
+        return View(dashboardVM);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportBaoCaoCsv(BaoCaoFilterVM filter)
+    {
+        var csvBytes = await _baoCaoService.ExportBaoCaoCsvAsync(filter);
+        var fileName = $"BaoCao_KPI_PhongKham_{DateTime.Now:yyyyMMdd_HHmm}.csv";
+        return File(csvBytes, "text/csv; charset=utf-8", fileName);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> QuetQuaHanNgay()
+    {
+        var (soVangHen, soNhacLich) = await _vangHenService.QuetVaXuLyAsync();
+        TempData["SuccessMessage"] = $"Đã quét hệ thống: {soVangHen} phiếu quá hạn chuyển thành Vắng hẹn, {soNhacLich} lịch hẹn ngày mai được gửi nhắc khám.";
+        return RedirectToAction(nameof(Index));
     }
 
     // ─── CHUYÊN KHOA ─────────────────────────────────────────────────────────

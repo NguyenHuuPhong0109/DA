@@ -262,4 +262,12 @@ public class LeTanController : Controller
         }
         return RedirectToAction(nameof(Index), new { maPhong });
     }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> QuetQuaHanNgay([FromServices] VangHenService vangHenService, int? maPhong)
+    {
+        var (soVangHen, soNhacLich) = await vangHenService.QuetVaXuLyAsync();
+        TempData["SuccessMessage"] = $"Đã quét hệ thống: {soVangHen} phiếu quá hạn chuyển thành Vắng hẹn, {soNhacLich} lịch hẹn ngày mai được gửi nhắc khám.";
+        return RedirectToAction(nameof(Index), new { maPhong });
+    }
 }
