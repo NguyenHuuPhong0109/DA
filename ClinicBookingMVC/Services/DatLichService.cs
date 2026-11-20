@@ -193,8 +193,22 @@ public class DatLichService
                 null);
         }
         catch (DbUpdateException ex) when (
-            ex.InnerException?.Message.Contains("UX_KhungGio_HieuLuc") == true ||
-            ex.InnerException?.Message.Contains("unique") == true)
+            ex.ToString().Contains("UX_KhungGio_HieuLuc", StringComparison.OrdinalIgnoreCase) ||
+            ex.ToString().Contains("UX_PhieuDatHen_KhungGio_HieuLuc", StringComparison.OrdinalIgnoreCase) ||
+            ex.ToString().Contains("unique", StringComparison.OrdinalIgnoreCase) ||
+            ex.ToString().Contains("duplicate", StringComparison.OrdinalIgnoreCase) ||
+            ex.ToString().Contains("deadlock", StringComparison.OrdinalIgnoreCase) ||
+            ex.ToString().Contains("transient failure", StringComparison.OrdinalIgnoreCase))
+        {
+            await tx.RollbackAsync();
+            return (false,
+                "Khung giờ này vừa có người khác đặt, vui lòng chọn khung giờ khác.",
+                null);
+        }
+        catch (Exception ex) when (
+            ex.ToString().Contains("deadlock", StringComparison.OrdinalIgnoreCase) ||
+            ex.ToString().Contains("transient failure", StringComparison.OrdinalIgnoreCase) ||
+            ex.ToString().Contains("1205"))
         {
             await tx.RollbackAsync();
             return (false,

@@ -1,16 +1,24 @@
 # HANDOFF STATUS — ClinicBookingMVC (HTTT-13)
 
-Cập nhật lần cuối: 2026-11-20 (Hoàn thành Giai đoạn 5)
+**Cập nhật lần cuối:** 2026-11-20 · **Hoàn thành Giai đoạn 6A (Kiểm thử hệ thống tự động)**
 
 ---
 
-## ✅ BUILD STATUS: PASSED — 0 Errors, 0 Warnings
+## ✅ BUILD & TEST STATUS: PASSED — 0 Errors, 0 Warnings, 19/19 Tests Passed
 
 ```
+Solution: ClinicBooking.sln
+Framework: net11.0 | SDK: 11.0.100
 Build succeeded.
     0 Warning(s)
     0 Error(s)
-Time Elapsed 00:00:01.04
+
+Test Run Successful.
+    Total Tests: 19
+    Passed: 19 (100%)
+    Failed: 0
+    Skipped: 0
+    Duration: 5.2s
 ```
 
 ---
@@ -24,60 +32,117 @@ Time Elapsed 00:00:01.04
 | 3 | Luồng Đặt lịch 4 bước + DatLichService (BR-01..BR-06) + Tra cứu hàng đợi mobile | ✅ Hoàn thành |
 | 4 | Thuật toán Hàng đợi 3 mức ưu tiên + Cửa sổ 15p + Quầy Lễ tân + Màn hình Bác sĩ Loa Bluetooth | ✅ Hoàn thành |
 | 5 | Tự động xử lý Vắng hẹn (BackgroundService) + BI Dashboard KPI Chart.js + Export CSV (UTF-8 BOM) + Seed Data toàn diện | ✅ Hoàn thành |
+| 6A | Kiểm thử hệ thống tự động (xUnit 5 nhóm kịch bản) + Đối chiếu KPI SQL thuần + Báo cáo TEST_REPORT.md | ✅ Hoàn thành |
 
 ---
 
-## Chi tiết các thành phần Giai đoạn 5 đã triển khai
+## Chi tiết Giai đoạn 6A đã triển khai
 
-### 1. Tiến trình chạy ngầm & Tự động xử lý (`Services/VangHenBackgroundService.cs`, `Services/VangHenService.cs`)
-- **`VangHenBackgroundService`**: Kế thừa `BackgroundService` (`IHostedService`), quét định kỳ mỗi **5 phút/lần**.
-- **Tự động No-Show (BR-05)**: Quét các phiếu hẹn ở trạng thái `ChoXacNhan` hoặc `DaXacNhan` quá **30 phút** so với giờ hẹn (`NgayTruc + GioBatDau`) mà chưa check-in:
-  - Cập nhật `TrangThaiHen = "VangHen"`
-  - Tăng `BenhNhan.SoLanVangHen += 1` (SQL Server tự động kích hoạt `CoCanhBao = 1` khi $\ge 2$).
-- **Tự động nhắc lịch**: Quét các phiếu diễn ra vào ngày mai (`Tomorrow`) có `GuiNhacLich == false`:
-  - Ghi log nhắc lịch: Họ tên, SĐT, Giờ khám.
-  - Cập nhật `GuiNhacLich = true`.
-- **Nút "Quét quá hạn ngay"**:
-  - Tích hợp trực tiếp trên cả giao diện **Quầy Lễ tân** (`/LeTan`) và **Admin Dashboard** (`/Admin`).
-  - Hỗ trợ thao tác tức thì khi demo trước Hội đồng mà không phải chờ chu kỳ 5 phút.
+### 1. Project kiểm thử tự động (`ClinicBookingMVC.Tests`)
+- **Công nghệ**: xUnit 2.9.3, `Microsoft.AspNetCore.Mvc.Testing` 11.0.0, `Microsoft.EntityFrameworkCore.SqlServer` 11.0.0, `Microsoft.NET.Test.Sdk` 17.14.1.
+- **Môi trường Database**: Chạy trực tiếp trên SQL Server (`ClinicBookingTestDB`), kiểm chứng các tính năng cấp hệ quản trị:
+  - `IsolationLevel.Serializable` transactions.
+  - Concurrency `ROWVERSION` (`byte[] PhienBanDong`).
+  - Filtered Unique Index `UX_PhieuDatHen_KhungGio_HieuLuc`.
+  - Persisted Computed Column `CoCanhBao = CAST(CASE WHEN SoLanVangHen >= 2 THEN 1 ELSE 0 END AS BIT)`.
+  - Check constraints và Foreign Key constraints.
 
-### 2. BI Dashboard Thống kê KPI (`AdminController` + `Services/BaoCaoService.cs` + `Views/Admin/Index.cshtml`)
-- **Giao diện chuẩn Hallmark Design System**: tone graphite nội bộ, phân chia bằng 1px hairline rule, typography rõ nét (`Be Vietnam Pro` + `JetBrains Mono`).
-- **Bộ lọc đa chiều**: Lọc theo *Từ ngày – Đến ngày*, *Chuyên khoa*, *Bác sĩ*.
-- **4 Chỉ số KPI cốt lõi**:
-  1. **Tỷ lệ vắng hẹn (No-Show Rate %)**: `Số phiếu VangHen / Tổng phiếu (DaXacNhan + DaCheckIn + DaKham + VangHen) * 100`
-  2. **Tỷ lệ hoàn thành khám (%)**: `Số phiếu DaKham / Tổng phiếu đặt hẹn trong kỳ * 100`
-  3. **Thời gian chờ khám trung bình (Phút)**: `AVG(DATEDIFF(MINUTE, ThoiGianCheckIn, ThoiGianGoiSo))` trên các lượt đã được gọi số.
-  4. **Tỷ lệ lấp đầy khung giờ (%)**: `Số KhungGio (DatHen) đã có hẹn / Tổng KhungGio (DatHen) mở trong kỳ * 100`
-- **Biểu đồ trực quan (Chart.js 4.4.1)**:
-  - **Lưu lượng theo khung giờ (07:00 – 17:00)**: Bar chart phát hiện giờ cao điểm phòng khám.
-  - **Tỷ lệ vắng hẹn theo từng Bác sĩ**: Horizontal bar chart trực quan so sánh tỷ lệ no-show.
-  - **Danh sách bệnh nhân cảnh báo**: Bảng quản lý các bệnh nhân có `CoCanhBao == true` (`SoLanVangHen >= 2`) kèm badge cảnh báo đỏ nổi bật.
-- **Xuất báo cáo CSV UTF-8 BOM**:
-  - Gắn tiền tố byte `EF BB BF` mở chuẩn tiếng Việt không bị lỗi font trên Microsoft Excel Windows.
-  - Tích hợp đầy đủ KPI, thống kê bác sĩ, lưu lượng và danh sách bệnh nhân cảnh báo.
+### 2. Bộ 05 nhóm Test Case (19 Tests - 100% Pass)
+1. **TC-01 (Happy Path)** (`TC01_HappyPathTests.cs`):
+   - Sinh `KhungGio` chuẩn tỷ lệ 3 `DatHen` : 1 `KhungDem`.
+   - Luồng hoàn chỉnh: Tạo ca -> Đặt lịch nhận `BKyyMMdd-NNN` -> Check-in đúng giờ nhận `A-xxx` (`MucUuTien = 1`) -> Gọi số (`DangGoi`) -> Bắt đầu khám (`DangKham`) -> Hoàn tất (`PhieuDatHen.TrangThaiHen == "DaKham"`, `PhieuSoThuTu.TrangThaiPhieu == "HoanTat"`).
+2. **TC-02 (Concurrency)** (`TC02_ConcurrencyTests.cs`):
+   - Chạy song song 2 tác vụ đặt cùng 1 slot trống cuối cùng.
+   - Xác nhận đúng 1 tác vụ thành công, tác vụ còn lại bị chặn do `PhienBanDong` / Deadlock / `UX_PhieuDatHen_KhungGio_HieuLuc`, trả về thông báo lỗi thân thiện.
+3. **TC-03 (Ngoại lệ & Thuật toán hàng đợi)** (`TC03_NgoaiLeVaHangDoiTests.cs`):
+   - Chặn đặt lịch trước giờ khám `< 30 phút` (`KiemTraThoiDiemDatHen`).
+   - Chặn hủy lịch khi còn `< 2 giờ` (`KiemTraDieuKienHuy`).
+   - Chặn 1 số điện thoại đặt 2 lịch giao nhau trong cùng ngày (`KiemTraTrungLichAsync`).
+   - Hủy lịch hợp lệ (`>= 2 giờ`) mở lại `KhungGio.TrangThai = "ConTrong"` (`HuyLichAsync`).
+   - Khách đặt sớm (`> 15 phút`) không nhảy cóc giành lượt của khách vãng lai đã check-in.
+   - Khách trễ 16–30 phút bị gán `MucUuTien = 3`, prefix `L-xxx`.
+   - Khách `A` chưa check-in thì hệ thống tự động gọi ngay khách vãng lai `W-xxx`.
+   - Gọi lại tối đa 3 lần, không vượt quá `SoLanGoi = 3`.
+   - `VangHenService`: Quá 30 phút chưa check-in chuyển `VangHen`, tăng `SoLanVangHen`, tự bật `CoCanhBao = true` khi đạt $\ge 2$.
+4. **TC-04 (Bảo mật RBAC)** (`TC04_BaoMatRBACTests.cs`):
+   - `WebApplicationFactory<Program>` kiểm thử phân quyền:
+   - Chặn người chưa đăng nhập gửi POST `/DatLich/XacNhan` (chuyển hướng `/TaiKhoan/DangNhap`).
+   - Chặn tài khoản `BenhNhan` truy cập `/Admin` hoặc `/BacSi` (chuyển hướng `/TaiKhoan/KhongCoQuyen`).
+   - Chặn tài khoản `LeTan` truy cập `/Admin` hoặc `/BacSi` (chuyển hướng `/TaiKhoan/KhongCoQuyen`).
+   - Cho phép tài khoản `Admin` truy cập `/Admin` (200 OK).
+5. **TC-05 (Đối chiếu KPI với SQL thuần)** (`TC05_DoiChieuKpiSqlTests.cs`):
+   - Tạo file `ClinicBookingMVC/Database/Verify_KPI_SQL.sql` chứa 4 câu truy vấn `SELECT` thuần.
+   - Đối chiếu trực tiếp giữa C# `BaoCaoService.cs` và SQL thuần:
+     * Tỷ lệ vắng hẹn: C# `20.2%` == SQL `20.2%` (24/119)
+     * Tỷ lệ hoàn thành: C# `68.7%` == SQL `68.7%` (90/131)
+     * Thời gian chờ trung bình: C# `16.8 phút` == SQL `16.8 phút` (1547.0p/92 lượt)
+     * Tỷ lệ lấp đầy khung giờ: C# `24.3%` == SQL `24.3%` (131/540)
+     * Độ khớp: **100.0%**.
 
-### 3. Bộ khởi tạo dữ liệu mẫu toàn diện (`Data/DbInitializer.cs`)
-- **4 vai trò**: `Admin`, `LeTan`, `BacSi`, `BenhNhan`.
-- **Mật khẩu chung**: `123456` (đã băm bằng BCrypt):
-  - `admin` (Admin)
-  - `letan01` (LeTan)
-  - `bacsi01`, `bacsi02`, `bacsi03` (BacSi)
-  - `benhnhan01`, `benhnhan02` (BenhNhan)
-- **3 Chuyên khoa & 3 Phòng khám**:
-  - Phòng 101 - Tầng 1: Nội tổng quát (BS.CKI Nguyễn Văn An)
-  - Phòng 102 - Tầng 1: Tai Mũi Họng (ThS.BS Trần Thị Bình)
-  - Phòng 103 - Tầng 2: Da liễu (BS.CKI Lê Hoàng Cường)
-- **120 Ca trực**: Trải dài từ 14 ngày trước đến 5 ngày tới (mỗi ngày đủ 2 ca Sáng/Chiều cho 3 bác sĩ x 3 phòng, 8 slot/ca, chuẩn 3 DatHen - 1 KhungDem).
-- **161 Phiếu đặt hẹn lịch sử**: Đầy đủ trạng thái `DaKham` (90), `VangHen` (24), `DaXacNhan` (30), `DaHuy` (12), `DaCheckIn` (5).
-- **10 Bệnh nhân đang ngồi chờ hôm nay**:
-  - Phân bổ đủ cả 3 loại mã số: `A-xxx` (Đặt trước đúng giờ), `W-xxx` (Vãng lai walk-in), `L-xxx` (Đặt trước trễ).
-  - Có 2 bệnh nhân có `SoLanVangHen >= 2` (`CoCanhBao = 1`): *Hoàng Văn Cảnh Báo* và *Trần Thị Vắng*.
-  - Tại Phòng 101 có sẵn 1 bệnh nhân `DangKham`, 1 bệnh nhân `DangGoi` và 3 bệnh nhân `DangCho` để kiểm thử Loa Bluetooth (Ding-Dong + TTS tiếng Việt) ngay lập tức.
+### 3. Hai Bug nghiệp vụ được phát hiện và sửa triệt để
+1. **Lỗi Wrap-around thời gian trong `HangDoiService.cs`**:
+   - Phép trừ `(TimeOnly.FromDateTime(DateTime.Now) - gioHen).TotalMinutes` bị circular wrap-around sang 1400 phút khi đến sớm.
+   - Đã sửa thành `(DateTime.Now - thoiDiemHen).TotalMinutes` với `thoiDiemHen = ca.NgayTruc.ToDateTime(gioHen)`.
+2. **Lỗi Deadlock 1205 rơi vào khối Exception chung trong `DatLichService.cs`**:
+   - Khi 2 tác vụ Serializable xung đột, SQL Server ném deadlock 1205 khiến ứng dụng hiển thị lỗi hệ thống.
+   - Đã bổ sung bộ lọc ngoại lệ nhận diện Deadlock và tên chỉ mục `UX_PhieuDatHen_KhungGio_HieuLuc`, trả về thông báo chuẩn: `"Khung giờ này vừa có người khác đặt, vui lòng chọn khung giờ khác."`.
 
 ---
 
-## Danh sách tài khoản demo (Mật khẩu: `123456`)
+## Cấu trúc thư mục dự án
+
+```
+Phong/
+├── ClinicBooking.sln                ✅ Solution chứa cả 2 project
+├── HANDOFF_STATUS.md                ✅ File tổng hợp trạng thái dự án (duy nhất ở thư mục gốc)
+├── TEST_REPORT.md                   ✅ Báo cáo chi tiết kết quả kiểm thử 19 Test Cases
+│
+├── ClinicBookingMVC/                ✅ Project chính ASP.NET Core MVC (.NET 11)
+│   ├── Controllers/
+│   │   ├── AdminController.cs       ✅ Full CRUD + BI Dashboard + QuetVangHen
+│   │   ├── BacSiController.cs       ✅ Dashboard ca trực, Gọi số, Bluetooth TTS, Khám, Hoàn tất
+│   │   ├── DatLichController.cs     ✅ Full luồng 4 bước, xác nhận, phiếu hẹn, tra cứu
+│   │   ├── HomeController.cs        ✅ Hero banner + 3 bước hướng dẫn
+│   │   ├── LeTanController.cs       ✅ Hàng đợi thời gian thực, Check-in A/W/L, Quét quá hạn
+│   │   └── TaiKhoanController.cs    ✅ DangNhap, DangKy, DangXuat, KhongCoQuyen (403)
+│   │
+│   ├── Data/
+│   │   ├── ClinicDbContext.cs       ✅ 10 DbSets + Fluent API (RowVersion, Filtered Unique Index)
+│   │   └── DbInitializer.cs         ✅ Seed data 4 vai trò, 3 BS, 3 PK, 120 ca, 161 phiếu
+│   │
+│   ├── Database/
+│   │   ├── ClinicBookingDB.sql       ✅ Script DDL tạo toàn bộ schema và constraints
+│   │   └── Verify_KPI_SQL.sql        ✅ Script SQL thuần đối chiếu 4 chỉ số KPI
+│   │
+│   ├── Migrations/
+│   │   └── 20261119104438_InitialCreate.cs ✅ EF Core migration chuẩn
+│   │
+│   ├── Models/
+│   │   ├── Entities/                 ✅ 10 Entity classes
+│   │   └── ViewModels/               ✅ ViewModels theo từng luồng
+│   │
+│   ├── Services/
+│   │   ├── CaTrucService.cs          ✅ KiemTraTrungCaAsync, SinhKhungGio, DoiTrangThaiKhungGioAsync
+│   │   ├── DatLichService.cs         ✅ DatLichAsync (BR-01,02,03,06), HuyLichAsync, Concurrency handler
+│   │   ├── HangDoiService.cs         ✅ Hàng đợi 3 mức (A, W, L), Cửa sổ 15p, Gọi số, Gọi lại (max 3)
+│   │   ├── VangHenService.cs         ✅ Quét quá hạn 30p -> VangHen, CoCanhBao = true, Nhắc lịch
+│   │   ├── VangHenBackgroundService.cs ✅ IHostedService quét ngầm 5 phút/lần
+│   │   └── BaoCaoService.cs          ✅ Tính 4 KPI cốt lõi, thống kê bác sĩ, lưu lượng, xuất CSV UTF-8 BOM
+│   │
+│   └── Views/                        ✅ Hệ thống view chuẩn Hallmark Design System
+│
+└── ClinicBookingMVC.Tests/           ✅ Project kiểm thử tự động xUnit (.NET 11)
+    ├── TestDbFixture.cs             ✅ Cấu hình DbContext test, khởi tạo DB, tắt song song test
+    ├── TC01_HappyPathTests.cs       ✅ 2 tests: Sinh khung đệm 3:1 & Luồng nghiệp vụ khép kín
+    ├── TC02_ConcurrencyTests.cs     ✅ 1 test: Chạy 2 tác vụ song song tranh chấp 1 slot
+    ├── TC03_NgoaiLeVaHangDoiTests.cs ✅ 9 tests: Ngoại lệ thời gian, trùng lịch, hàng đợi 3 mức, no-show
+    ├── TC04_BaoMatRBACTests.cs      ✅ 6 tests: WebApplicationFactory kiểm thử phân quyền 4 vai trò
+    └── TC05_DoiChieuKpiSqlTests.cs  ✅ 1 test: Đối chiếu 4 chỉ số KPI với ADO.NET SQL thuần
+```
+
+---
+
+## Danh sách tài khoản demo (Mật khẩu chung: `123456`)
 
 | Tên đăng nhập | Vai trò | Mục đích demo |
 |---------------|---------|--------------|
@@ -91,14 +156,20 @@ Time Elapsed 00:00:01.04
 
 ---
 
-## Hướng dẫn chạy và Demo
+## Hướng dẫn chạy và Kiểm thử
 
+### 1. Chạy toàn bộ Test Suite (19 tests)
 ```powershell
-cd "C:\Users\Asus\Desktop\Phong\ClinicBookingMVC"
+dotnet test
+```
+
+### 2. Khởi chạy ứng dụng
+```powershell
+cd "ClinicBookingMVC"
 dotnet run
 ```
 
-- **Admin BI Dashboard**: Truy cập `http://localhost:5072/Admin` (Đăng nhập `admin` / `123456`)
-- **Quầy Lễ tân**: Truy cập `http://localhost:5072/LeTan` (Đăng nhập `letan01` / `123456`)
-- **Màn hình Bác sĩ (Gọi số + Bluetooth Speaker)**: Truy cập `http://localhost:5072/BacSi` (Đăng nhập `bacsi01` / `123456`)
-- **Cổng Bệnh nhân đặt lịch**: Truy cập `http://localhost:5072`
+- **Admin BI Dashboard**: `http://localhost:5072/Admin` (`admin` / `123456`)
+- **Quầy Lễ tân**: `http://localhost:5072/LeTan` (`letan01` / `123456`)
+- **Màn hình Bác sĩ (Gọi số + Bluetooth Speaker)**: `http://localhost:5072/BacSi` (`bacsi01` / `123456`)
+- **Cổng Bệnh nhân đặt lịch**: `http://localhost:5072`

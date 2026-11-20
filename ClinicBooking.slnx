@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ClinicBookingMVC.Tests/ClinicBookingMVC.Tests.csproj" />
+  <Project Path="ClinicBookingMVC/ClinicBookingMVC.csproj" />
+</Solution>

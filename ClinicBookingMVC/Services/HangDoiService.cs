@@ -41,8 +41,8 @@ public class HangDoiService
 
         // TĂ­nh Ä‘á»™ trá»… so vá»›i giá» háº¹n
         var gioHen   = phieuHen.KhungGio.GioBatDau;
-        var now      = TimeOnly.FromDateTime(DateTime.Now);
-        var thoiGianTre = (now - gioHen).TotalMinutes; // dÆ°Æ¡ng = trá»…, Ă¢m = sá»›m
+        var thoiDiemHen = phieuHen.KhungGio.CaTruc.NgayTruc.ToDateTime(gioHen);
+        var thoiGianTre = (DateTime.Now - thoiDiemHen).TotalMinutes; // dÆ°Æ¡ng = trá»…, Ă¢m = sá»›m
 
         if (thoiGianTre > 30)
         {
