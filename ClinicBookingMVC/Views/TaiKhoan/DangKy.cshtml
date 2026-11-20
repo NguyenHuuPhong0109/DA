@@ -1,0 +1,78 @@
+@model ClinicBookingMVC.Models.ViewModels.DangKyVM
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<div class="auth-wrap">
+    <div class="auth-card auth-card--wide">
+        <div class="auth-card__header">
+            <div class="auth-brand">
+                <span class="auth-brand__cross">+</span>
+                <span class="auth-brand__name">ClinicBook</span>
+            </div>
+            <h1 class="auth-card__title">Tạo tài khoản</h1>
+            <p class="auth-card__sub">Đăng ký để đặt lịch khám trực tuyến</p>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert--error">@TempData["Error"]</div>
+        }
+
+        <form method="post" asp-action="DangKy" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label asp-for="HoTen" class="form-label"></label>
+                    <input asp-for="HoTen" class="form-control" placeholder="Nguyễn Văn A" />
+                    <span asp-validation-for="HoTen" class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SoDienThoai" class="form-label"></label>
+                    <input asp-for="SoDienThoai" class="form-control" placeholder="0901234567" />
+                    <span asp-validation-for="SoDienThoai" class="form-error"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" placeholder="email@example.com (không bắt buộc)" />
+                <span asp-validation-for="Email" class="form-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="TenTaiKhoan" class="form-label"></label>
+                <input asp-for="TenTaiKhoan" class="form-control" placeholder="Ít nhất 4 ký tự"
+                       autocomplete="username" />
+                <span asp-validation-for="TenTaiKhoan" class="form-error"></span>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label asp-for="MatKhau" class="form-label"></label>
+                    <input asp-for="MatKhau" class="form-control" placeholder="Ít nhất 6 ký tự"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="MatKhau" class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="XacNhanMatKhau" class="form-label"></label>
+                    <input asp-for="XacNhanMatKhau" class="form-control" placeholder="Nhập lại mật khẩu"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="XacNhanMatKhau" class="form-error"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--full">Tạo tài khoản</button>
+        </form>
+
+        <div class="auth-card__footer">
+            Đã có tài khoản?
+            <a asp-action="DangNhap" class="link">Đăng nhập</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

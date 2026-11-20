@@ -1,0 +1,96 @@
+/* ═══════════════════════════════════════════════
+   CLINIC BOOKING — DESIGN TOKENS  v1.0
+   Nguồn: Hallmark coral-physio-booking + console
+   ═══════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Shared scale ── */
+:root {
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px;
+  --space-sm: 12px; --space-md: 16px; --space-lg: 24px;
+  --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px;
+
+  --text-xs: 0.8125rem; --text-sm: 0.875rem; --text-md: 1rem;
+  --text-lg: 1.25rem; --text-xl: 1.5625rem; --text-2xl: 1.953rem; --text-3xl: 2.441rem;
+  --text-display: clamp(2.75rem, 5vw + 1rem, 5.25rem);
+  --text-section:  clamp(2rem, 2.5vw + 1rem, 3.5rem);
+  --text-title:    clamp(1.25rem, 0.75vw + 0.875rem, 1.625rem);
+  --text-lead:     clamp(1.125rem, 0.35vw + 1rem, 1.375rem);
+
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+
+  --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300;
+  --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+
+  --container: 1280px; --gutter: 48px; --gap-col: 24px;
+  --rule-hair: 1px;
+  --radius-card: 8px; --radius-input: 6px; --radius-pill: 999px;
+  --tracking-display: -0.025em; --display-weight: 700;
+
+  --shadow-card: 0 1px 2px oklch(20% 0.01 35 / 0.05);
+  --shadow-lift: 0 1px 2px oklch(20% 0.01 35 / 0.05),
+                 0 18px 40px -22px oklch(20% 0.01 35 / 0.22);
+
+  --font-display: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-display);
+  --font-outlier: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ── Patient portal (default / light) ── */
+:root,
+[data-portal="patient"] {
+  color-scheme: light;
+  --color-paper:        oklch(97% 0.006 55);
+  --color-paper-2:      oklch(94.5% 0.007 55);
+  --color-paper-3:      oklch(91.5% 0.009 55);
+  --color-ink:          oklch(20% 0.010 35);
+  --color-ink-2:        oklch(27% 0.012 40);
+  --color-muted:        oklch(46% 0.012 45);
+  --color-rule:         oklch(87% 0.009 55);
+  --color-rule-2:       oklch(81% 0.011 55);
+  --color-accent:       oklch(74% 0.125 30);
+  --color-accent-2:     oklch(54% 0.165 29);
+  --color-accent-soft:  oklch(94% 0.040 30);
+  --color-accent-ink:   oklch(20% 0.010 35);
+  --color-focus:        oklch(54% 0.17 30);
+  --color-success:      oklch(50% 0.12 150);
+  --color-success-soft: oklch(90% 0.06 150);
+  --color-error:        oklch(52% 0.19 27);
+  --color-error-soft:   oklch(94% 0.04 25);
+  --color-warning:      oklch(72% 0.14 60);
+  --color-warning-soft: oklch(94% 0.05 60);
+}
+
+/* ── Internal portal (dark graphite + amber) ── */
+[data-portal="internal"] {
+  color-scheme: dark;
+  --color-paper:        oklch(17% 0.008 250);
+  --color-paper-2:      oklch(21% 0.009 250);
+  --color-paper-3:      oklch(13.5% 0.007 250);
+  --color-ink:          oklch(95% 0.005 250);
+  --color-ink-2:        oklch(83% 0.008 250);
+  --color-muted:        oklch(71% 0.01 250);
+  --color-rule:         oklch(31% 0.01 250);
+  --color-rule-2:       oklch(42% 0.012 250);
+  --color-accent:       oklch(82% 0.15 80);
+  --color-accent-soft:  oklch(29% 0.05 80);
+  --color-accent-ink:   oklch(18% 0.04 75);
+  --color-focus:        oklch(82% 0.15 80);
+  --color-ok:           oklch(76% 0.15 150);
+  --color-ok-soft:      oklch(24.5% 0.03 150);
+  --color-bad:          oklch(70% 0.17 25);
+  --color-bad-soft:     oklch(24.5% 0.035 25);
+  --color-cool:         oklch(77% 0.12 245);
+  --color-cool-soft:    oklch(29% 0.05 245);
+  --color-success:      var(--color-ok);
+  --color-success-soft: var(--color-ok-soft);
+  --color-error:        var(--color-bad);
+  --color-error-soft:   var(--color-bad-soft);
+  --radius-pill:        6px;
+  --shadow-card:        none;
+  --shadow-lift:        none;
+}

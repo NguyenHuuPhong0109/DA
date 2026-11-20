@@ -1,0 +1,380 @@
+@model ClinicBookingMVC.Models.ViewModels.LeTanIndexVM
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"]      = "Quầy lễ tân";
+    ViewData["ActiveMenu"] = "LeTan";
+    var thongKePhong   = ViewBag.ThongKePhong   as List<ClinicBookingMVC.Services.PhongChoVM> ?? new();
+    var dsChuyenKhoa   = ViewBag.DanhSachChuyenKhoa as List<ClinicBookingMVC.Models.Entities.ChuyenKhoa> ?? new();
+    int maPhong        = Model.MaPhongDangChon ?? 0;
+}
+
+@* ── Thanh lọc: Chọn phòng + chuyên khoa ── *@
+<div class="page-toolbar">
+    <form method="get" action="/LeTan" class="toolbar-form">
+        <div class="form-row-inline">
+            <select name="maPhong" class="form-control form-control--sm"
+                    onchange="this.form.submit()" aria-label="Chọn phòng khám">
+                <option value="">— Chọn phòng —</option>
+                @foreach (var p in thongKePhong)
+                {
+                    if (p.MaPhong == maPhong)
+                    {
+                        <option value="@p.MaPhong" selected>
+                            @p.TenPhong — @p.SoDangCho chờ
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@p.MaPhong">
+                            @p.TenPhong — @p.SoDangCho chờ
+                        </option>
+                    }
+                }
+            </select>
+            <span class="font-mono" style="color:var(--color-muted);font-size:var(--text-sm)">
+                @Model.NgayHienTai.ToString("dd/MM/yyyy")
+            </span>
+        </div>
+    </form>
+
+    @* Khung check-in nhanh theo MaDatHen / SoDienThoai *@
+    <div class="checkin-nhanh-bar">
+        <input type="text" id="inp-checkin-nhanh" class="form-control form-control--sm font-mono"
+               placeholder="Nhập mã BKxxxxxx hoặc SĐT..." autocomplete="off"
+               style="width:240px" oninput="traTimPhieuNhanh(this.value)" />
+        <div id="kq-checkin-nhanh" class="checkin-nhanh-popup" style="display:none"></div>
+    </div>
+</div>
+
+@if (!Model.MaPhongDangChon.HasValue)
+{
+    @* Hiển thị lưới phòng + tổng quan khi chưa chọn phòng *@
+    <section style="margin-top:var(--space-xl)">
+        <h2 class="section-heading">Tổng quan hàng đợi hôm nay</h2>
+        @if (!thongKePhong.Any())
+        {
+            <p class="empty-notice">Chưa có phòng khám nào đang hoạt động.</p>
+        }
+        else
+        {
+            <div class="phong-grid">
+                @foreach (var p in thongKePhong)
+                {
+                    <a href="/LeTan?maPhong=@p.MaPhong" class="phong-card @(p.SoDangCho > 5 ? "phong-card--busy" : "")">
+                        <div class="phong-card__ten">@p.TenPhong</div>
+                        <div class="phong-card__ck">@p.TenChuyenKhoa</div>
+                        <div class="phong-card__stats">
+                            <span class="phong-card__num font-mono">@p.SoDangCho</span>
+                            <span class="phong-card__label">đang chờ</span>
+                        </div>
+                        @if (p.SoDangGoi > 0)
+                        {
+                            <div class="badge badge--da-xac-nhan" style="margin-top:var(--space-xs)">Đang gọi</div>
+                        }
+                    </a>
+                }
+            </div>
+        }
+    </section>
+}
+else
+{
+    @* ── Thống kê 4 ô ── *@
+    <div class="stats-grid" style="margin-bottom:var(--space-xl)">
+        <div class="stat-card">
+            <div class="stat-card__val font-mono">@Model.SoDangCho</div>
+            <div class="stat-card__label">Đang chờ</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__val font-mono">@Model.SoDangGoi</div>
+            <div class="stat-card__label">Đang gọi</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__val font-mono">@Model.SoDangKham</div>
+            <div class="stat-card__label">Đang khám</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__val font-mono">@Model.SoHoanTat</div>
+            <div class="stat-card__label">Hoàn tất</div>
+        </div>
+    </div>
+
+    <div class="portal-two-col">
+
+        @* ── CỘT TRÁI: Hàng đợi ── *@
+        <section>
+            <h2 class="section-heading">Hàng đợi thực tế</h2>
+
+            @if (!Model.HangDoi.Any())
+            {
+                <p class="empty-notice">Chưa có bệnh nhân check-in hôm nay.</p>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table class="data-table" id="tbl-hangdoi">
+                        <thead>
+                            <tr>
+                                <th>Số</th>
+                                <th>Họ tên</th>
+                                <th>Loại</th>
+                                <th>Giờ hẹn</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var h in Model.HangDoi)
+                            {
+                                var prefix = ClinicBookingMVC.Services.HangDoiService.LoaiKhachToPrefix(h.LoaiKhach);
+                                var soHien = $"{prefix}-{h.SoThuTu:D3}";
+                                var badgeCls = h.TrangThaiPhieu switch {
+                                    "DangCho"  => "badge--cho-xac-nhan",
+                                    "DangGoi"  => "badge--da-xac-nhan",
+                                    "DangKham" => "badge--da-check-in",
+                                    "QuaLuot"  => "badge--da-huy",
+                                    "HoanTat"  => "badge--da-kham",
+                                    _ => ""
+                                };
+                                var tenTT = h.TrangThaiPhieu switch {
+                                    "DangCho"  => "Đang chờ",
+                                    "DangGoi"  => "Đang gọi",
+                                    "DangKham" => "Đang khám",
+                                    "QuaLuot"  => "Quá lượt",
+                                    "HoanTat"  => "Hoàn tất",
+                                    _ => h.TrangThaiPhieu
+                                };
+                                var loaiLabel = h.LoaiKhach switch {
+                                    "DatTruoc"    => "Đặt trước",
+                                    "DatTruocTre" => "Đặt trước (trễ)",
+                                    "VangLai"     => "Vãng lai",
+                                    "ThongThuong" => "Đặt trước",
+                                    _ => h.LoaiKhach
+                                };
+                                var coCanhBao = h.BenhNhan?.CoCanhBao == true;
+
+                                <tr class="@(coCanhBao ? "row--canh-bao" : "")">
+                                    <td>
+                                        <span class="font-mono queue-num--sm @(prefix == "W" ? "color-walkin" : prefix == "L" ? "color-late" : "")">
+                                            @soHien
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @h.BenhNhan?.TenBenhNhan
+                                        @if (coCanhBao)
+                                        {
+                                            <span class="badge badge--vang-hen" title="Vắng hẹn @h.BenhNhan?.SoLanVangHen lần">
+                                                &#9888;
+                                            </span>
+                                        }
+                                    </td>
+                                    <td style="font-size:var(--text-xs);color:var(--color-muted)">@loaiLabel</td>
+                                    <td class="font-mono">
+                                        @(h.GioHen.HasValue ? h.GioHen.Value.ToString(@"HH\:mm") : "—")
+                                    </td>
+                                    <td><span class="badge @badgeCls">@tenTT</span></td>
+                                    <td>
+                                        <div class="action-row">
+                                            @if (h.TrangThaiPhieu == "DangCho")
+                                            {
+                                                <form method="post" action="/LeTan/BatDauKham">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="maPhieu" value="@h.MaPhieu" />
+                                                    <input type="hidden" name="maPhong" value="@maPhong" />
+                                                    <button type="submit" class="btn btn--success btn--xs">Vào khám</button>
+                                                </form>
+                                            }
+                                            @if (h.TrangThaiPhieu == "DangKham")
+                                            {
+                                                <form method="post" action="/LeTan/HoanTat">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="maPhieu" value="@h.MaPhieu" />
+                                                    <input type="hidden" name="maPhong" value="@maPhong" />
+                                                    <button type="submit" class="btn btn--quiet btn--xs">Hoàn tất</button>
+                                                </form>
+                                            }
+                                            @if (h.TrangThaiPhieu == "QuaLuot")
+                                            {
+                                                <form method="post" action="/LeTan/KhoiPhuc">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="maPhieu" value="@h.MaPhieu" />
+                                                    <input type="hidden" name="maPhong" value="@maPhong" />
+                                                    <button type="submit" class="btn btn--quiet btn--xs"
+                                                            title="Đưa bệnh nhân về cuối hàng chờ">
+                                                        ↩ Khôi phục
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        @* ── CỘT PHẢI: Sidebar ── *@
+        <aside>
+
+            @* Check-in vãng lai + auto-fill *@
+            <div class="side-card" style="margin-bottom:var(--space-lg)">
+                <h3 class="side-card__title">Tiếp nhận vãng lai / Đặt hộ</h3>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <div class="input-with-status">
+                        <input type="tel" id="sdt-vanglai" class="form-control font-mono"
+                               placeholder="09x xxx xxxx" autocomplete="off"
+                               oninput="traTimBenhNhan(this.value)" />
+                        <span id="sdt-status" class="input-status"></span>
+                    </div>
+                </div>
+                <div id="info-benhnhan" style="display:none" class="benhnhan-preview"></div>
+
+                <form method="post" action="/LeTan/CheckInVangLai" id="form-vanglai">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="maPhong" value="@maPhong" />
+                    <input type="hidden" id="sdt-hidden" name="soDienThoai" />
+                    <button type="submit" class="btn btn--accent" style="width:100%;margin-top:var(--space-md)"
+                            onclick="document.getElementById('sdt-hidden').value = document.getElementById('sdt-vanglai').value">
+                        Check-in Walk-in
+                    </button>
+                </form>
+            </div>
+
+            @* Phiếu hẹn chờ xác nhận *@
+            @if (Model.ChoXacNhan.Any())
+            {
+                <div class="side-card">
+                    <h3 class="side-card__title">
+                        Chờ xác nhận
+                        <span class="badge badge--vang-hen" style="margin-left:4px">@Model.SoChoXacNhan</span>
+                    </h3>
+                    <div class="phieu-list">
+                        @foreach (var p in Model.ChoXacNhan)
+                        {
+                            <div class="phieu-item @(p.BenhNhan?.CoCanhBao == true ? "phieu-item--canh-bao" : "")">
+                                <div class="phieu-item__head">
+                                    <span class="font-mono" style="font-size:var(--text-sm);font-weight:600">
+                                        @p.MaDatHen
+                                    </span>
+                                    @if (p.BenhNhan?.CoCanhBao == true)
+                                    {
+                                        <span class="badge badge--vang-hen"
+                                              title="Đã vắng hẹn @p.BenhNhan?.SoLanVangHen lần">
+                                            &#9888; Cảnh báo
+                                        </span>
+                                    }
+                                </div>
+                                <div class="phieu-item__name">@p.BenhNhan?.TenBenhNhan</div>
+                                <div class="phieu-item__time font-mono">
+                                    @p.KhungGio?.GioBatDau.ToString(@"HH\:mm")
+                                    — @p.KhungGio?.CaTruc?.BacSi?.HoTenBacSi
+                                </div>
+                                <div class="phieu-item__actions">
+                                    <form method="post" action="/LeTan/XacNhanPhieu" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="maPhieuHen" value="@p.MaPhieuHen" />
+                                        <input type="hidden" name="maPhong"    value="@maPhong" />
+                                        <button type="submit" class="btn btn--success btn--xs">Xác nhận</button>
+                                    </form>
+                                    <form method="post" action="/LeTan/CheckIn" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="maPhieuHen" value="@p.MaPhieuHen" />
+                                        <input type="hidden" name="maPhong"    value="@maPhong" />
+                                        <button type="submit" class="btn btn--accent btn--xs">Check-in</button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </aside>
+    </div>
+
+    @* Auto-refresh 30s *@
+    <script>
+        let _rfTimeout = setTimeout(() => window.location.reload(), 30000);
+
+        // ── Tra cứu nhanh theo MaDatHen / SĐT ──────────────────────────────
+        let _rfTimer;
+        function traTimPhieuNhanh(val) {
+            clearTimeout(_rfTimer);
+            if (val.length < 3) { document.getElementById('kq-checkin-nhanh').style.display = 'none'; return; }
+            _rfTimer = setTimeout(async () => {
+                const res = await fetch(`/LeTan/TraCuuNhanh?q=${encodeURIComponent(val)}`);
+                const d   = await res.json();
+                const box = document.getElementById('kq-checkin-nhanh');
+                if (!d) { box.style.display = 'none'; return; }
+
+                const canh = d.coCanhBao
+                    ? `<span class="badge badge--vang-hen" title="Đã vắng hẹn ${d.soLanVangHen} lần">&#9888;</span>`
+                    : '';
+
+                box.innerHTML = `
+                    <div class="checkin-popup__head">
+                        <strong>${d.tenBenhNhan}</strong> ${canh}
+                        <span class="font-mono" style="color:var(--color-muted);font-size:var(--text-xs)">${d.maDatHen}</span>
+                    </div>
+                    <div style="font-size:var(--text-xs);color:var(--color-muted)">
+                        ${d.gioHen} · ${d.tenBacSi} · ${d.tenPhong}
+                    </div>
+                    <div class="checkin-popup__status">Trạng thái: <strong>${d.trangThaiHen}</strong></div>
+                    ${d.trangThaiHen !== 'DaCheckIn' && d.trangThaiHen !== 'DaKham' ? `
+                    <form method="post" action="/LeTan/CheckIn" style="margin-top:8px">
+                        <input type="hidden" name="__RequestVerificationToken" value="${document.querySelector('input[name=__RequestVerificationToken]').value}" />
+                        <input type="hidden" name="maPhieuHen" value="${d.maPhieuHen}" />
+                        <input type="hidden" name="maPhong"    value="${d.maPhong}" />
+                        <button type="submit" class="btn btn--accent btn--xs">Check-in ngay</button>
+                    </form>` : ''}
+                `;
+                box.style.display = '';
+                // Reset auto-refresh khi đang thao tác
+                clearTimeout(_rfTimeout);
+            }, 350);
+        }
+
+        // ── Auto-fill bệnh nhân vãng lai ─────────────────────────────────────
+        let _bTimer;
+        async function traTimBenhNhan(sdt) {
+            clearTimeout(_bTimer);
+            const statusEl = document.getElementById('sdt-status');
+            const infoEl   = document.getElementById('info-benhnhan');
+
+            if (sdt.length < 9) { statusEl.textContent = ''; infoEl.style.display = 'none'; return; }
+
+            _bTimer = setTimeout(async () => {
+                const res = await fetch(`/LeTan/TraCuuBenhNhan?sdt=${encodeURIComponent(sdt)}`);
+                const d   = await res.json();
+
+                if (d) {
+                    statusEl.textContent = '✓ Khách quen';
+                    statusEl.className   = 'input-status input-status--ok';
+                    const soLanVang = d.soLanVangHen > 0
+                        ? `<span class="badge badge--vang-hen" style="margin-left:4px">&#9888; Vắng ${d.soLanVangHen} lần</span>`
+                        : '';
+                    infoEl.innerHTML = `
+                        <strong>${d.tenBenhNhan}</strong>${soLanVang}
+                        <div style="font-size:var(--text-xs);color:var(--color-muted)">
+                            ${d.namSinh ? `${new Date().getFullYear() - d.namSinh} tuổi` : ''}
+                            ${d.gioiTinh ? '· ' + d.gioiTinh : ''}
+                        </div>`;
+                    infoEl.style.display = '';
+                } else {
+                    statusEl.textContent = '+ Khách mới';
+                    statusEl.className   = 'input-status input-status--new';
+                    infoEl.style.display = 'none';
+                }
+            }, 400);
+        }
+
+        // Đóng popup khi click ngoài
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.checkin-nhanh-bar')) {
+                document.getElementById('kq-checkin-nhanh').style.display = 'none';
+            }
+        });
+    </script>
+}

@@ -1,0 +1,40 @@
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Bảng điều khiển";
+    ViewData["ActiveMenu"] = "Dashboard";
+}
+
+<div class="portal-content__head">
+    <div>
+        <h1 class="portal-content__title">Bảng điều khiển</h1>
+        <p class="portal-content__sub">@DateTime.Today.ToString("dd/MM/yyyy")</p>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card__label">Chuyên khoa</div>
+        <div class="stat-card__value font-mono">@ViewBag.SoChuyenKhoa</div>
+        <a asp-action="ChuyenKhoa" class="stat-card__link">Quản lý →</a>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__label">Phòng khám</div>
+        <div class="stat-card__value font-mono">@ViewBag.SoPhongKham</div>
+        <a asp-action="PhongKham" class="stat-card__link">Quản lý →</a>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__label">Bác sĩ</div>
+        <div class="stat-card__value font-mono">@ViewBag.SoBacSi</div>
+        <a asp-action="BacSi" class="stat-card__link">Quản lý →</a>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__label">Tài khoản</div>
+        <div class="stat-card__value font-mono">@ViewBag.SoTaiKhoan</div>
+        <a asp-action="TaiKhoan" class="stat-card__link">Quản lý →</a>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__label">Ca trực hôm nay</div>
+        <div class="stat-card__value font-mono">@ViewBag.SoCaTrucHomNay</div>
+        <a asp-action="CaTruc" class="stat-card__link">Xem chi tiết →</a>
+    </div>
+</div>

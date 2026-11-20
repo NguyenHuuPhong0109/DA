@@ -1,0 +1,71 @@
+@model IEnumerable<ClinicBookingMVC.Models.Entities.TaiKhoan>
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Tài khoản";
+    ViewData["ActiveMenu"] = "TaiKhoan";
+}
+
+<div class="portal-content__head">
+    <div>
+        <h1 class="portal-content__title">Quản lý Tài khoản</h1>
+        <p class="portal-content__sub">@Model.Count() tài khoản</p>
+    </div>
+    <a asp-action="TaoTaiKhoan" class="btn btn--primary">+ Tạo tài khoản</a>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert--success">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error">@TempData["Error"]</div> }
+
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên tài khoản</th>
+                <th>Số điện thoại</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th style="width:120px">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tk in Model)
+            {
+                <tr>
+                    <td class="font-mono">@tk.TenTaiKhoan</td>
+                    <td>@(tk.SoDienThoai ?? "—")</td>
+                    <td>
+                        <span class="badge badge--role">@(tk.VaiTro?.TenVaiTro ?? "—")</span>
+                    </td>
+                    <td>
+                        <span class="badge @(tk.TrangThai == "HoatDong" ? "badge--hoat-dong" : "badge--bi-khoa")">
+                            @(tk.TrangThai == "HoatDong" ? "Hoạt động" : "Bị khóa")
+                        </span>
+                    </td>
+                    <td class="table-actions">
+                        @if (tk.TenTaiKhoan == "admin")
+                        {
+                            <span class="text-muted" style="font-size:.8rem">Admin gốc</span>
+                        }
+                        else if (tk.TrangThai == "HoatDong")
+                        {
+                            <form method="post" asp-action="KhoaTaiKhoan" asp-route-id="@tk.MaTaiKhoan"
+                                  style="display:inline"
+                                  onsubmit="return confirm('Khóa tài khoản «@tk.TenTaiKhoan»?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn--danger btn--sm">Khóa</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form method="post" asp-action="MoKhoaTaiKhoan" asp-route-id="@tk.MaTaiKhoan"
+                                  style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn--ghost btn--sm">Mở khóa</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

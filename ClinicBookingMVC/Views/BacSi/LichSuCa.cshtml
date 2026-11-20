@@ -1,0 +1,93 @@
+@model List<ClinicBookingMVC.Models.Entities.CaTruc>
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"]      = "Lịch sử ca trực";
+    ViewData["ActiveMenu"] = "BacSi";
+    var tuanBD    = (DateOnly)ViewBag.TuanBatDau;
+    var tuanKT    = (DateOnly)ViewBag.TuanKetThuc;
+    int tuanOffset = (int)ViewBag.TuanOffset;
+    string hoTen  = ViewBag.HoTenBacSi ?? "";
+}
+
+<div class="page-header" style="margin-bottom:var(--space-xl)">
+    <div>
+        <h1 class="page-title">Lịch sử ca trực</h1>
+        <p class="page-sub">@hoTen</p>
+    </div>
+    <a href="/BacSi" class="btn btn--quiet btn--sm">← Hôm nay</a>
+</div>
+
+<div class="toolbar-row" style="margin-bottom:var(--space-lg)">
+    <a href="/BacSi/LichSuCa?tuan=@(tuanOffset - 1)" class="btn btn--quiet btn--sm">← Tuần trước</a>
+    <span class="font-mono" style="padding:0 var(--space-md)">
+        @tuanBD.ToString("dd/MM") — @tuanKT.ToString("dd/MM/yyyy")
+    </span>
+    @if (tuanOffset < 0)
+    {
+        <a href="/BacSi/LichSuCa?tuan=@(tuanOffset + 1)" class="btn btn--quiet btn--sm">Tuần sau →</a>
+    }
+    else
+    {
+        <span class="btn btn--quiet btn--sm" style="opacity:.4;cursor:default">Tuần sau →</span>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p class="empty-state__text">Không có ca trực nào trong tuần này.</p>
+    </div>
+}
+else
+{
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Ca làm việc</th>
+                    <th>Phòng</th>
+                    <th>Giờ bắt đầu</th>
+                    <th>Giờ kết thúc</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ca in Model)
+                {
+                    var caLabel = ca.CaLamViec switch
+                    {
+                        "Sang"  => "Ca sáng",
+                        "Chieu" => "Ca chiều",
+                        "Toi"   => "Ca tối",
+                        _       => ca.CaLamViec
+                    };
+                    var ttLabel  = ca.TrangThaiCa switch
+                    {
+                        "MoKham"  => "Mở khám",
+                        "TamDong" => "Tạm đóng",
+                        "DaKham"  => "Đã khám",
+                        "Huy"     => "Hủy",
+                        _         => ca.TrangThaiCa
+                    };
+                    var ttBadge = ca.TrangThaiCa switch
+                    {
+                        "MoKham"  => "badge--da-xac-nhan",
+                        "DaKham"  => "badge--da-kham",
+                        "TamDong" => "badge--cho-xac-nhan",
+                        "Huy"     => "badge--da-huy",
+                        _         => ""
+                    };
+                    <tr>
+                        <td class="font-mono">@ca.NgayTruc.ToString("dd/MM/yyyy")</td>
+                        <td>@caLabel</td>
+                        <td>@ca.PhongKham?.TenPhong</td>
+                        <td class="font-mono">@ca.GioBatDauCa.ToString(@"HH\:mm")</td>
+                        <td class="font-mono">@ca.GioKetThucCa.ToString(@"HH\:mm")</td>
+                        <td><span class="badge @ttBadge">@ttLabel</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,46 @@
+@model ClinicBookingMVC.Models.ViewModels.PhongKhamVM
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Thêm Phòng khám";
+    ViewData["ActiveMenu"] = "PhongKham";
+}
+
+<div class="portal-content__head">
+    <div><h1 class="portal-content__title">Thêm Phòng khám</h1></div>
+    <a asp-action="PhongKham" class="btn btn--ghost">← Quay lại</a>
+</div>
+
+<div class="form-card">
+    <form method="post" asp-action="TaoPhongKham" novalidate>
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label asp-for="TenPhong" class="form-label"></label>
+            <input asp-for="TenPhong" class="form-control" placeholder="VD: Phòng 101" />
+            <span asp-validation-for="TenPhong" class="form-error"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ViTri" class="form-label"></label>
+            <input asp-for="ViTri" class="form-control" placeholder="VD: Tầng 1, dãy A" />
+        </div>
+        <div class="form-group">
+            <label asp-for="MaChuyenKhoa" class="form-label"></label>
+            <select asp-for="MaChuyenKhoa" asp-items="ViewBag.ChuyenKhoaList" class="form-control">
+                <option value="">-- Chọn chuyên khoa --</option>
+            </select>
+            <span asp-validation-for="MaChuyenKhoa" class="form-error"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="TrangThai" class="form-label"></label>
+            <select asp-for="TrangThai" class="form-control">
+                <option value="HoatDong">Hoạt động</option>
+                <option value="NgungHoatDong">Ngừng hoạt động</option>
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Lưu</button>
+            <a asp-action="PhongKham" class="btn btn--ghost">Hủy</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

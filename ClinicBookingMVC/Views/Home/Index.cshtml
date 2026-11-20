@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ — ClinicBook";
+}
+
+<section class="hero">
+    <div class="container">
+        <div class="hero__inner">
+            <div class="hero__text">
+                <p class="hero__label">Hệ thống đặt lịch khám trực tuyến</p>
+                <h1 class="hero__title">Đặt lịch khám<br>nhanh chóng, tiện lợi</h1>
+                <p class="hero__desc">
+                    Chọn chuyên khoa, bác sĩ và khung giờ phù hợp từ xa.
+                    Nhận mã xác nhận ngay sau khi đặt lịch thành công.
+                </p>
+                <div class="hero__actions">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        <a asp-controller="DatLich" asp-action="Index"
+                           class="btn btn--primary btn--lg">Đặt lịch ngay</a>
+                        <a asp-controller="DatLich" asp-action="TraCuu"
+                           class="btn btn--outline btn--lg">Tra cứu lịch hẹn</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="TaiKhoan" asp-action="DangKy"
+                           class="btn btn--primary btn--lg">Đăng ký miễn phí</a>
+                        <a asp-controller="TaiKhoan" asp-action="DangNhap"
+                           class="btn btn--outline btn--lg">Đăng nhập</a>
+                    }
+                </div>
+            </div>
+            <div class="hero__visual" aria-hidden="true">
+                <div class="hero__mockcard">
+                    <div class="hero__mockcard-label">Phiếu đặt hẹn</div>
+                    <div class="hero__mockcard-code font-mono">DH-20261119-001</div>
+                    <span class="badge badge--da-xac-nhan">Đã xác nhận</span>
+                    <div class="hero__mockcard-time font-mono">08:30 · Tim mạch</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features container section-pad">
+    <h2 class="section-title">Quy trình 3 bước đơn giản</h2>
+    <div class="features-grid">
+        <div class="feature-step">
+            <div class="feature-step__num font-mono">01</div>
+            <h3 class="feature-step__title">Chọn lịch khám</h3>
+            <p class="feature-step__desc">
+                Chọn chuyên khoa, bác sĩ và khung giờ trống phù hợp lịch của bạn.
+            </p>
+        </div>
+        <div class="feature-step">
+            <div class="feature-step__num font-mono">02</div>
+            <h3 class="feature-step__title">Nhận mã xác nhận</h3>
+            <p class="feature-step__desc">
+                Hệ thống gửi mã đặt hẹn tức thì. Lưu mã để tra cứu khi cần.
+            </p>
+        </div>
+        <div class="feature-step">
+            <div class="feature-step__num font-mono">03</div>
+            <h3 class="feature-step__title">Check-in tại quầy</h3>
+            <p class="feature-step__desc">
+                Trình mã đặt hẹn tại lễ tân. Hệ thống xếp số tự động, không phải chờ lâu.
+            </p>
+        </div>
+    </div>
+</section>

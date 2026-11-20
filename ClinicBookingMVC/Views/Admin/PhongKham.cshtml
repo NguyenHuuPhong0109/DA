@@ -1,0 +1,62 @@
+@model IEnumerable<ClinicBookingMVC.Models.Entities.PhongKham>
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Phòng khám";
+    ViewData["ActiveMenu"] = "PhongKham";
+}
+
+<div class="portal-content__head">
+    <div>
+        <h1 class="portal-content__title">Quản lý Phòng khám</h1>
+        <p class="portal-content__sub">@Model.Count() phòng</p>
+    </div>
+    <a asp-action="TaoPhongKham" class="btn btn--primary">+ Thêm phòng</a>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert--success">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error">@TempData["Error"]</div> }
+
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="font-mono" style="width:60px">#</th>
+                <th>Tên phòng</th>
+                <th>Vị trí</th>
+                <th>Chuyên khoa</th>
+                <th>Trạng thái</th>
+                <th style="width:140px">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td class="font-mono">@p.MaPhong</td>
+                    <td>@p.TenPhong</td>
+                    <td>@(p.ViTri ?? "—")</td>
+                    <td>@(p.ChuyenKhoa?.TenChuyenKhoa ?? "—")</td>
+                    <td>
+                        <span class="badge @(p.TrangThai == "HoatDong" ? "badge--hoat-dong" : "badge--ngung")">
+                            @(p.TrangThai == "HoatDong" ? "Hoạt động" : "Ngừng")
+                        </span>
+                    </td>
+                    <td class="table-actions">
+                        <a asp-action="SuaPhongKham" asp-route-id="@p.MaPhong"
+                           class="btn btn--ghost btn--sm">Sửa</a>
+                        <form method="post" asp-action="XoaPhongKham" asp-route-id="@p.MaPhong"
+                              style="display:inline"
+                              onsubmit="return confirm('Xóa phòng «@p.TenPhong»?')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn--danger btn--sm">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr><td colspan="6" class="table-empty">Chưa có phòng khám nào.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
