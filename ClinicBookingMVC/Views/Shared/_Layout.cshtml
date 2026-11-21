@@ -29,11 +29,24 @@
           <div class="site-nav__end">
             @if (User.Identity?.IsAuthenticated == true)
             {
-              <span class="text-sm text-muted">Xin chào, <strong>@User.Identity.Name</strong></span>
-              <form asp-controller="TaiKhoan" asp-action="DangXuat" method="post" style="display:inline">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-sm btn-outline-secondary">Đăng xuất</button>
-              </form>
+              <div class="btn-list" style="align-items:center">
+                @if (User.IsInRole("Admin"))
+                {
+                  <a class="btn btn-sm btn-outline-primary" asp-controller="Admin" asp-action="Index">Cổng Admin</a>
+                }
+                else if (User.IsInRole("LeTan"))
+                {
+                  <a class="btn btn-sm btn-outline-primary" asp-controller="LeTan" asp-action="Index">Cổng Lễ tân</a>
+                }
+                else if (User.IsInRole("BacSi"))
+                {
+                  <a class="btn btn-sm btn-outline-primary" asp-controller="BacSi" asp-action="Index">Màn hình Bác sĩ</a>
+                }
+                <form asp-controller="TaiKhoan" asp-action="DangXuat" method="post" style="display:inline">
+                  @Html.AntiForgeryToken()
+                  <button type="submit" class="btn btn-sm btn-outline-secondary">Đăng xuất</button>
+                </form>
+              </div>
             }
             else
             {

@@ -465,6 +465,7 @@ function _updateUI(maPhong, d) {
 
 // ── Gọi số tiếp theo ────────────────────────────────────────────────────────
 async function goiSoTiepTheo(maPhong) {
+    BluetoothSpeaker.unlockAudio(); // Mở khóa âm thanh đồng bộ trong user gesture (iOS Safari / Android Chrome)
     _setLoading(maPhong, true);
     try {
         const res = await fetch('/BacSi/GoiSoTiepTheo', {
@@ -493,6 +494,7 @@ async function goiSoTiepTheo(maPhong) {
 
 // ── Gọi lại ─────────────────────────────────────────────────────────────────
 async function goiLai(maPhong) {
+    BluetoothSpeaker.unlockAudio(); // Mở khóa âm thanh đồng bộ trong user gesture (iOS Safari / Android Chrome)
     const st = _state[maPhong];
     if (!st?.maPhieuGoi) return;
     _setLoading(maPhong, true);

@@ -13,13 +13,21 @@
 <body>
   <a class="skip-link" href="#main-content">Bỏ qua điều hướng</a>
 
+  <!-- Lớp phủ mờ (Backdrop) khi mở menu trên thiết bị di động -->
+  <div class="portal-backdrop" id="portalBackdrop" aria-hidden="true"></div>
+
   <div class="portal-wrap">
-    <!-- ── Sidebar ── -->
-    <aside class="portal-sidebar" aria-label="Menu nội bộ">
-      <a class="portal-sidebar__brand" asp-controller="Home" asp-action="Index">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        Phòng Khám Đa Khoa
-      </a>
+    <!-- ── Sidebar (Ngăn kéo trượt trên Mobile < 992px) ── -->
+    <aside class="portal-sidebar" id="portalSidebar" aria-label="Menu nội bộ">
+      <div class="portal-sidebar__head">
+        <a class="portal-sidebar__brand" asp-controller="Home" asp-action="Index">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Phòng Khám Đa Khoa
+        </a>
+        <button type="button" class="portal-sidebar__close" id="portalSidebarClose" aria-label="Đóng menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
 
       <nav aria-label="Điều hướng nội bộ">
         <ul class="sidebar-nav" role="list">
@@ -118,7 +126,7 @@
         <div style="margin-top:var(--space-md)">
           <form asp-controller="TaiKhoan" asp-action="DangXuat" method="post">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-sm btn-outline-secondary" style="width:100%;justify-content:center">
+            <button type="submit" class="btn btn-outline-danger" style="width:100%;justify-content:center;min-height:40px;font-weight:600">
               Đăng xuất
             </button>
           </form>
@@ -129,15 +137,20 @@
     <!-- ── Main area ── -->
     <div class="portal-main">
       <header class="portal-topbar">
-        <div class="portal-topbar__breadcrumb">
-          @if (ViewData["Breadcrumb"] != null)
-          {
-            @Html.Raw(ViewData["Breadcrumb"])
-          }
-          else
-          {
-            <span>@ViewData["Title"]</span>
-          }
+        <div style="display:flex;align-items:center;gap:var(--space-sm)">
+          <button type="button" class="portal-mobile-toggle" id="portalMobileToggle" aria-label="Mở menu quản trị">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="portal-topbar__breadcrumb">
+            @if (ViewData["Breadcrumb"] != null)
+            {
+              @Html.Raw(ViewData["Breadcrumb"])
+            }
+            else
+            {
+              <span>@ViewData["Title"]</span>
+            }
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-sm)">
           <span class="text-sm text-muted fig">@DateTime.Now.ToString("dd/MM/yyyy")</span>
@@ -167,6 +180,29 @@
   <script src="~/lib/jquery/dist/jquery.min.js"></script>
   <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
   <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+  <script>
+    // ── Xử lý Drawer / Offcanvas menu trên Mobile (< 992px) ──
+    const _portalToggleBtn = document.getElementById('portalMobileToggle');
+    const _portalCloseBtn  = document.getElementById('portalSidebarClose');
+    const _portalSidebar   = document.getElementById('portalSidebar');
+    const _portalBackdrop  = document.getElementById('portalBackdrop');
+
+    function _openMobileSidebar() {
+      if (_portalSidebar) _portalSidebar.classList.add('is-open');
+      if (_portalBackdrop) _portalBackdrop.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function _closeMobileSidebar() {
+      if (_portalSidebar) _portalSidebar.classList.remove('is-open');
+      if (_portalBackdrop) _portalBackdrop.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
+    if (_portalToggleBtn) _portalToggleBtn.addEventListener('click', _openMobileSidebar);
+    if (_portalCloseBtn)  _portalCloseBtn.addEventListener('click', _closeMobileSidebar);
+    if (_portalBackdrop)  _portalBackdrop.addEventListener('click', _closeMobileSidebar);
+  </script>
   @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
