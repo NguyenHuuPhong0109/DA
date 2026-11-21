@@ -1,6 +1,6 @@
 # HANDOFF STATUS — ClinicBookingMVC (HTTT-13)
 
-**Cập nhật lần cuối:** 2026-11-20 · **Hoàn thành Giai đoạn 6C (Kiểm thử chức năng End-to-End & Cẩm nang Hướng dẫn sử dụng)**
+**Cập nhật lần cuối:** 2026-11-21 · **Hoàn thành Giai đoạn 7 (Hybrid TTS tiếng Việt Loa Bluetooth, Tối ưu Mobile 390px, Deploy HTTPS Cloudflare Tunnel & MonsterASP.NET)**
 
 ---
 
@@ -18,7 +18,9 @@ Test Run Successful.
     Passed: 20 (100%)
     Failed: 0
     Skipped: 0
-    Duration: 4.0s (ClinicBookingMVC.Tests.dll)
+    Duration: 5.0s (ClinicBookingMVC.Tests.dll)
+
+Publish Release: Succeeded (./publish)
 ```
 
 ---
@@ -35,6 +37,8 @@ Test Run Successful.
 | 6A | Kiểm thử hệ thống tự động (xUnit 5 nhóm kịch bản) + Đối chiếu KPI SQL thuần + Báo cáo TEST_REPORT.md | ✅ Hoàn thành |
 | 6B | Chuyển toàn bộ hệ thống sang Chế độ Sáng (Tabler Light Mode) + Chuẩn hóa 100% Nút bấm, Thẻ, Bảng, Biểu đồ | ✅ Hoàn thành |
 | 6C | Kiểm thử thực tế End-to-End 4 vai trò + Biên soạn KET_QUA_KIEM_THU_CHUC_NANG.md + Cẩm nang HUONG_DAN_SU_DUNG_HE_THONG.md | ✅ Hoàn thành |
+| 6D | Cơ chế làm mới an toàn (--reseed) + Đổ dữ liệu dày đặc 4 ngày (Today..Today+3) + TEST_DATA_CHEATSHEET.md | ✅ Hoàn thành |
+| 7 | Hybrid TTS tiếng Việt chuẩn (Loa Bluetooth) + Tối ưu Mobile 390px + Đóng gói Deploy Cloudflare/MonsterASP.NET | ✅ Hoàn thành |
 
 ---
 
@@ -78,9 +82,25 @@ Test Run Successful.
 - **Lỗi duplicate key trong BacSiController.Index khi Bác sĩ có nhiều ca trực trong cùng phòng:** Khi Bác sĩ (như `bacsi02`) được phân công 2 ca trực trong cùng ngày tại cùng 1 phòng (ví dụ Ca Sáng và Ca Chiều tại Phòng 102), dòng `ViewBag.TenPhongMap = caTrucs.ToDictionary(c => c.MaPhong, c => c.PhongKham.TenPhong)` ném ra ngoại lệ `System.ArgumentException: An item with the same key has already been added. Key: 2`. Đã sửa thành `caTrucs.DistinctBy(c => c.MaPhong).ToDictionary(...)` và bổ sung test tự động `BacSiController_DangNhapBacSi02_NhieuCaTrucCungPhongTrongNgay_KhongBiLoiToDictionary`.
 - **Lỗi tràn ranh giới ngày khi chạy test ca đêm:** Các test case thời gian (`TC01_HappyPathTests` và `TC03_NgoaiLeVaHangDoiTests`) trước đây dùng `DateTime.Now.AddMinutes(40)` và `DateTime.Now.AddHours(3)` kết hợp với `DateOnly.FromDateTime(DateTime.Today)` dẫn đến khi chạy test sau 21:00 đêm, giờ hẹn bị tràn sang ngày hôm sau trong khi ngày trực vẫn gán là hôm nay (gây vi phạm CHECK constraint `CK_CaTruc_GioHopLe` và tính sai thời gian hủy lịch). Đã sửa để tính toán đồng bộ cả `DateOnly` và `TimeOnly` từ thời điểm đích, đảm bảo 100% test case pass bất kể thời điểm chạy trong ngày.
 
-### 3. Xuất xưởng 02 Tài liệu Markdown chi tiết tại Thư mục gốc
-1. `KET_QUA_KIEM_THU_CHUC_NANG.md`: Bảng tài khoản mẫu + Bảng kết quả kiểm thử chức năng chi tiết 28 kịch bản bao phủ 04 vai trò và bảo mật RBAC.
-2. `HUONG_DAN_SU_DUNG_HE_THONG.md`: Cẩm nang hướng dẫn sử dụng toàn diện gồm 4 phần lớn, mỗi chức năng đều có đủ 4 mục chuẩn: Ý nghĩa nghiệp vụ, Quyền & Đường dẫn, Hướng dẫn từng bước với đúng tên nhãn/nút bấm trên giao diện, và Kết quả hệ thống kèm quy tắc nghiệp vụ `BR-01` đến `BR-07`.
+### 4. Chi tiết Giai đoạn 6D đã triển khai (Cơ chế --reseed & Đổ dữ liệu dày đặc 4 ngày)
+- **Cơ chế `--reseed` an toàn:**
+  - Hỗ trợ tham số dòng lệnh `--reseed` khi chạy `dotnet run --project ClinicBookingMVC -- --reseed`.
+  - Xóa dữ liệu theo đúng thứ tự ngược khóa ngoại (`PhieuSoThuTu` -> `PhieuDatHen` -> `KhungGio` -> `CaTruc` -> `BenhNhan` -> `BacSi` -> `PhongKham` -> `ChuyenKhoa` -> `TaiKhoan` -> `VaiTro`) và gọi `DBCC CHECKIDENT` reset về 0, sau đó nạp lại toàn bộ dữ liệu mới và thoát sạch sẽ.
+  - Khi chạy thường (không có `--reseed`), kiểm tra bảng `VaiTro` đã có dữ liệu thì bỏ qua, không làm mất dữ liệu test do người dùng tạo.
+- **Quy mô dữ liệu nền:**
+  - 4 Chuyên khoa: Nội tổng quát, Tai Mũi Họng, Da liễu, Nhi khoa.
+  - 4 Phòng khám: Phòng 101, Phòng 102, Phòng 103, Phòng 104.
+  - 4 Bác sĩ hoạt động: BS An (P101), BS Bình (P102), BS Cường (P103), BS Đức (P104).
+  - 75 Bệnh nhân với SĐT 10 số duy nhất, gồm 10 bệnh nhân có `SoLanVangHen >= 2` (SQL Server tự tính `CoCanhBao = 1`).
+- **Mật độ dữ liệu 4 ngày liên tục (`Today` đến `Today + 3`):**
+  - Đủ 3 ca mỗi ngày cho tất cả 4 phòng: Sáng (07:30 - 11:30, slot 15p), Chiều (13:30 - 17:30, slot 15p), Tối (18:00 - 20:00, slot 20p) = 48 ca trực dày đặc.
+  - Tự động sinh KhungGio theo tỷ lệ chuẩn 3 Đặt hẹn : 1 Khung đệm (1.056 slot).
+  - 489 phiếu hẹn: phủ đầy 75%–85% các ca, lấp đầy đủ mọi trạng thái (`DaKham`, `VangHen`, `DaHuy`, `ChoXacNhan`, `DaXacNhan`, `DaCheckIn`).
+  - Cố ý tạo sẵn 4 phiếu `DaXacNhan` quá giờ hẹn > 30p chưa check-in để test nút "Quét quá hạn ngay" và `VangHenBackgroundService`.
+  - Cố ý tạo sẵn 8 phiếu `ChoXacNhan` gắn bệnh nhân cờ đỏ cảnh báo để test hiển thị badge đỏ và nút Duyệt của Lễ tân.
+  - Gán sẵn các lịch hẹn tương lai cho các tài khoản `benhnhan01`, `benhnhan02`, `benhnhan03` để test hủy lịch ($\ge 2$ giờ) và tra cứu.
+  - Hàng đợi trực tiếp hôm nay (`PhieuSoThuTu`): Mỗi phòng khám có sẵn 13 phiếu thứ tự hoạt động (1 DangKham, 4 DangCho A, 4 DangCho W, 2 DangCho L, 2 QuaLuot để test khôi phục lượt).
+- **Xuất bản `TEST_DATA_CHEATSHEET.md`:** Cẩm nang tra cứu nhanh các mã `MaDatHen` và số điện thoại mẫu để phục vụ kiểm thử tất cả các tính năng của hệ thống.
 
 ---
 
@@ -128,6 +148,41 @@ Test Run Successful.
 
 ---
 
+## Chi tiết Giai đoạn 7 đã triển khai (TTS Loa Bluetooth, Tối ưu Mobile 390px & Đóng gói Deploy)
+
+### 1. Kiến trúc Hybrid TTS 2 tầng phát giọng tiếng Việt chuẩn tự nhiên
+- **Backend Proxy (`Controllers/TtsController.cs`):**
+  - Endpoint `[HttpGet("/api/tts/speak")]` (quyền `BacSi,LeTan,Admin`), validate chuỗi $\le 220$ ký tự, stream trực tiếp từ Google TTS (`client=tw-ob`, `tl=vi`) kèm header `User-Agent` chuẩn và cache 1 giờ.
+  - Khắc phục triệt để lỗi không có giọng `vi-VN` cục bộ trên Windows, Edge, Chrome và iOS/Android.
+- **Bộ điều khiển âm thanh Loa Bluetooth (`wwwroot/js/bluetooth-speaker.js`):**
+  - Tự động chuẩn hóa số thứ tự sang tiếng Việt chữ (ví dụ: `A-001` $\to$ `"A không không một"`, `W-012` $\to$ `"W không một hai"`, `L-005` $\to$ `"L không không năm"`), không bị ngắc ngứ hay đọc dấu gạch ngang.
+  - Cơ chế **`unlockAudio()` đồng bộ** trong cử chỉ click của nút "Gọi số tiếp theo", "Gọi lại" và "Kiểm tra Loa" để vượt qua rào cản Autoplay Policy trên iOS Safari và Android Chrome.
+  - Chuỗi phát âm thanh: Chuông Ding-Dong Web Audio API $\to$ chờ 600ms $\to$ Tầng 1 (API Proxy Backend) $\to$ Tự động fallback sang Tầng 2 (Web Speech API) nếu mất mạng.
+  - Nút "Kiểm tra Loa" phát câu mẫu thực tế: *"Xin mời bệnh nhân số A không không một, Nguyễn Văn An, vào Phòng 101"*.
+
+### 2. Tối ưu giao diện kiểm thử 4 vai trò trên điện thoại di động (Mobile 390px)
+- **Drawer Menu trượt (Offcanvas Navigation) cho Cổng nội bộ (`_PortalLayout.cshtml` & `clinic.css`):**
+  - Trên màn hình $< 992px$, bổ sung header cố định có nút Hamburger $\to$ chạm vào mở ngăn kéo trượt mượt mà có backdrop mờ.
+  - Hiển thị đầy đủ Menu theo phân quyền, avatar người dùng, tên đăng nhập, vai trò và nút **Đăng xuất lớn** (đạt chiều cao tối thiểu 40px) giúp đổi vai trò tức thì trên điện thoại.
+- **Khối chuyển nhanh tài khoản trên `Views/TaiKhoan/DangNhap.cshtml`:**
+  - Thêm thẻ "Tài khoản kiểm thử nhanh" với 4 nút chạm tự động điền thông tin đăng nhập cho `admin`, `letan01`, `bacsi01`, `benhnhan01` (mật khẩu `123456`), không cần gõ phím trên màn hình cảm ứng nhỏ.
+- **Cuộn bảng an toàn trên Mobile:**
+  - Toàn bộ bảng dữ liệu trong `LeTan`, `BacSi`, `Admin` được bao bọc bởi `.table-wrap` / `.table-responsive` hỗ trợ `-webkit-overflow-scrolling: touch`, không làm tràn layout hay vỡ khung nhìn di động.
+
+### 3. Đóng gói Deploy & Tên miền HTTPS miễn phí
+- **Cấu hình Reverse Proxy trong `Program.cs`:**
+  - `ForwardedHeadersOptions` với `XForwardedFor | XForwardedProto`, xóa `KnownIPNetworks` và `KnownProxies`.
+  - Cookie Authentication: `SameSite = SameSiteMode.Lax` và `SecurePolicy = CookieSecurePolicy.SameAsRequest`.
+  - Cơ chế bỏ qua HttpsRedirection khi chạy sau Tunnel/Proxy để chống lỗi lặp chuyển hướng (`ERR_TOO_MANY_REDIRECTS`).
+- **Bộ file triển khai hoàn chỉnh:**
+  - `start-demo-tunnel.bat`: 1-click khởi chạy song song máy chủ cục bộ và Cloudflare Tunnel, cấp liên kết HTTPS `https://*.trycloudflare.com` mở trực tiếp trên điện thoại qua mạng 4G/Wi-Fi.
+  - `DEPLOY_GUIDE.md`: Cẩm nang hướng dẫn chi tiết Cách 1 (Demo tức thì với Cloudflare) và Cách 2 (Treo online 24/7 trên MonsterASP.NET miễn phí).
+  - `ClinicBookingMVC/Database/Deploy_Schema_And_Seed.sql`: Script SQL thuần 1-click (không chứa `CREATE DATABASE`), nạp toàn bộ cấu trúc bảng và 9 tài khoản mẫu trên bất kỳ hosting SQL Server nào.
+  - `ClinicBookingMVC/appsettings.Production.template.json`: Mẫu cấu hình môi trường Production.
+  - `dotnet publish -c Release -o ./publish`: Xuất bản thành công thư mục deploy hoàn chỉnh (0 warning, 0 error).
+
+---
+
 ## Cấu trúc thư mục dự án
 
 ```
@@ -135,19 +190,25 @@ Phong/
 ├── ClinicBooking.sln                ✅ Solution chứa cả 2 project
 ├── HANDOFF_STATUS.md                ✅ File tổng hợp trạng thái dự án (duy nhất ở thư mục gốc)
 ├── DESIGN_SYSTEM.md                 ✅ Tài liệu hệ thống thiết kế Tabler Light Mode v2.0
-├── TEST_REPORT.md                   ✅ Báo cáo chi tiết kết quả kiểm thử 19 Test Cases xUnit
+├── TEST_REPORT.md                   ✅ Báo cáo chi tiết kết quả kiểm thử 20 Test Cases xUnit
 ├── KET_QUA_KIEM_THU_CHUC_NANG.md    ✅ Báo cáo kiểm thử chức năng thực tế 28 kịch bản (4 vai trò + RBAC)
 ├── HUONG_DAN_SU_DUNG_HE_THONG.md    ✅ Cẩm nang hướng dẫn sử dụng toàn diện theo chuẩn Tabler (4 vai trò)
+├── TEST_DATA_CHEATSHEET.md          ✅ Bảng tra cứu dữ liệu kiểm thử nhanh (75 BN, 48 Ca, 489 Phiếu)
+├── DEPLOY_GUIDE.md                  ✅ Hướng dẫn triển khai HTTPS Cloudflare Tunnel & MonsterASP.NET
+├── start-demo-tunnel.bat            ✅ Script 1-click mở tên miền HTTPS miễn phí cho điện thoại & hội đồng
 │
 ├── ClinicBookingMVC/                ✅ Project chính ASP.NET Core MVC (.NET 11)
-│   ├── Controllers/                 ✅ 5 Controller (Home, DatLich, LeTan, BacSi, Admin, TaiKhoan)
-│   ├── Services/                    ✅ 5 Service nghiệp vụ cốt lõi
+│   ├── Controllers/                 ✅ 6 Controller (Home, DatLich, LeTan, BacSi, Admin, TaiKhoan, Tts)
+│   ├── Services/                    ✅ 5 Service nghiệp vụ cốt lõi + 1 BackgroundService
 │   ├── Models/                      ✅ 10 Entity EF Core 3NF + ViewModels
-│   ├── Database/                    ✅ Script khởi tạo + Seed data + Verify_KPI_SQL.sql
-│   ├── Views/                       ✅ 25 View Razor chuẩn Tabler Light Mode
-│   └── wwwroot/                     ✅ CSS tokens/clinic v2.0, JS Bluetooth speaker
+│   ├── Database/                    ✅ Deploy_Schema_And_Seed.sql, ClinicBookingDB.sql, Verify_KPI_SQL.sql
+│   ├── Views/                       ✅ 25 View Razor chuẩn Tabler Light Mode & Mobile Drawer
+│   ├── wwwroot/                     ✅ CSS tokens/clinic v2.0, JS Bluetooth speaker Hybrid TTS
+│   └── appsettings.Production.template.json ✅ Mẫu cấu hình Production
 │
-└── ClinicBookingMVC.Tests/          ✅ Project kiểm thử tự động xUnit
-    ├── Fixtures/                    ✅ TestDbFixture.cs (SQL Server LocalDB / ClinicBookingTestDB)
-    └── TestCases/                   ✅ 5 File kiểm thử tự động tương ứng 5 nhóm kịch bản
+├── ClinicBookingMVC.Tests/          ✅ Project kiểm thử tự động xUnit (20/20 Test Cases Pass)
+│   ├── Fixtures/                    ✅ TestDbFixture.cs (SQL Server LocalDB / ClinicBookingTestDB)
+│   └── TestCases/                   ✅ 5 File kiểm thử tự động tương ứng 5 nhóm kịch bản
+│
+└── publish/                         ✅ Thư mục đóng gói Release sẵn sàng deploy hosting/IIS
 ```
