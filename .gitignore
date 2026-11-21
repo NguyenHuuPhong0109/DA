@@ -489,3 +489,4 @@ $RECYCLE.BIN/
 _design-ref/
 publish/
 appsettings.Production.json
+*.bak
