@@ -223,6 +223,7 @@ public class TC03_NgoaiLeVaHangDoiTests
         db.BenhNhans.AddRange(bnA, bnW);
         await db.SaveChangesAsync();
 
+        var baseNow = new TimeOnly(9, 0); // Giả lập 9h00 sáng để tránh tràn qua nửa đêm khi chạy test ban đêm
         // Khách A: Đặt trước, giờ hẹn là Now + 25 phút (chưa tới cửa sổ 15 phút)
         var phieuSTT_A = new PhieuSoThuTu
         {
@@ -230,8 +231,8 @@ public class TC03_NgoaiLeVaHangDoiTests
             NgayCapSo = today,
             LoaiKhach = "DatTruoc",
             MucUuTien = 1,
-            GioHen = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(25)),
-            ThoiGianCheckIn = DateTime.Now.AddMinutes(-5),
+            GioHen = baseNow.AddMinutes(25),
+            ThoiGianCheckIn = DateTime.Today.AddHours(8).AddMinutes(55),
             TrangThaiPhieu = "DangCho",
             MaPhong = testPhong.MaPhong,
             MaBenhNhan = bnA.MaBenhNhan
@@ -245,7 +246,7 @@ public class TC03_NgoaiLeVaHangDoiTests
             LoaiKhach = "VangLai",
             MucUuTien = 2,
             GioHen = null,
-            ThoiGianCheckIn = DateTime.Now.AddMinutes(-10),
+            ThoiGianCheckIn = DateTime.Today.AddHours(8).AddMinutes(50),
             TrangThaiPhieu = "DangCho",
             MaPhong = testPhong.MaPhong,
             MaBenhNhan = bnW.MaBenhNhan
@@ -256,7 +257,7 @@ public class TC03_NgoaiLeVaHangDoiTests
 
         // Gọi số tiếp theo: Vì khách A chưa vào cửa sổ kích hoạt (GioHen > Now + 15p), thuật toán không cho nhảy cóc
         // mà phải gọi khách vãng lai W trước!
-        var result = await hangDoiService.GoiSoTiepTheoAsync(testPhong.MaPhong);
+        var result = await hangDoiService.GoiSoTiepTheoAsync(testPhong.MaPhong, baseNow);
         Assert.NotNull(result);
         Assert.Equal(phieuSTT_W.MaPhieu, result.MaPhieu);
         Assert.Equal("W", result.Prefix);
@@ -287,6 +288,9 @@ public class TC03_NgoaiLeVaHangDoiTests
 
         // Tạo ca trực và khung giờ có giờ hẹn cách đây 20 phút (trễ trong khoảng 16 - 30 phút)
         var gioHenTre20Phut = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(-20));
+        var gioKetThucCa = gioHenTre20Phut.AddHours(1);
+        if (gioKetThucCa <= gioHenTre20Phut) gioKetThucCa = new TimeOnly(23, 59, 59);
+
         var ca = new CaTruc
         {
             MaBacSi = bacSi.MaBacSi,
@@ -294,17 +298,20 @@ public class TC03_NgoaiLeVaHangDoiTests
             NgayTruc = today,
             CaLamViec = "CaTre_" + Guid.NewGuid().ToString("N")[..6],
             GioBatDauCa = gioHenTre20Phut,
-            GioKetThucCa = gioHenTre20Phut.AddHours(1),
+            GioKetThucCa = gioKetThucCa,
             ThoiLuongMoiKhungGio = 15
         };
         db.CaTrucs.Add(ca);
         await db.SaveChangesAsync();
 
+        var gioKetThucKg = gioHenTre20Phut.AddMinutes(15);
+        if (gioKetThucKg <= gioHenTre20Phut) gioKetThucKg = new TimeOnly(23, 59, 59);
+
         var kg = new KhungGio
         {
             MaCa = ca.MaCa,
             GioBatDau = gioHenTre20Phut,
-            GioKetThuc = gioHenTre20Phut.AddMinutes(15),
+            GioKetThuc = gioKetThucKg,
             LoaiKhungGio = "DatHen",
             TrangThai = "DaDat"
         };
@@ -448,6 +455,9 @@ public class TC03_NgoaiLeVaHangDoiTests
 
         // Tạo ca trực và khung giờ có giờ hẹn cách đây 45 phút (> 30 phút so với giờ hẹn)
         var gioHenQuaHan = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(-45));
+        var gioKetThucCa = gioHenQuaHan.AddHours(1);
+        if (gioKetThucCa <= gioHenQuaHan) gioKetThucCa = new TimeOnly(23, 59, 59);
+
         var ca = new CaTruc
         {
             MaBacSi = bacSi.MaBacSi,
@@ -455,17 +465,20 @@ public class TC03_NgoaiLeVaHangDoiTests
             NgayTruc = today,
             CaLamViec = "CaVang_" + Guid.NewGuid().ToString("N")[..6],
             GioBatDauCa = gioHenQuaHan,
-            GioKetThucCa = gioHenQuaHan.AddHours(1),
+            GioKetThucCa = gioKetThucCa,
             ThoiLuongMoiKhungGio = 15
         };
         db.CaTrucs.Add(ca);
         await db.SaveChangesAsync();
 
+        var gioKetThucKg = gioHenQuaHan.AddMinutes(15);
+        if (gioKetThucKg <= gioHenQuaHan) gioKetThucKg = new TimeOnly(23, 59, 59);
+
         var kg = new KhungGio
         {
             MaCa = ca.MaCa,
             GioBatDau = gioHenQuaHan,
-            GioKetThuc = gioHenQuaHan.AddMinutes(15),
+            GioKetThuc = gioKetThucKg,
             LoaiKhungGio = "DatHen",
             TrangThai = "DaDat"
         };

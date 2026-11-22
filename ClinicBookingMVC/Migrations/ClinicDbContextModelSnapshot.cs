@@ -301,7 +301,7 @@ partial class ClinicDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("MaKhungGio")
                     .IsUnique()
                     .HasDatabaseName("UX_PhieuDatHen_KhungGio_HieuLuc")
-                    .HasFilter("[TrangThaiHen] NOT IN (N'DaHuy')");
+                    .HasFilter("[TrangThaiHen] <> N'DaHuy'");
 
                 b.HasIndex("MaNguoiTao");
 

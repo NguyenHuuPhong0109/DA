@@ -150,10 +150,10 @@ public class HangDoiService
     /// Chá»n Ä‘Ăºng ngÆ°á»i tiáº¿p theo Ä‘á»ƒ gá»i dá»±a trĂªn 4 nhĂ³m Æ°u tiĂªn.
     /// Cáº­p nháº­t DB vĂ  tráº£ vá» DTO káº¿t quáº£.
     /// </summary>
-    public async Task<GoiSoResultDto?> GoiSoTiepTheoAsync(int maPhong)
+    public async Task<GoiSoResultDto?> GoiSoTiepTheoAsync(int maPhong, TimeOnly? mockGioHienTai = null)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var now   = TimeOnly.FromDateTime(DateTime.Now);
+        var now   = mockGioHienTai ?? TimeOnly.FromDateTime(DateTime.Now);
 
         // Láº¥y toĂ n bá»™ phiáº¿u DangCho cá»§a phĂ²ng hĂ´m nay
         var dangCho = await _db.PhieuSoThuTus

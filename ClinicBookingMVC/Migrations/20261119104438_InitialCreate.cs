@@ -337,7 +337,7 @@ public partial class _20261119104438_InitialCreate : Migration
             table: "PhieuDatHen",
             column: "MaKhungGio",
             unique: true,
-            filter: "[TrangThaiHen] NOT IN (N'DaHuy')");
+            filter: "[TrangThaiHen] <> N'DaHuy'");
 
         migrationBuilder.CreateIndex(
             name: "UX_PhieuDatHen_MaDatHen",

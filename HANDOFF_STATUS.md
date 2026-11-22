@@ -39,6 +39,8 @@ Publish Release: Succeeded (./publish)
 | 6C | Kiểm thử thực tế End-to-End 4 vai trò + Biên soạn KET_QUA_KIEM_THU_CHUC_NANG.md + Cẩm nang HUONG_DAN_SU_DUNG_HE_THONG.md | ✅ Hoàn thành |
 | 6D | Cơ chế làm mới an toàn (--reseed) + Đổ dữ liệu dày đặc 4 ngày (Today..Today+3) + TEST_DATA_CHEATSHEET.md | ✅ Hoàn thành |
 | 7 | Hybrid TTS tiếng Việt chuẩn (Loa Bluetooth) + Tối ưu Mobile 390px + Đóng gói Deploy Cloudflare/MonsterASP.NET | ✅ Hoàn thành |
+| 8 | Tinh chỉnh bố cục Dashboard 3 tầng & Chuẩn hóa Hệ thống Danh mục theo chuẩn Tabler và Zocdoc/YouMed | ✅ Hoàn thành |
+| 9 | Tối giản Hallmark (AGENTS.md), Tabler & shadcn-ui: Khắc phục lệch bảng, xóa emoji nút, tách quản lý tài khoản 2 nhóm, đổi tên Lịch làm việc | ✅ Hoàn thành |
 
 ---
 
@@ -180,6 +182,76 @@ Publish Release: Succeeded (./publish)
   - `ClinicBookingMVC/Database/Deploy_Schema_And_Seed.sql`: Script SQL thuần 1-click (không chứa `CREATE DATABASE`), nạp toàn bộ cấu trúc bảng và 9 tài khoản mẫu trên bất kỳ hosting SQL Server nào.
   - `ClinicBookingMVC/appsettings.Production.template.json`: Mẫu cấu hình môi trường Production.
   - `dotnet publish -c Release -o ./publish`: Xuất bản thành công thư mục deploy hoàn chỉnh (0 warning, 0 error).
+
+---
+
+## Chi tiết Giai đoạn 8 đã triển khai (Tinh chỉnh Dashboard 3 tầng & Hệ thống Danh mục Tabler v2.1)
+
+### 1. Tái cấu trúc Dashboard 3 tầng (`Views/Admin/Index.cshtml`)
+- **Tầng 1 (Header 1 dòng & Bộ lọc thu gọn):**
+  - Tiêu đề gọn gàng kèm badge kỳ lọc ngày (`dd/MM/yyyy — dd/MM/yyyy`), nút Xuất CSV (`.btn-outline-secondary`), Quét quá hạn và nút đóng/mở bộ lọc trên Mobile.
+  - Form bộ lọc bố trí trên **1 hàng ngang duy nhất** (input `36px`, padding `12px 16px`), không chiếm diện tích màn hình.
+- **Tầng 2 (4 Thẻ KPI tối giản trên 1 hàng `bi-kpi-row`):**
+  - Nền trắng `#FFFFFF`, viền mảnh `1px solid #DCE1E7`, số liệu chính cỡ lớn `28px font-weight: 700`, nhãn phụ ngắn gọn.
+  - Đoạn mô tả dài và công thức chuyển vào thuộc tính `title` (tooltip) gắn trên icon thông tin nhỏ ℹ️.
+- **Tầng 3 (Bootstrap 5 Tabs chuẩn Tabler):**
+  - **Tab "Biểu đồ & Xu hướng":** Biểu đồ lưu lượng theo giờ (`col-lg-8`, chiều cao `300px`) và Biểu đồ Doughnut cơ cấu trạng thái khám (`col-lg-4`, chiều cao `300px`).
+  - **Tab "Hiệu suất Bác sĩ & Chuyên khoa":** 5 thẻ mini-bar tài nguyên + Biểu đồ tỷ lệ vắng hẹn theo Bác sĩ + Bảng phân rã chi tiết hiệu suất từng bác sĩ.
+  - **Tab "Cảnh báo vắng hẹn":** Gắn badge đỏ cạnh tên Tab khi có cảnh báo (> 0) + Bảng cảnh báo theo quy tắc BR-06.
+  - Tự động gọi `chart.resize()` khi chuyển tab Bootstrap (`shown.bs.tab`) tránh lỗi co kích thước bằng 0.
+
+### 2. Phân nhóm Sidebar Navigation (`_PortalLayout.cshtml`)
+- Phân tách menu Admin thành 3 nhóm có tiêu đề nhỏ mờ (`11px`, `uppercase`, `color: #667382`):
+  - **VẬN HÀNH:** Tổng quan (Dashboard), Ca trực & Khung giờ.
+  - **DANH MỤC CƠ SỞ:** Chuyên khoa, Phòng khám, Bác sĩ.
+  - **HỆ THỐNG:** Tài khoản.
+- Trạng thái Active đồng bộ trên cả Desktop Sidebar và Mobile Offcanvas Drawer (`#F0FDFA` bg, `#0F766E` text, `3px` left highlight bar).
+
+### 3. Chuẩn hóa Hệ thống Danh mục (`ChuyenKhoa`, `PhongKham`, `BacSi`, `CaTruc`, `KhungGioDetail`, `TaiKhoan`)
+- Page Header đồng nhất: Tiêu đề + badge đếm tổng dòng + nút chính `+ Thêm ...`.
+- Table Toolbar: Tìm kiếm nhanh tức thì bằng client-side JS thuần.
+- Bảng dữ liệu sạch: Nền trắng, header `#F8FAFC` chữ in hoa 12px, padding `12px 16px`, viền ngang mảnh, bỏ viền dọc.
+- Gộp thông tin phụ xuống dòng dưới (`.sub-info`), cột Thao tác căn phải với cụm nút Tabler `.btn-list justify-content-end flex-nowrap` (`.btn-sm .btn-outline-secondary` Sửa/Xem, `.btn-sm .btn-outline-danger` Xóa/Khóa).
+- Badge trạng thái dùng tông pastel dịu mắt (`bg-success-lt`, `bg-secondary-lt`, `bg-danger-lt`, `bg-info-lt`, `bg-warning-lt`).
+- Bổ sung thanh lọc nhanh ngày (*Hôm nay | Ngày mai | Ngày kia | +3 ngày*) trong `CaTruc.cshtml` và lọc slot trong `KhungGioDetail.cshtml`.
+
+---
+
+## Chi tiết Giai đoạn 9 đã triển khai (Quy tắc tối giản Hallmark, Tabler & shadcn-ui)
+
+### 1. Sửa triệt để lỗi lệch bố cục bảng & Khử phong cách "AI làm"
+- **Căn thẳng hàng dọc 100% giữa `<th>` và `<td>`:**
+  - Ghi đè sạch mọi rule `text-align: center` đang áp lên `th`.
+  - Toàn bộ cột dữ liệu (Bác sĩ, Phòng khám, Chuyên khoa, Vị trí, Ca trực, Khung giờ, Tài khoản, Số điện thoại, Trạng thái) đều căn trái (`text-align: left !important`) ở cả `<th>` và `<td>`.
+  - Riêng cột **Thao tác** căn phải (`text-align: right !important`) ở cả `<th>` và `<td>`.
+- **Cột Thao tác nằm gọn trên đúng 1 dòng ngang:**
+  - Áp dụng `.actions-wrap` (`display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; white-space: nowrap;`).
+  - Mọi thẻ `<form>` (nút Xóa, Khóa, Mở khóa) đều dùng `display: inline-flex; margin: 0;` triệt tiêu tình trạng rớt xuống dòng thứ 2.
+- **Khít bảng vào thẻ (`.card-table`) & Khống chế bề rộng hiển thị:**
+  - Giới hạn chiều rộng vùng nội dung chính trong `_PortalLayout.cshtml` (`max-width: 1360px; margin: 0 auto; width: 100%;`).
+  - Bọc bảng trực tiếp bằng `.card-table` bỏ padding thừa, header bảng nền `#F9FAFB` chữ in hoa nhỏ `12px` nằm khít mép thẻ, đường kẻ mảnh `1px solid #E5E7EB`, padding cell `12px 16px`, `vertical-align: middle`.
+- **Việt hóa dữ liệu hiển thị & Khử lạm dụng Badge màu (Anti-AI-Slop):**
+  - Ca làm việc: `Ca sáng`, `Ca chiều`, `Ca tối` (chữ thường, không bọc badge).
+  - Trạng thái: `Đang mở`, `Đã đóng`, `Hoạt động`, `Tạm ngưng`, `Đã khóa`.
+  - Vai trò: `Quản trị viên`, `Bác sĩ`, `Lễ tân`, `Bệnh nhân` (chữ thường, không bọc pill màu chói gắt).
+  - Cột Trạng thái sử dụng chấm tròn trạng thái nhỏ `.status-dot` (`.status-dot--success`, `.status-dot--muted`, `.status-dot--danger`).
+  - Loại bỏ các badge font monospace cạnh tiêu đề trang, thay bằng dòng phụ chữ xám nhỏ đặt dưới tiêu đề chính (`.portal-content__sub`).
+
+### 2. Xóa 100% icon và emoji bên trong tất cả nút bấm & ô tìm kiếm
+- Xóa sạch icon emoji bên trong mọi `<button>` và `<a class="btn ...">` trên toàn bộ cổng Admin: `Tạo lịch làm việc`, `Thêm chuyên khoa`, `Thêm phòng khám`, `Thêm bác sĩ`, `Tạo tài khoản`, `Xem lịch`, `Khung giờ`, `Sửa`, `Xóa`, `Khóa`, `Mở khóa`, `Quét quá hạn`, `Xuất CSV`, `Bộ lọc`, `Quay lại`.
+- Xóa emoji kính lúp `🔍` trong thuộc tính `placeholder` của tất cả ô tìm kiếm.
+- Kiểu nút tối giản shadcn: chiều cao `36px` (`30px` cho `.btn-sm`), `font-weight: 500`, bo góc `6px`. Nút phụ viền `#D1D5DB` chữ `#1F2937`; nút nguy hiểm nền trắng viền `#FECACA` chữ `#DC2626` (hover `#FEF2F2`).
+
+### 3. Đổi tên mục "Ca trực & Khung giờ" thành "Lịch làm việc"
+- Đổi toàn bộ nhãn hiển thị trong `_PortalLayout.cshtml` (Sidebar Desktop và Mobile Drawer), `<title>` và tiêu đề `<h1>` của `CaTruc.cshtml`, `TaoCaTruc.cshtml`, `KhungGioDetail.cshtml` sang **`Lịch làm việc`** (và **`Quản lý Lịch làm việc`**).
+- Giữ nguyên tên Controller action `/Admin/CaTruc`, `/Admin/TaoCaTruc`, `/Admin/KhungGioDetail`.
+
+### 4. Tách mục "Tài khoản" thành "Quản lý tài khoản": Bệnh nhân và Bác sĩ, Lễ tân
+- Sidebar `_PortalLayout.cshtml` phân tách thành 2 mục con:
+  - **`Bác sĩ & Lễ tân`** (`/Admin/TaiKhoan?nhom=NhanSu`)
+  - **`Bệnh nhân`** (`/Admin/TaiKhoan?nhom=BenhNhan`)
+- `AdminController.cs`: Action `TaiKhoan(string? nhom = null)` và `TaoTaiKhoan(string? nhom = null)` hỗ trợ lọc theo nhóm, tính số lượng cho từng nhóm qua ViewBag, tra cứu Họ tên bệnh nhân theo SĐT, tự động chọn vai trò tương ứng khi tạo mới tài khoản.
+- `TaiKhoan.cshtml`: Tiêu đề linh hoạt theo nhóm, thanh tab tối giản chuyển đổi giữa 2 nhóm tài khoản (kèm số lượng dạng chữ thường), bộ lọc nhanh theo vai trò nhân sự.
 
 ---
 

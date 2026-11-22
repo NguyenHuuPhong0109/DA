@@ -118,3 +118,239 @@ tr.row--canh-bao td { background: #FEF2F2; }
 tr.row--canh-bao td:first-child {
   border-left: 3px solid #D63939;
 }
+
+/* ── Tabler Light Mode Tabs & Nav ────────────────────────────────── */
+.nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--color-rule);
+  gap: 4px;
+}
+.nav-tabs .nav-item {
+  margin-bottom: -1px;
+}
+.nav-tabs .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--dur-short) ease-in-out;
+}
+.nav-tabs .nav-link:hover {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-rule);
+}
+.nav-tabs .nav-link.active {
+  color: var(--color-primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-primary);
+  background: transparent;
+}
+.tab-content {
+  margin-top: var(--space-md);
+}
+.tab-content > .tab-pane {
+  display: none;
+}
+.tab-content > .tab-pane.active,
+.tab-content > .tab-pane.show {
+  display: block;
+}
+
+/* ── Tabler Pastel Badge Helpers ─────────────────────────────────── */
+.bg-secondary-lt { background-color: #F1F5F9 !important; color: #475569 !important; border: 1px solid #CBD5E1 !important; }
+.bg-success-lt   { background-color: #DCFCE7 !important; color: #15803D !important; border: 1px solid #86EFAC !important; }
+.bg-danger-lt    { background-color: #FEE2E2 !important; color: #B91C1C !important; border: 1px solid #FCA5A5 !important; }
+.bg-warning-lt   { background-color: #FEF3C7 !important; color: #92400E !important; border: 1px solid #FCD34D !important; }
+.bg-info-lt      { background-color: #E0F2FE !important; color: #0369A1 !important; border: 1px solid #7DD3FC !important; }
+.badge--pill     { border-radius: 9999px !important; padding: 2px 8px !important; font-size: 11px !important; }
+
+/* ── Table Toolbar & Client-side Search ──────────────────────────── */
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+.table-search-input {
+  max-width: 320px;
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: var(--text-sm);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-input);
+  background: #ffffff;
+  color: var(--color-ink);
+  transition: border-color var(--dur-short), box-shadow var(--dur-short);
+}
+.table-search-input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+/* ── Khung Card chứa bảng dữ liệu (Flush Table Container) ──────── */
+.card-table {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-bottom: var(--space-lg);
+  padding: 0 !important;
+}
+
+/* ── Catalog Table Clean Layout (Chuẩn Tabler & shadcn-ui) ───────── */
+.table--clean {
+  width: 100%;
+  background: #ffffff;
+  border-collapse: collapse;
+  margin: 0;
+}
+.table--clean thead th {
+  background: #F9FAFB;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4B5563;
+  padding: 12px 16px;
+  border-bottom: 1px solid #E5E7EB;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  text-align: left !important;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.table--clean tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #E5E7EB;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  text-align: left !important;
+  vertical-align: middle;
+  color: #1F2937;
+  font-size: 13.5px;
+}
+.table--clean thead th.th-actions,
+.table--clean tbody td.td-actions,
+.table--clean thead th.text-end,
+.table--clean tbody td.text-end {
+  text-align: right !important;
+  white-space: nowrap;
+}
+.table--clean tbody tr:last-child td {
+  border-bottom: none;
+}
+.table--clean tbody tr:hover td {
+  background: #F9FAFB;
+}
+.sub-info {
+  font-size: 12px;
+  color: #6B7280;
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Khung hành động Thao tác (Single Row Flexbox) ───────────────── */
+.actions-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+}
+.actions-wrap form {
+  display: inline-flex !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ── Chấm trạng thái (Status Dot - Minimalist Anti-AI Slop) ───────── */
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.status-dot--success { background-color: #16A34A; }
+.status-dot--muted   { background-color: #9CA3AF; }
+.status-dot--danger  { background-color: #DC2626; }
+.status-dot--warning { background-color: #D97706; }
+
+/* ── Nút bấm tối giản chuẩn shadcn-ui / Tabler (Không icon emoji) ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font-weight: 500;
+  font-size: 13.5px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease-in-out;
+  white-space: nowrap;
+}
+.btn-sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  border-radius: 5px;
+}
+.btn-primary {
+  background-color: #0F766E !important;
+  color: #ffffff !important;
+  border-color: #0F766E !important;
+}
+.btn-primary:hover {
+  background-color: #115E59 !important;
+  border-color: #115E59 !important;
+  color: #ffffff !important;
+}
+.btn-secondary,
+.btn-outline-secondary {
+  background-color: #ffffff !important;
+  border-color: #D1D5DB !important;
+  color: #1F2937 !important;
+}
+.btn-secondary:hover,
+.btn-outline-secondary:hover {
+  background-color: #F9FAFB !important;
+  border-color: #9CA3AF !important;
+  color: #111827 !important;
+}
+.btn-danger,
+.btn-outline-danger {
+  background-color: #ffffff !important;
+  border-color: #FECACA !important;
+  color: #DC2626 !important;
+}
+.btn-danger:hover,
+.btn-outline-danger:hover {
+  background-color: #FEF2F2 !important;
+  border-color: #F87171 !important;
+  color: #B91C1C !important;
+}

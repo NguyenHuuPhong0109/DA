@@ -60,13 +60,21 @@
 
           @if (User.IsInRole("Admin"))
           {
-            <li class="sidebar-nav__section">Quản trị hệ thống</li>
+            <li class="sidebar-nav__section">Vận hành</li>
             <li>
               <a asp-controller="Admin" asp-action="Index" class="@(ctrl == "Admin" && act == "Index" ? "is-active" : "")">
                 <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                BI Dashboard &amp; KPI
+                Tổng quan (Dashboard)
               </a>
             </li>
+            <li>
+              <a asp-controller="Admin" asp-action="CaTruc" class="@(ctrl == "Admin" && (act.Contains("CaTruc") || act.Contains("KhungGio")) ? "is-active" : "")">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Lịch làm việc
+              </a>
+            </li>
+
+            <li class="sidebar-nav__section">Danh mục cơ sở</li>
             <li>
               <a asp-controller="Admin" asp-action="ChuyenKhoa" class="@(ctrl == "Admin" && act.Contains("ChuyenKhoa") ? "is-active" : "")">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -85,16 +93,18 @@
                 Bác sĩ
               </a>
             </li>
+
+            <li class="sidebar-nav__section">Quản lý tài khoản</li>
             <li>
-              <a asp-controller="Admin" asp-action="CaTruc" class="@(ctrl == "Admin" && act.Contains("CaTruc") ? "is-active" : "")">
-                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Ca trực &amp; Khung giờ
+              <a asp-controller="Admin" asp-action="TaiKhoan" asp-route-nhom="NhanSu" class="@(ctrl == "Admin" && act.Contains("TaiKhoan") && (Context.Request.Query["nhom"] == "NhanSu" || string.IsNullOrEmpty(Context.Request.Query["nhom"])) ? "is-active" : "")">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Bác sĩ &amp; Lễ tân
               </a>
             </li>
             <li>
-              <a asp-controller="Admin" asp-action="TaiKhoan" class="@(ctrl == "Admin" && act.Contains("TaiKhoan") ? "is-active" : "")">
-                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                Tài khoản
+              <a asp-controller="Admin" asp-action="TaiKhoan" asp-route-nhom="BenhNhan" class="@(ctrl == "Admin" && act.Contains("TaiKhoan") && Context.Request.Query["nhom"] == "BenhNhan" ? "is-active" : "")">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Bệnh nhân
               </a>
             </li>
           }
@@ -157,7 +167,7 @@
         </div>
       </header>
 
-      <main class="portal-content" id="main-content">
+      <main class="portal-content" id="main-content" style="max-width: 1360px; margin: 0 auto; width: 100%;">
         @if (TempData["SuccessMessage"] != null)
         {
           <div class="alert alert--success" role="alert" style="margin-bottom:var(--space-lg)">
@@ -180,6 +190,7 @@
   <script src="~/lib/jquery/dist/jquery.min.js"></script>
   <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
   <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+  <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // ── Xử lý Drawer / Offcanvas menu trên Mobile (< 992px) ──
     const _portalToggleBtn = document.getElementById('portalMobileToggle');

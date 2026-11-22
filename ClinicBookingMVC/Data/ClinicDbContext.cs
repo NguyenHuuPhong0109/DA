@@ -7,6 +7,12 @@ public class ClinicDbContext : DbContext
 {
     public ClinicDbContext(DbContextOptions<ClinicDbContext> options) : base(options) { }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
+
     public DbSet<VaiTro> VaiTros { get; set; }
     public DbSet<TaiKhoan> TaiKhoans { get; set; }
     public DbSet<ChuyenKhoa> ChuyenKhoas { get; set; }

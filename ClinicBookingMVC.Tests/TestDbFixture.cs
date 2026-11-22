@@ -8,7 +8,7 @@ namespace ClinicBookingMVC.Tests;
 
 public static class TestDbFixture
 {
-    public const string ConnectionString = "Server=localhost;Database=ClinicBookingTestDB;Trusted_Connection=True;TrustServerCertificate=True;";
+    public const string ConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=ClinicBookingTestDB;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;";
 
     private static readonly object _lock = new();
     private static bool _initialized = false;

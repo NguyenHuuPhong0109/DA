@@ -398,38 +398,87 @@ public class AdminController : Controller
     }
 
     // ─── TÀI KHOẢN ───────────────────────────────────────────────────────────
-    public async Task<IActionResult> TaiKhoan()
+    public async Task<IActionResult> TaiKhoan(string? nhom = null)
     {
-        ViewData["Title"]      = "Quản lý Tài khoản";
         ViewData["ActiveMenu"] = "TaiKhoan";
-        return View(await _db.TaiKhoans
+
+        var allAccounts = await _db.TaiKhoans
             .Include(t => t.VaiTro)
+            .Include(t => t.BacSi)
             .OrderBy(t => t.TenTaiKhoan)
-            .ToListAsync());
+            .ToListAsync();
+
+        ViewBag.SoBenhNhan = allAccounts.Count(t => t.VaiTro?.TenVaiTro == "BenhNhan");
+        ViewBag.SoNhanSu   = allAccounts.Count(t => t.VaiTro?.TenVaiTro != "BenhNhan");
+        ViewBag.SoTatCa    = allAccounts.Count;
+        ViewBag.NhomHienTai = nhom;
+
+        // Tải thông tin tên bệnh nhân theo SĐT để hiển thị họ tên
+        var sdtList = allAccounts.Where(t => !string.IsNullOrEmpty(t.SoDienThoai)).Select(t => t.SoDienThoai!).Distinct().ToList();
+        var benhNhans = await _db.BenhNhans.Where(b => sdtList.Contains(b.SoDienThoai)).ToListAsync();
+        ViewBag.BenhNhanMap = benhNhans.GroupBy(b => b.SoDienThoai).ToDictionary(g => g.Key, g => g.First().TenBenhNhan);
+
+        List<TaiKhoan> list;
+        if (nhom == "BenhNhan")
+        {
+            ViewData["Title"] = "Tài khoản Bệnh nhân";
+            list = allAccounts.Where(t => t.VaiTro?.TenVaiTro == "BenhNhan").ToList();
+        }
+        else if (nhom == "NhanSu")
+        {
+            ViewData["Title"] = "Tài khoản Bác sĩ & Lễ tân";
+            list = allAccounts.Where(t => t.VaiTro?.TenVaiTro != "BenhNhan").ToList();
+        }
+        else
+        {
+            ViewData["Title"] = "Quản lý Tài khoản";
+            list = allAccounts;
+        }
+
+        return View(list);
     }
 
     [HttpGet]
-    public async Task<IActionResult> TaoTaiKhoan()
+    public async Task<IActionResult> TaoTaiKhoan(string? nhom = null)
     {
         ViewData["Title"]      = "Tạo Tài khoản";
         ViewData["ActiveMenu"] = "TaiKhoan";
-        await LoadVaiTroListAsync();
-        return View(new TaoTaiKhoanVM());
+        ViewBag.NhomHienTai    = nhom;
+
+        int? preselectedRoleId = null;
+        if (nhom == "BenhNhan")
+        {
+            var role = await _db.VaiTros.FirstOrDefaultAsync(v => v.TenVaiTro == "BenhNhan");
+            if (role != null) preselectedRoleId = role.MaVaiTro;
+        }
+        else if (nhom == "NhanSu")
+        {
+            var role = await _db.VaiTros.FirstOrDefaultAsync(v => v.TenVaiTro == "BacSi");
+            if (role != null) preselectedRoleId = role.MaVaiTro;
+        }
+
+        await LoadVaiTroListAsync(preselectedRoleId);
+        var vm = new TaoTaiKhoanVM();
+        if (preselectedRoleId.HasValue) vm.MaVaiTro = preselectedRoleId.Value;
+        return View(vm);
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> TaoTaiKhoan(TaoTaiKhoanVM vm)
+    public async Task<IActionResult> TaoTaiKhoan(TaoTaiKhoanVM vm, string? nhom = null)
     {
         if (!ModelState.IsValid)
         {
             ViewData["Title"] = "Tạo Tài khoản";
-            await LoadVaiTroListAsync();
+            ViewBag.NhomHienTai = nhom;
+            await LoadVaiTroListAsync(vm.MaVaiTro);
             return View(vm);
         }
         if (await _db.TaiKhoans.AnyAsync(t => t.TenTaiKhoan == vm.TenTaiKhoan))
         {
             ModelState.AddModelError(nameof(vm.TenTaiKhoan), "Tên tài khoản đã tồn tại.");
-            await LoadVaiTroListAsync(); return View(vm);
+            ViewBag.NhomHienTai = nhom;
+            await LoadVaiTroListAsync(vm.MaVaiTro);
+            return View(vm);
         }
         _db.TaiKhoans.Add(new TaiKhoan
         {
@@ -441,34 +490,34 @@ public class AdminController : Controller
         });
         await _db.SaveChangesAsync();
         TempData["Success"] = "Tạo tài khoản thành công.";
-        return RedirectToAction(nameof(TaiKhoan));
+        return RedirectToAction(nameof(TaiKhoan), new { nhom });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> KhoaTaiKhoan(int id)
+    public async Task<IActionResult> KhoaTaiKhoan(int id, string? nhom = null)
     {
         var tk = await _db.TaiKhoans.FindAsync(id);
         if (tk == null) return NotFound();
         if (tk.TenTaiKhoan == "admin")
         {
             TempData["Error"] = "Không thể khóa tài khoản admin gốc.";
-            return RedirectToAction(nameof(TaiKhoan));
+            return RedirectToAction(nameof(TaiKhoan), new { nhom });
         }
         tk.TrangThai = "BiKhoa";
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đã khóa tài khoản.";
-        return RedirectToAction(nameof(TaiKhoan));
+        return RedirectToAction(nameof(TaiKhoan), new { nhom });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> MoKhoaTaiKhoan(int id)
+    public async Task<IActionResult> MoKhoaTaiKhoan(int id, string? nhom = null)
     {
         var tk = await _db.TaiKhoans.FindAsync(id);
         if (tk == null) return NotFound();
         tk.TrangThai = "HoatDong";
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đã mở khóa tài khoản.";
-        return RedirectToAction(nameof(TaiKhoan));
+        return RedirectToAction(nameof(TaiKhoan), new { nhom });
     }
 
     // ─── CA TRỰC & KHUNG GIỜ ─────────────────────────────────────────────────
