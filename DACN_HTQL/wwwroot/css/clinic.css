@@ -453,8 +453,26 @@ textarea.form-control {
 .page-link.is-current { background: var(--color-primary); color: #ffffff; border-color: var(--color-primary); }
 
 /* ══════════════════════════════════════
-   PATIENT NAV (Chuẩn Tabler)
+   PATIENT NAV & STICKY FOOTER (Chuẩn Tabler)
 ══════════════════════════════════════ */
+html, body {
+  min-height: 100%;
+}
+[data-portal="patient"] body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+[data-portal="patient"] main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+[data-portal="patient"] footer {
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
 .site-nav {
   position: sticky;
   top: 0;
@@ -1229,6 +1247,7 @@ textarea.form-control {
    AUTH & ERROR PAGES (Tabler Light)
 ══════════════════════════════════════ */
 .auth-wrap {
+  flex: 1 0 auto;
   min-height: calc(100vh - 160px);
   display: flex;
   align-items: center;

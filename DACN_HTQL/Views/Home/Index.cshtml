@@ -17,30 +17,18 @@
                     Nhận mã đặt hẹn điện tử và mã QR ngay lập tức, giảm thiểu tối đa thời gian chờ đợi.
                 </p>
                 <div class="btn-list">
-                    @if (User.Identity!.IsAuthenticated)
-                    {
-                        <a asp-controller="DatLich" asp-action="Index"
-                           class="btn btn-primary btn-lg">📅 Đặt lịch khám ngay</a>
-                        <a asp-controller="DatLich" asp-action="TraCuu"
-                           class="btn btn-outline-secondary btn-lg">🔍 Tra cứu lịch hẹn</a>
-                    }
-                    else
-                    {
-                        <a asp-controller="TaiKhoan" asp-action="DangKy"
-                           class="btn btn-primary btn-lg">Đăng ký tài khoản</a>
-                        <a asp-controller="TaiKhoan" asp-action="DangNhap"
-                           class="btn btn-outline-secondary btn-lg">Đăng nhập</a>
-                        <a asp-controller="DatLich" asp-action="TraCuu"
-                           class="btn btn-outline-secondary btn-lg">Tra cứu nhanh</a>
-                    }
+                    <a asp-controller="DatLich" asp-action="Index"
+                       class="btn btn-primary btn-lg">Đặt lịch khám</a>
+                    <a asp-controller="DatLich" asp-action="TraCuu"
+                       class="btn btn-outline-secondary btn-lg">Tra cứu lịch hẹn</a>
                 </div>
             </div>
             <div class="hero__visual" aria-hidden="true" style="display:flex;justify-content:center">
                 <div class="card card--lifted" style="min-width:260px;padding:var(--space-lg);border-radius:12px;background:#ffffff">
                     <div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-muted);font-weight:600">Phiếu đặt hẹn điện tử</div>
-                    <div class="font-mono" style="font-size:1.6rem;font-weight:700;color:var(--color-primary);margin:var(--space-xs) 0">BK261120-001</div>
+                    <div class="font-mono" style="font-size:1.6rem;font-weight:700;color:var(--color-primary);margin:var(--space-xs) 0">XXXXX-XXX</div>
                     <span class="badge badge--da-xac-nhan" style="margin-bottom:var(--space-sm)">Đã xác nhận</span>
-                    <div class="font-mono text-muted text-sm">08:30 · Tim mạch · P.102</div>
+                    <div class="font-mono text-muted text-sm">08:30 · Tim mạch · P.105</div>
                 </div>
             </div>
         </div>

@@ -47,31 +47,6 @@
             <button type="submit" class="btn btn-primary" style="width:100%;min-height:42px;font-weight:600">Đăng nhập</button>
         </form>
 
-        <!-- Khối hỗ trợ chuyển nhanh tài khoản kiểm thử trên điện thoại & desktop -->
-        <div class="quick-login-card" style="margin-top:var(--space-lg);padding:14px;background:#F8FAFC;border:1px solid var(--color-rule);border-radius:var(--radius-card);text-align:left">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-                <span style="color:var(--color-primary);font-size:15px">⚡</span>
-                <strong style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.04em;color:var(--color-ink)">Tài khoản kiểm thử nhanh</strong>
-            </div>
-            <p style="font-size:var(--text-xs);color:var(--color-muted);margin-bottom:10px">
-                Chạm vào vai trò để điền tự động (mật khẩu chung: <code>123456</code>):
-            </p>
-            <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px">
-                <button type="button" class="btn btn-sm btn-outline-secondary" style="min-height:38px;font-size:var(--text-xs)" onclick="fillLogin('admin', '123456')">
-                    👑 Quản trị (Admin)
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" style="min-height:38px;font-size:var(--text-xs)" onclick="fillLogin('letan01', '123456')">
-                    📋 Lễ tân (letan01)
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" style="min-height:38px;font-size:var(--text-xs)" onclick="fillLogin('bacsi01', '123456')">
-                    👨‍⚕️ Bác sĩ (bacsi01)
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" style="min-height:38px;font-size:var(--text-xs)" onclick="fillLogin('benhnhan01', '123456')">
-                    👤 Bệnh nhân (benhnhan01)
-                </button>
-            </div>
-        </div>
-
         <div class="auth-card__footer">
             Chưa có tài khoản?
             <a asp-action="DangKy">Đăng ký ngay</a>
@@ -81,14 +56,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        function fillLogin(username, password) {
-            const u = document.querySelector('input[name="TenTaiKhoan"]');
-            const p = document.querySelector('input[name="MatKhau"]');
-            if (u) u.value = username;
-            if (p) p.value = password;
-            const btn = document.querySelector('button[type="submit"]');
-            if (btn) btn.focus();
-        }
-    </script>
 }

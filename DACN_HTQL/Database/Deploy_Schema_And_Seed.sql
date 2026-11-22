@@ -275,40 +275,64 @@ BEGIN
     INSERT INTO [TaiKhoan] ([MaTaiKhoan], [TenTaiKhoan], [MatKhau], [SoDienThoai], [TrangThai], [MaVaiTro]) VALUES
     (1, N'admin',       N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0900000001', N'HoatDong', 1),
     (2, N'letan01',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0900000002', N'HoatDong', 2),
-    (3, N'bacsi01',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0900000003', N'HoatDong', 3),
-    (4, N'bacsi02',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0900000004', N'HoatDong', 3),
-    (5, N'bacsi03',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0900000005', N'HoatDong', 3),
-    (6, N'bacsi04',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0900000006', N'HoatDong', 3),
-    (7, N'benhnhan01',  N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901000001', N'HoatDong', 4),
-    (8, N'benhnhan02',  N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901000002', N'HoatDong', 4),
-    (9, N'benhnhan03',  N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901000003', N'HoatDong', 4);
+    (3, N'bacsi01',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234561', N'HoatDong', 3),
+    (4, N'bacsi02',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234562', N'HoatDong', 3),
+    (5, N'bacsi03',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234563', N'HoatDong', 3),
+    (6, N'bacsi04',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234564', N'HoatDong', 3),
+    (7, N'bacsi05',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234565', N'HoatDong', 3),
+    (8, N'bacsi06',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234566', N'HoatDong', 3),
+    (9, N'bacsi07',     N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234567', N'HoatDong', 3),
+    (10, N'bacsi08',    N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234568', N'HoatDong', 3),
+    (11, N'bacsi09',    N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234569', N'HoatDong', 3),
+    (12, N'bacsi10',    N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0901234570', N'HoatDong', 3),
+    (13, N'benhnhan01', N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0912345671', N'HoatDong', 4),
+    (14, N'benhnhan02', N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0912345672', N'HoatDong', 4),
+    (15, N'benhnhan03', N'$2a$11$MsAbwKSyL/l6fcrYb3wjQuxPfS4S9R3sKT.8T8gvU3XMgSWFaFiR6', N'0912345673', N'HoatDong', 4);
     SET IDENTITY_INSERT [TaiKhoan] OFF;
 
     -- C. Chuyên khoa
     SET IDENTITY_INSERT [ChuyenKhoa] ON;
     INSERT INTO [ChuyenKhoa] ([MaChuyenKhoa], [TenChuyenKhoa], [MoTa], [TrangThai]) VALUES
-    (1, N'Nội tổng quát', N'Khám và điều trị các bệnh lý nội khoa người lớn', N'HoatDong'),
-    (2, N'Tai Mũi Họng',  N'Khám và điều trị chuyên sâu bệnh lý tai mũi họng', N'HoatDong'),
-    (3, N'Da liễu',       N'Chẩn đoán và điều trị bệnh ngoài da, dị ứng', N'HoatDong'),
-    (4, N'Nhi khoa',      N'Chăm sóc và điều trị bệnh lý ở trẻ em', N'HoatDong');
+    (1, N'Nội tổng quát',      N'Khám và điều trị các bệnh lý nội khoa người lớn, tim mạch, tiêu hóa, hô hấp', N'HoatDong'),
+    (2, N'Tai Mũi Họng',       N'Khám, nội soi và điều trị các bệnh lý tai mũi họng người lớn và trẻ em', N'HoatDong'),
+    (3, N'Da liễu',            N'Điều trị các bệnh ngoài da, dị ứng, viêm da cơ địa và thẩm mỹ y khoa', N'HoatDong'),
+    (4, N'Nhi khoa',           N'Khám, tư vấn dinh dưỡng và điều trị bệnh lý chuyên sâu cho trẻ sơ sinh và trẻ nhỏ', N'HoatDong'),
+    (5, N'Tim mạch',           N'Khám, chẩn đoán và điều trị chuyên sâu bệnh lý mạch vành, tăng huyết áp, suy tim và loạn nhịp', N'HoatDong'),
+    (6, N'Cơ xương khớp',      N'Thăm khám và phục hồi chức năng các bệnh thoái hóa khớp, thoát vị đĩa đệm, loãng xương', N'HoatDong'),
+    (7, N'Tiêu hóa - Gan mật', N'Nội soi tiêu hóa, tầm soát và điều trị các bệnh viêm loét dạ dày, trào ngược, viêm gan', N'HoatDong'),
+    (8, N'Sản phụ khoa',       N'Khám thai định kỳ, theo dõi sức khỏe mẹ & bé, tầm soát ung thư phụ khoa định kỳ', N'HoatDong'),
+    (9, N'Mắt',                N'Đo khúc xạ, khám và điều trị các tật về mắt, viêm kết mạc, đục thủy tinh thể người lớn', N'HoatDong'),
+    (10, N'Răng Hàm Mặt',      N'Khám nha khoa tổng quát, điều trị tủy, nhổ răng khôn, phục hình răng sứ và niềng răng', N'HoatDong');
     SET IDENTITY_INSERT [ChuyenKhoa] OFF;
 
     -- D. Phòng khám
     SET IDENTITY_INSERT [PhongKham] ON;
     INSERT INTO [PhongKham] ([MaPhong], [TenPhong], [ViTri], [MaChuyenKhoa], [TrangThai]) VALUES
     (1, N'Phòng 101', N'Tầng 1 - Khu A', 1, N'HoatDong'),
-    (2, N'Phòng 102', N'Tầng 1 - Khu B', 2, N'HoatDong'),
-    (3, N'Phòng 103', N'Tầng 2 - Khu A', 3, N'HoatDong'),
-    (4, N'Phòng 104', N'Tầng 2 - Khu B', 4, N'HoatDong');
+    (2, N'Phòng 102', N'Tầng 1 - Khu A', 2, N'HoatDong'),
+    (3, N'Phòng 103', N'Tầng 2 - Khu B', 3, N'HoatDong'),
+    (4, N'Phòng 104', N'Tầng 2 - Khu B', 4, N'HoatDong'),
+    (5, N'Phòng 105', N'Tầng 2 - Khu B', 5, N'HoatDong'),
+    (6, N'Phòng 106', N'Tầng 2 - Khu B', 6, N'HoatDong'),
+    (7, N'Phòng 107', N'Tầng 3 - Khu C', 7, N'HoatDong'),
+    (8, N'Phòng 108', N'Tầng 3 - Khu C', 8, N'HoatDong'),
+    (9, N'Phòng 109', N'Tầng 3 - Khu C', 9, N'HoatDong'),
+    (10, N'Phòng 110', N'Tầng 3 - Khu C', 10, N'HoatDong');
     SET IDENTITY_INSERT [PhongKham] OFF;
 
     -- E. Bác sĩ
     SET IDENTITY_INSERT [BacSi] ON;
     INSERT INTO [BacSi] ([MaBacSi], [HoTenBacSi], [HocVi], [SoDienThoai], [MaChuyenKhoa], [MaTaiKhoan], [TrangThai]) VALUES
-    (1, N'Nguyễn Văn An',  N'BS. CKI', N'0900000003', 1, 3, N'HoatDong'),
-    (2, N'Trần Thị Bình',  N'ThS. BS', N'0900000004', 2, 4, N'HoatDong'),
-    (3, N'Lê Hoàng Cường', N'BS. CKII',N'0900000005', 3, 5, N'HoatDong'),
-    (4, N'Phạm Minh Đức',  N'BS',      N'0900000006', 4, 6, N'HoatDong');
+    (1, N'Nguyễn Văn An',    N'BS.CKI',  N'0901234561', 1, 3, N'HoatDong'),
+    (2, N'Trần Thị Bình',    N'ThS.BS',   N'0901234562', 2, 4, N'HoatDong'),
+    (3, N'Lê Hoàng Cường',   N'BS.CKI',  N'0901234563', 3, 5, N'HoatDong'),
+    (4, N'Phạm Minh Đức',    N'ThS.BS',   N'0901234564', 4, 6, N'HoatDong'),
+    (5, N'Võ Quốc Hưng',     N'BS.CKII', N'0901234565', 5, 7, N'HoatDong'),
+    (6, N'Đặng Thùy Linh',   N'ThS.BS',   N'0901234566', 6, 8, N'HoatDong'),
+    (7, N'Hoàng Tuấn Kiệt',  N'BS.CKI',  N'0901234567', 7, 9, N'HoatDong'),
+    (8, N'Nguyễn Mai Phương',N'BS.CKII', N'0901234568', 8, 10, N'HoatDong'),
+    (9, N'Bùi Quang Huy',    N'ThS.BS',   N'0901234569', 9, 11, N'HoatDong'),
+    (10, N'Đỗ Thanh Thảo',   N'BS.CKI',  N'0901234570', 10, 12, N'HoatDong');
     SET IDENTITY_INSERT [BacSi] OFF;
 
     -- F. Bệnh nhân mẫu (Gồm 3 tài khoản demo và các ca cảnh báo)

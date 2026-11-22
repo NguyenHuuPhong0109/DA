@@ -68,6 +68,12 @@ public static class DbInitializer
             ("bacsi02",    roleBacSi.MaVaiTro,    "0901234562"),
             ("bacsi03",    roleBacSi.MaVaiTro,    "0901234563"),
             ("bacsi04",    roleBacSi.MaVaiTro,    "0901234564"),
+            ("bacsi05",    roleBacSi.MaVaiTro,    "0901234565"),
+            ("bacsi06",    roleBacSi.MaVaiTro,    "0901234566"),
+            ("bacsi07",    roleBacSi.MaVaiTro,    "0901234567"),
+            ("bacsi08",    roleBacSi.MaVaiTro,    "0901234568"),
+            ("bacsi09",    roleBacSi.MaVaiTro,    "0901234569"),
+            ("bacsi10",    roleBacSi.MaVaiTro,    "0901234570"),
             ("benhnhan01", roleBenhNhan.MaVaiTro, "0912345671"),
             ("benhnhan02", roleBenhNhan.MaVaiTro, "0912345672"),
             ("benhnhan03", roleBenhNhan.MaVaiTro, "0912345673"),
@@ -92,19 +98,31 @@ public static class DbInitializer
         var tkBs2        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi02");
         var tkBs3        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi03");
         var tkBs4        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi04");
+        var tkBs5        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi05");
+        var tkBs6        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi06");
+        var tkBs7        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi07");
+        var tkBs8        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi08");
+        var tkBs9        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi09");
+        var tkBs10       = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "bacsi10");
         var tkBn1        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "benhnhan01");
         var tkBn2        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "benhnhan02");
         var tkBn3        = await db.TaiKhoans.FirstAsync(t => t.TenTaiKhoan == "benhnhan03");
 
         // ══════════════════════════════════════════════════════════════
-        // 3. SEED 4 CHUYÊN KHOA
+        // 3. SEED 10 CHUYÊN KHOA
         // ══════════════════════════════════════════════════════════════
         var chuyenKhoas = new (string Ten, string MoTa)[]
         {
-            ("Nội tổng quát", "Khám và điều trị các bệnh lý nội khoa người lớn, tim mạch, tiêu hóa, hô hấp"),
-            ("Tai Mũi Họng",  "Khám, nội soi và điều trị các bệnh lý tai mũi họng người lớn và trẻ em"),
-            ("Da liễu",       "Điều trị các bệnh ngoài da, dị ứng, viêm da cơ địa và thẩm mỹ y khoa"),
-            ("Nhi khoa",      "Khám, tư vấn dinh dưỡng và điều trị bệnh lý chuyên sâu cho trẻ sơ sinh và trẻ nhỏ"),
+            ("Nội tổng quát",      "Khám và điều trị các bệnh lý nội khoa người lớn, tim mạch, tiêu hóa, hô hấp"),
+            ("Tai Mũi Họng",       "Khám, nội soi và điều trị các bệnh lý tai mũi họng người lớn và trẻ em"),
+            ("Da liễu",            "Điều trị các bệnh ngoài da, dị ứng, viêm da cơ địa và thẩm mỹ y khoa"),
+            ("Nhi khoa",           "Khám, tư vấn dinh dưỡng và điều trị bệnh lý chuyên sâu cho trẻ sơ sinh và trẻ nhỏ"),
+            ("Tim mạch",           "Khám, chẩn đoán và điều trị chuyên sâu bệnh lý mạch vành, tăng huyết áp, suy tim và loạn nhịp"),
+            ("Cơ xương khớp",      "Thăm khám và phục hồi chức năng các bệnh thoái hóa khớp, thoát vị đĩa đệm, loãng xương"),
+            ("Tiêu hóa - Gan mật", "Nội soi tiêu hóa, tầm soát và điều trị các bệnh viêm loét dạ dày, trào ngược, viêm gan"),
+            ("Sản phụ khoa",       "Khám thai định kỳ, theo dõi sức khỏe mẹ & bé, tầm soát ung thư phụ khoa định kỳ"),
+            ("Mắt",                "Đo khúc xạ, khám và điều trị các tật về mắt, viêm kết mạc, đục thủy tinh thể người lớn"),
+            ("Răng Hàm Mặt",       "Khám nha khoa tổng quát, điều trị tủy, nhổ răng khôn, phục hình răng sứ và niềng răng"),
         };
 
         foreach (var ck in chuyenKhoas)
@@ -118,13 +136,19 @@ public static class DbInitializer
         }
         await db.SaveChangesAsync();
 
-        var ckNoi = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Nội tổng quát");
-        var ckTmh = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Tai Mũi Họng");
-        var ckDa  = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Da liễu");
-        var ckNhi = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Nhi khoa");
+        var ckNoi     = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Nội tổng quát");
+        var ckTmh     = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Tai Mũi Họng");
+        var ckDa      = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Da liễu");
+        var ckNhi     = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Nhi khoa");
+        var ckTim     = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Tim mạch");
+        var ckKhop    = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Cơ xương khớp");
+        var ckTieuHoa = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Tiêu hóa - Gan mật");
+        var ckSan     = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Sản phụ khoa");
+        var ckMat     = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Mắt");
+        var ckRhm     = await db.ChuyenKhoas.FirstAsync(c => c.TenChuyenKhoa == "Răng Hàm Mặt");
 
         // ══════════════════════════════════════════════════════════════
-        // 4. SEED 4 PHÒNG KHÁM
+        // 4. SEED 10 PHÒNG KHÁM
         // ══════════════════════════════════════════════════════════════
         var phongKhams = new (string Ten, string ViTri, int MaCk)[]
         {
@@ -132,6 +156,12 @@ public static class DbInitializer
             ("Phòng 102", "Tầng 1 - Khu A", ckTmh.MaChuyenKhoa),
             ("Phòng 103", "Tầng 2 - Khu B", ckDa.MaChuyenKhoa),
             ("Phòng 104", "Tầng 2 - Khu B", ckNhi.MaChuyenKhoa),
+            ("Phòng 105", "Tầng 2 - Khu B", ckTim.MaChuyenKhoa),
+            ("Phòng 106", "Tầng 2 - Khu B", ckKhop.MaChuyenKhoa),
+            ("Phòng 107", "Tầng 3 - Khu C", ckTieuHoa.MaChuyenKhoa),
+            ("Phòng 108", "Tầng 3 - Khu C", ckSan.MaChuyenKhoa),
+            ("Phòng 109", "Tầng 3 - Khu C", ckMat.MaChuyenKhoa),
+            ("Phòng 110", "Tầng 3 - Khu C", ckRhm.MaChuyenKhoa),
         };
 
         foreach (var pk in phongKhams)
@@ -150,16 +180,28 @@ public static class DbInitializer
         var p102 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 102");
         var p103 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 103");
         var p104 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 104");
+        var p105 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 105");
+        var p106 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 106");
+        var p107 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 107");
+        var p108 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 108");
+        var p109 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 109");
+        var p110 = await db.PhongKhams.FirstAsync(p => p.TenPhong == "Phòng 110");
 
         // ══════════════════════════════════════════════════════════════
-        // 5. SEED 4 BÁC SĨ HOẠT ĐỘNG
+        // 5. SEED 10 BÁC SĨ HOẠT ĐỘNG
         // ══════════════════════════════════════════════════════════════
         var bacSis = new (string HoTen, string HocVi, string Phone, int MaCk, int MaTk)[]
         {
-            ("Nguyễn Văn An",  "BS.CKI", "0901234561", ckNoi.MaChuyenKhoa, tkBs1.MaTaiKhoan),
-            ("Trần Thị Bình",  "ThS.BS",  "0901234562", ckTmh.MaChuyenKhoa, tkBs2.MaTaiKhoan),
-            ("Lê Hoàng Cường", "BS.CKI", "0901234563", ckDa.MaChuyenKhoa,  tkBs3.MaTaiKhoan),
-            ("Phạm Minh Đức",  "ThS.BS",  "0901234564", ckNhi.MaChuyenKhoa, tkBs4.MaTaiKhoan),
+            ("Nguyễn Văn An",    "BS.CKI",  "0901234561", ckNoi.MaChuyenKhoa,     tkBs1.MaTaiKhoan),
+            ("Trần Thị Bình",    "ThS.BS",   "0901234562", ckTmh.MaChuyenKhoa,     tkBs2.MaTaiKhoan),
+            ("Lê Hoàng Cường",   "BS.CKI",  "0901234563", ckDa.MaChuyenKhoa,      tkBs3.MaTaiKhoan),
+            ("Phạm Minh Đức",    "ThS.BS",   "0901234564", ckNhi.MaChuyenKhoa,     tkBs4.MaTaiKhoan),
+            ("Võ Quốc Hưng",     "BS.CKII", "0901234565", ckTim.MaChuyenKhoa,     tkBs5.MaTaiKhoan),
+            ("Đặng Thùy Linh",   "ThS.BS",   "0901234566", ckKhop.MaChuyenKhoa,    tkBs6.MaTaiKhoan),
+            ("Hoàng Tuấn Kiệt",  "BS.CKI",  "0901234567", ckTieuHoa.MaChuyenKhoa, tkBs7.MaTaiKhoan),
+            ("Nguyễn Mai Phương","BS.CKII", "0901234568", ckSan.MaChuyenKhoa,     tkBs8.MaTaiKhoan),
+            ("Bùi Quang Huy",    "ThS.BS",   "0901234569", ckMat.MaChuyenKhoa,     tkBs9.MaTaiKhoan),
+            ("Đỗ Thanh Thảo",    "BS.CKI",  "0901234570", ckRhm.MaChuyenKhoa,     tkBs10.MaTaiKhoan),
         };
 
         foreach (var bs in bacSis)
@@ -176,10 +218,16 @@ public static class DbInitializer
         }
         await db.SaveChangesAsync();
 
-        var bsAn    = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs1.MaTaiKhoan);
-        var bsBinh  = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs2.MaTaiKhoan);
-        var bsCuong = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs3.MaTaiKhoan);
-        var bsDuc   = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs4.MaTaiKhoan);
+        var bsAn     = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs1.MaTaiKhoan);
+        var bsBinh   = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs2.MaTaiKhoan);
+        var bsCuong  = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs3.MaTaiKhoan);
+        var bsDuc    = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs4.MaTaiKhoan);
+        var bsHung   = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs5.MaTaiKhoan);
+        var bsLinh   = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs6.MaTaiKhoan);
+        var bsKiet   = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs7.MaTaiKhoan);
+        var bsPhuong = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs8.MaTaiKhoan);
+        var bsHuy    = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs9.MaTaiKhoan);
+        var bsThao   = await db.BacSis.FirstAsync(b => b.MaTaiKhoan == tkBs10.MaTaiKhoan);
 
         // ══════════════════════════════════════════════════════════════
         // 6. SEED 75 BỆNH NHÂN (Gồm 10 bệnh nhân có SoLanVangHen >= 2)
@@ -243,10 +291,16 @@ public static class DbInitializer
 
         var doctorConfigs = new (BacSi Bs, PhongKham Pk)[]
         {
-            (bsAn,    p101),
-            (bsBinh,  p102),
-            (bsCuong, p103),
-            (bsDuc,   p104),
+            (bsAn,     p101),
+            (bsBinh,   p102),
+            (bsCuong,  p103),
+            (bsDuc,    p104),
+            (bsHung,   p105),
+            (bsLinh,   p106),
+            (bsKiet,   p107),
+            (bsPhuong, p108),
+            (bsHuy,    p109),
+            (bsThao,   p110),
         };
 
         var today = DateOnly.FromDateTime(DateTime.Today);
@@ -266,8 +320,8 @@ public static class DbInitializer
         {
             var targetDate = today.AddDays(dayOffset);
             // Mỗi ngày lịch sử tạo 2 ca cho 2 bác sĩ luân phiên
-            int bsIdx1 = Math.Abs(dayOffset) % 4;
-            int bsIdx2 = (Math.Abs(dayOffset) + 1) % 4;
+            int bsIdx1 = Math.Abs(dayOffset) % doctorConfigs.Length;
+            int bsIdx2 = (Math.Abs(dayOffset) + 1) % doctorConfigs.Length;
             var activeConfigs = new[] { doctorConfigs[bsIdx1], doctorConfigs[bsIdx2] };
 
             foreach (var cfg in activeConfigs)
