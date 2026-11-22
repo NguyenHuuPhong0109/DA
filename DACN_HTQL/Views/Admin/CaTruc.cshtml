@@ -1,0 +1,160 @@
+﻿@model IEnumerable<DACN_HTQL.Models.Entities.CaTruc>
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Lịch làm việc";
+    ViewData["ActiveMenu"] = "CaTruc";
+    var ngayFilter = (DateOnly)ViewBag.NgayFilter;
+    var totalCount = Model.Count();
+    var today = DateOnly.FromDateTime(DateTime.Today);
+}
+
+<div class="portal-content__head">
+    <div>
+        <h1 class="portal-content__title">Quản lý Lịch làm việc</h1>
+        <p class="portal-content__sub">Hiển thị @totalCount ca làm việc ngày @ngayFilter.ToString("dd/MM/yyyy")</p>
+    </div>
+    <div class="btn-list">
+        <a asp-action="TaoCaTruc" class="btn btn-primary">Tạo lịch làm việc</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
+
+<!-- Bộ lọc ngày & Nút chọn nhanh (Hôm nay | Ngày mai | Ngày kia | +3 ngày) -->
+<div class="card" style="margin-bottom:var(--space-md);padding:12px 16px;background:#ffffff;border:1px solid #E5E7EB;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.05)">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <form method="get" asp-action="CaTruc" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <label class="form-label" style="margin:0;font-size:12px;font-weight:600;color:#4B5563">Chọn ngày:</label>
+            <input type="date" name="ngay" class="form-control form-control--sm font-mono" style="width:145px;height:34px"
+                   value="@ngayFilter.ToString("yyyy-MM-dd")" />
+            <button type="submit" class="btn btn-sm btn-primary" style="height:34px">Xem lịch</button>
+        </form>
+
+        <!-- Nút lọc nhanh theo ngày -->
+        <div class="btn-list" style="align-items:center;gap:6px">
+            <span style="font-size:12px;font-weight:600;color:#6B7280;margin-right:2px">Lọc nhanh:</span>
+            <a asp-action="CaTruc" asp-route-ngay="@today.ToString("yyyy-MM-dd")"
+               class="btn btn-sm @(ngayFilter == today ? "btn-primary" : "btn-outline-secondary")" style="height:32px">
+                Hôm nay
+            </a>
+            <a asp-action="CaTruc" asp-route-ngay="@today.AddDays(1).ToString("yyyy-MM-dd")"
+               class="btn btn-sm @(ngayFilter == today.AddDays(1) ? "btn-primary" : "btn-outline-secondary")" style="height:32px">
+                Ngày mai
+            </a>
+            <a asp-action="CaTruc" asp-route-ngay="@today.AddDays(2).ToString("yyyy-MM-dd")"
+               class="btn btn-sm @(ngayFilter == today.AddDays(2) ? "btn-primary" : "btn-outline-secondary")" style="height:32px">
+                Ngày kia
+            </a>
+            <a asp-action="CaTruc" asp-route-ngay="@today.AddDays(3).ToString("yyyy-MM-dd")"
+               class="btn btn-sm @(ngayFilter == today.AddDays(3) ? "btn-primary" : "btn-outline-secondary")" style="height:32px">
+                +3 ngày
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Table Toolbar: Tìm kiếm nhanh Client-side -->
+<div class="table-toolbar">
+    <input type="text" id="searchBox" class="table-search-input" placeholder="Tìm bác sĩ, phòng khám, ca làm việc..." />
+    <span class="text-sm text-muted" id="filterStats">Hiển thị @totalCount dòng</span>
+</div>
+
+<div class="card-table">
+    <table class="table--clean" id="dataTable">
+        <thead>
+            <tr>
+                <th>Bác sĩ</th>
+                <th>Phòng khám</th>
+                <th>Ca làm việc</th>
+                <th>Khung giờ</th>
+                <th>Trạng thái</th>
+                <th class="th-actions">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ca in Model)
+            {
+                var caText = ca.CaLamViec switch {
+                    "Sang"  => "Ca sáng",
+                    "Chieu" => "Ca chiều",
+                    "Toi"   => "Ca tối",
+                    _       => ca.CaLamViec
+                };
+                var isOpening = (ca.TrangThaiCa == "HoatDong" || ca.TrangThaiCa == "MoKham");
+
+                <tr>
+                    <td>
+                        <strong>@(ca.BacSi?.HoTenBacSi ?? "—")</strong>
+                        <span class="sub-info">Mã ca: #CA-@ca.MaCa</span>
+                    </td>
+                    <td>
+                        <strong>@(ca.PhongKham?.TenPhong ?? "—")</strong>
+                        <span class="sub-info">@(ca.PhongKham?.ViTri ?? "Khu khám")</span>
+                    </td>
+                    <td>
+                        <span>@caText</span>
+                    </td>
+                    <td class="font-mono" style="font-weight:500">
+                        @ca.GioBatDauCa.ToString("HH:mm") – @ca.GioKetThucCa.ToString("HH:mm")
+                    </td>
+                    <td>
+                        <span class="status-dot @(isOpening ? "status-dot--success" : "status-dot--muted")"></span>
+                        @(isOpening ? "Đang mở" : "Đã đóng")
+                    </td>
+                    <td class="td-actions">
+                        <div class="actions-wrap">
+                            <a asp-action="KhungGioDetail" asp-route-id="@ca.MaCa"
+                               class="btn btn-sm btn-outline-secondary">Khung giờ</a>
+                            <form method="post" asp-action="XoaCaTruc" asp-route-id="@ca.MaCa"
+                                  onsubmit="return confirm('Xóa ca trực này và toàn bộ khung giờ?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr id="emptyRow">
+                    <td colspan="6" style="text-align:center;padding:36px;color:#6B7280">
+                        Không có ca trực nào được xếp cho ngày @ngayFilter.ToString("dd/MM/yyyy").
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchBox = document.getElementById("searchBox");
+    const dataTable = document.getElementById("dataTable");
+    const filterStats = document.getElementById("filterStats");
+    if (!searchBox || !dataTable) return;
+
+    const rows = dataTable.querySelectorAll("tbody tr:not(#emptyRow)");
+
+    searchBox.addEventListener("input", function () {
+        const query = this.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(query)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        if (filterStats) {
+            filterStats.textContent = `Hiển thị ${visibleCount} / ${rows.length} dòng`;
+        }
+    });
+});
+</script>
+}

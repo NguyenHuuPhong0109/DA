@@ -1,0 +1,111 @@
+﻿@model IEnumerable<DACN_HTQL.Models.Entities.ChuyenKhoa>
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Chuyên khoa";
+    ViewData["ActiveMenu"] = "ChuyenKhoa";
+    var totalCount = Model.Count();
+}
+
+<div class="portal-content__head">
+    <div>
+        <h1 class="portal-content__title">Quản lý Chuyên khoa</h1>
+        <p class="portal-content__sub">Hiển thị @totalCount chuyên khoa</p>
+    </div>
+    <div class="btn-list">
+        <a asp-action="TaoChuyenKhoa" class="btn btn-primary">Thêm chuyên khoa</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
+
+<!-- Table Toolbar: Tìm kiếm nhanh Client-side -->
+<div class="table-toolbar">
+    <input type="text" id="searchBox" class="table-search-input" placeholder="Tìm tên hoặc mã chuyên khoa..." />
+    <span class="text-sm text-muted" id="filterStats">Hiển thị @totalCount dòng</span>
+</div>
+
+<div class="card-table">
+    <table class="table--clean" id="dataTable">
+        <thead>
+            <tr>
+                <th style="width:100px">Mã CK</th>
+                <th>Chuyên khoa</th>
+                <th style="width:160px">Trạng thái</th>
+                <th class="th-actions">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ck in Model)
+            {
+                var isOpening = (ck.TrangThai == "HoatDong" || ck.TrangThai == "MoKham");
+
+                <tr>
+                    <td class="font-mono" style="color:#6B7280">#@ck.MaChuyenKhoa</td>
+                    <td>
+                        <strong>@ck.TenChuyenKhoa</strong>
+                        @if (!string.IsNullOrEmpty(ck.MoTa))
+                        {
+                            <span class="sub-info">@ck.MoTa</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="status-dot @(isOpening ? "status-dot--success" : "status-dot--muted")"></span>
+                        @(isOpening ? "Hoạt động" : "Tạm ngưng")
+                    </td>
+                    <td class="td-actions">
+                        <div class="actions-wrap">
+                            <a asp-action="SuaChuyenKhoa" asp-route-id="@ck.MaChuyenKhoa"
+                               class="btn btn-sm btn-outline-secondary">Sửa</a>
+                            <form method="post" asp-action="XoaChuyenKhoa" asp-route-id="@ck.MaChuyenKhoa"
+                                  onsubmit="return confirm('Xóa chuyên khoa «@ck.TenChuyenKhoa»?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr id="emptyRow">
+                    <td colspan="4" style="text-align:center;padding:36px;color:#6B7280">
+                        Chưa có chuyên khoa nào trong hệ thống.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchBox = document.getElementById("searchBox");
+    const dataTable = document.getElementById("dataTable");
+    const filterStats = document.getElementById("filterStats");
+    if (!searchBox || !dataTable) return;
+
+    const rows = dataTable.querySelectorAll("tbody tr:not(#emptyRow)");
+
+    searchBox.addEventListener("input", function () {
+        const query = this.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(query)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        if (filterStats) {
+            filterStats.textContent = `Hiển thị ${visibleCount} / ${rows.length} dòng`;
+        }
+    });
+});
+</script>
+}

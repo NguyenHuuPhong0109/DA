@@ -1,0 +1,624 @@
+﻿@model DACN_HTQL.Models.ViewModels.BacSiDashboardVM
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"]      = "Phòng khám của tôi";
+    ViewData["ActiveMenu"] = "BacSi";
+    var hangDoiPhong = ViewBag.HangDoiPhong as Dictionary<int, List<DACN_HTQL.Models.ViewModels.HangDoiPhieuVM>> ?? new();
+    var tenPhongMap  = ViewBag.TenPhongMap  as Dictionary<int, string> ?? new();
+    var maPhongList  = ViewBag.MaPhongList  as List<int> ?? new();
+}
+
+@section Styles {
+<style>
+/* ── Bluetooth toolbar (Tabler Light) ── */
+.bt-toolbar {
+  display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap;
+  padding: 10px var(--space-md);
+  background: #ffffff;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  margin-bottom: var(--space-lg);
+  font-size: var(--text-sm);
+}
+.bt-toolbar__group { display: flex; align-items: center; gap: var(--space-xs); }
+.bt-toolbar__sep { width: 1px; height: 24px; background: var(--color-rule); }
+.bt-label { color: var(--color-muted); white-space: nowrap; font-weight: 500; font-size: var(--text-xs); }
+.bt-toggle { position: relative; display: inline-flex; cursor: pointer; }
+.bt-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.bt-toggle__track {
+  display: block; width: 36px; height: 20px;
+  background: #CBD5E1; border-radius: 10px;
+  transition: background var(--dur-short);
+}
+.bt-toggle input:checked + .bt-toggle__track { background: var(--color-primary); }
+.bt-toggle__thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; background: #fff; border-radius: 50%;
+  transition: transform var(--dur-short);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.bt-toggle input:checked ~ .bt-toggle__thumb { transform: translateX(16px); }
+input[type=range].bt-slider {
+  width: 90px; accent-color: var(--color-primary); cursor: pointer;
+}
+
+/* ── Màn hình gọi số ── */
+.goi-so-panel {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);
+  align-items: start; margin-bottom: var(--space-lg);
+}
+@@media (max-width: 56rem) { .goi-so-panel { grid-template-columns: 1fr; } }
+
+.so-dang-goi {
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg); text-align: center;
+  background: #ffffff;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+.so-dang-goi__label { font-size: var(--text-xs); text-transform: uppercase;
+  letter-spacing: .06em; color: var(--color-muted); font-weight: 600; margin-bottom: var(--space-xs); }
+.so-dang-goi__num {
+  font-family: var(--font-outlier); font-size: 3.5rem; font-weight: 700;
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums slashed-zero;
+  color: var(--color-primary); line-height: 1.1; margin: var(--space-xs) 0;
+}
+.so-dang-goi__ten {
+  font-size: var(--text-lg); font-weight: 600; color: var(--color-ink); margin-bottom: var(--space-xs);
+}
+.so-dang-goi__phong { font-size: var(--text-sm); color: var(--color-muted); }
+.so-dang-goi__goi { margin-top: var(--space-xs); font-size: var(--text-xs); color: var(--color-muted); font-weight: 500; }
+.so-dang-goi--empty .so-dang-goi__num { color: var(--color-muted); font-size: 2rem; }
+
+/* ── Bảng điều khiển bác sĩ ── */
+.dk-panel {
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card); padding: var(--space-lg);
+  background: #ffffff;
+  box-shadow: var(--shadow-card);
+}
+.dk-panel__title { font-size: var(--text-md); font-weight: 600; color: var(--color-ink); margin-bottom: var(--space-md); }
+.dk-btn-group { display: grid; gap: var(--space-xs); }
+.dk-btn-group .btn { justify-content: center; }
+
+/* ── Hàng đợi nhỏ ── */
+.hd-list { display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow-y: auto; }
+.hd-row {
+  display: flex; align-items: center; gap: var(--space-sm); padding: 8px 12px;
+  border-radius: var(--radius-input); font-size: var(--text-sm);
+  background: #ffffff; border: 1px solid var(--color-rule);
+  transition: background var(--dur-micro);
+}
+.hd-row--goi   { background: #E0F2FE; border-color: #BAE6FD; }
+.hd-row--kham  { background: #DCFCE7; border-color: #BBF7D0; }
+.hd-row__num   { font-family: var(--font-outlier); font-weight: 700; min-width: 54px; }
+.hd-row--A .hd-row__num { color: var(--color-primary); }
+.hd-row--W .hd-row__num { color: #0284C7; }
+.hd-row--L .hd-row__num { color: #D97706; }
+.hd-row__ten   { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; color: var(--color-ink); }
+.hd-row__gio   { font-family: var(--font-outlier); font-size: var(--text-xs);
+  color: var(--color-muted); min-width: 36px; text-align: right; }
+.hd-row__recall { margin-left: auto; }
+.spinner { display: inline-block; width: 16px; height: 16px;
+  border: 2px solid var(--color-rule-2); border-top-color: var(--color-primary);
+  border-radius: 50%; animation: spin .6s linear infinite; }
+@@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+}
+
+@* ── Thanh công cụ Loa Bluetooth ── *@
+<div class="bt-toolbar" id="bt-toolbar" aria-label="Điều khiển loa">
+    <span class="bt-label" style="font-weight:700;color:var(--color-ink)">🔊 Loa gọi số</span>
+
+    <div class="bt-toolbar__group">
+        <label class="bt-toggle" title="Bật/Tắt tự động đọc">
+            <input type="checkbox" id="bt-auto" checked onchange="BluetoothSpeaker.setTuDong(this.checked)" />
+            <span class="bt-toggle__track"></span>
+            <span class="bt-toggle__thumb"></span>
+        </label>
+        <span class="bt-label" id="bt-auto-label">Tự động</span>
+    </div>
+
+    <div class="bt-toolbar__sep"></div>
+
+    <div class="bt-toolbar__group">
+        <label class="bt-label" for="bt-volume">Âm lượng</label>
+        <input type="range" class="bt-slider" id="bt-volume"
+               min="0" max="1" step="0.05" value="0.75"
+               oninput="BluetoothSpeaker.setAmLuong(this.value)" />
+    </div>
+
+    <div class="bt-toolbar__group">
+        <label class="bt-label" for="bt-rate">Tốc độ</label>
+        <input type="range" class="bt-slider" id="bt-rate"
+               min="0.7" max="1.2" step="0.05" value="0.9"
+               oninput="BluetoothSpeaker.setTocDo(this.value)" />
+        <span class="bt-label" id="bt-rate-val">0.9×</span>
+    </div>
+
+    <div class="bt-toolbar__sep"></div>
+
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="BluetoothSpeaker.kiemTra()">
+        Kiểm tra Loa
+    </button>
+</div>
+
+@* ── Header bác sĩ ── *@
+<div class="page-header" style="margin-bottom:var(--space-lg)">
+    <div>
+        <h1 class="page-title">
+            @(!string.IsNullOrEmpty(Model.HocVi) ? Model.HocVi + " " : "")@Model.HoTenBacSi
+        </h1>
+        <p class="page-sub font-mono">📅 Ngày khám: @Model.NgayHomNay.ToString("dd/MM/yyyy")</p>
+    </div>
+    <div class="btn-list">
+        <a href="/BacSi/LichSuCa" class="btn btn-sm btn-outline-secondary">Lịch sử ca trực</a>
+    </div>
+</div>
+
+@* ── Thống kê ── *@
+<div class="stats-grid" style="margin-bottom:var(--space-lg)">
+    <div class="stat-card">
+        <div class="stat-card__value font-mono">@Model.TongBenhNhan</div>
+        <div class="stat-card__label">Tổng bệnh nhân</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__value font-mono" style="color:var(--color-warning-dark)">@Model.SoChoXacNhan</div>
+        <div class="stat-card__label">Chờ xác nhận</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__value font-mono" style="color:var(--color-success)">@Model.SoDaKham</div>
+        <div class="stat-card__label">Đã khám</div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] is string ok2)
+{
+    <div class="alert alert--success" style="margin-bottom:var(--space-lg)">@ok2</div>
+}
+
+@* ── Màn hình điều khiển theo phòng ── *@
+@foreach (var maPhong in maPhongList)
+{
+    var tenPhong = tenPhongMap.GetValueOrDefault(maPhong, $"Phòng {maPhong}");
+    var hangDoi  = hangDoiPhong.GetValueOrDefault(maPhong, new());
+    var dangGoi  = hangDoi.FirstOrDefault(h => h.TrangThaiPhieu == "DangGoi");
+    var dangKham = hangDoi.FirstOrDefault(h => h.TrangThaiPhieu == "DangKham");
+
+    <section style="margin-bottom:var(--space-2xl)">
+        <h2 class="section-heading">
+            @tenPhong
+            <span style="font-weight:400;font-size:var(--text-sm);color:var(--color-muted)">
+                · @hangDoi.Count(h => h.TrangThaiPhieu == "DangCho") bệnh nhân đang chờ
+            </span>
+        </h2>
+
+        <div class="goi-so-panel">
+
+            @* Màn hình số đang gọi *@
+            <div class="so-dang-goi @(dangGoi == null ? "so-dang-goi--empty" : "")"
+                 id="panel-goiso-@maPhong">
+                <div class="so-dang-goi__label">Đang gọi vào phòng</div>
+                <div class="so-dang-goi__num" id="num-@maPhong">
+                    @(dangGoi != null ? dangGoi.SoThuTu : "—")
+                </div>
+                <div class="so-dang-goi__ten" id="ten-@maPhong">
+                    @(dangGoi?.TenBenhNhan ?? "")
+                </div>
+                <div class="so-dang-goi__phong">@tenPhong</div>
+                @if (dangGoi != null)
+                {
+                    <div class="so-dang-goi__goi" id="goi-lan-@maPhong">
+                        Đã gọi @dangGoi.SoLanGoi/3 lần
+                    </div>
+                }
+                else
+                {
+                    <div class="so-dang-goi__goi" id="goi-lan-@maPhong"></div>
+                }
+
+                @if (dangKham != null)
+                {
+                    <div style="margin-top:var(--space-md);padding-top:var(--space-md);border-top:1px solid var(--color-rule)">
+                        <div class="so-dang-goi__label">Đang trong phòng khám</div>
+                        <div style="font-weight:600;color:var(--color-ink)">@dangKham.SoThuTu · @dangKham.TenBenhNhan</div>
+                    </div>
+                }
+            </div>
+
+            @* Bảng điều khiển *@
+            <div class="dk-panel" id="ctrl-@maPhong"
+                 data-ma-phong="@maPhong"
+                 data-ten-phong="@tenPhong"
+                 data-ma-phieu-goi="@(dangGoi?.MaPhieu ?? 0)"
+                 data-so-lan-goi="@(dangGoi?.SoLanGoi ?? 0)">
+                <div class="dk-panel__title">Bảng điều khiển · @tenPhong</div>
+                <div class="dk-btn-group">
+
+                    @* Nút: Gọi số tiếp theo (Primary) *@
+                    <button type="button" class="btn btn-primary"
+                            id="btn-goi-@maPhong"
+                            onclick="goiSoTiepTheo(@maPhong)"
+                            @(dangGoi != null ? "disabled aria-disabled=\"true\"" : "")>
+                        Gọi số tiếp theo
+                    </button>
+
+                    @* Nút: Gọi lại (Recall) (Secondary) *@
+                    <button type="button" class="btn btn-outline-secondary"
+                            id="btn-recall-@maPhong"
+                            onclick="goiLai(@maPhong)"
+                            @(dangGoi == null || dangGoi.SoLanGoi >= 3 ? "disabled aria-disabled=\"true\"" : "")>
+                        Gọi lại (@(dangGoi?.SoLanGoi ?? 0)/3)
+                    </button>
+
+                    @* Nút: Bắt đầu khám (Success) *@
+                    <button type="button" class="btn btn-success"
+                            id="btn-kham-@maPhong"
+                            onclick="batDauKham(@maPhong)"
+                            @(dangGoi == null ? "disabled aria-disabled=\"true\"" : "")>
+                        Bắt đầu khám
+                    </button>
+
+                    @* Nút: Hoàn tất (Outline) *@
+                    <button type="button" class="btn btn-outline-secondary"
+                            id="btn-hoanthat-@maPhong"
+                            onclick="hoanTat(@maPhong)"
+                            @(dangKham == null ? "disabled aria-disabled=\"true\"" : "")>
+                        Hoàn tất khám
+                    </button>
+
+                    @* Nút: Qua lượt — nổi bật khi đã gọi 3 lần *@
+                    <button type="button"
+                            class="btn @(dangGoi?.SoLanGoi >= 3 ? "btn-danger" : "btn-warning")"
+                            id="btn-qualuot-@maPhong"
+                            onclick="quaLuot(@maPhong)"
+                            @(dangGoi == null ? "disabled aria-disabled=\"true\"" : "")>
+                        Qua lượt
+                    </button>
+
+                </div>
+
+                @* Trạng thái loading *@
+                <div id="loading-@maPhong" style="display:none;text-align:center;margin-top:var(--space-md)">
+                    <span class="spinner"></span>
+                </div>
+            </div>
+        </div>
+
+        @* Danh sách hàng đợi nhỏ bên dưới *@
+        <div id="hangdoi-list-@maPhong" class="hd-list">
+            @foreach (var h in hangDoi)
+            {
+                var prefix = h.SoThuTu.Length > 0 ? h.SoThuTu[0].ToString() : "A";
+                var rowCls = h.TrangThaiPhieu switch {
+                    "DangGoi"  => "hd-row--goi",
+                    "DangKham" => "hd-row--kham",
+                    _ => ""
+                };
+                <div class="hd-row hd-row--@prefix @rowCls">
+                    <span class="hd-row__num">@h.SoThuTu</span>
+                    <span class="hd-row__ten">@h.TenBenhNhan</span>
+                    <span class="hd-row__gio">@(h.GioHen ?? "—")</span>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+@if (!maPhongList.Any())
+{
+    <div class="card" style="text-align:center;padding:var(--space-2xl);color:var(--color-muted)">
+        Hôm nay bạn không có ca trực nào được phân công.
+    </div>
+}
+
+@* ── Danh sách phiếu hẹn theo ca (bảng bác sĩ) ── *@
+@if (Model.CaTrucsHomNay.Any())
+{
+    <section style="margin-top:var(--space-xl)">
+        <h2 class="section-heading">Danh sách bệnh nhân theo ca trực hôm nay</h2>
+        @foreach (var ca in Model.CaTrucsHomNay)
+        {
+            var caLabel = ca.CaLamViec switch { "Sang" => "Ca sáng", "Chieu" => "Ca chiều", "Toi" => "Ca tối", _ => ca.CaLamViec };
+            <div class="ca-section" style="margin-bottom:var(--space-lg)">
+                <div class="ca-section__header">
+                    <div>
+                        <span class="ca-section__label">@caLabel</span>
+                        <span class="font-mono ca-section__time">
+                            @ca.GioBatDauCa.ToString(@"HH\:mm") — @ca.GioKetThucCa.ToString(@"HH\:mm")
+                        </span>
+                    </div>
+                    <span style="color:var(--color-muted);font-size:var(--text-sm);font-weight:500">@ca.TenPhong</span>
+                </div>
+                @if (!ca.BenhNhans.Any())
+                {
+                    <p class="empty-notice" style="color:var(--color-muted);padding:var(--space-md) 0">Chưa có bệnh nhân trong ca này.</p>
+                }
+                else
+                {
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th><th>Mã đặt hẹn</th><th>Họ tên</th>
+                                    <th>Giờ hẹn</th><th>Lý do</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var bn in ca.BenhNhans.OrderBy(b => b.GioBatDau))
+                                {
+                                    var sttStr = bn.SoThuTu.HasValue ? $"A-{bn.SoThuTu:D3}" : "—";
+                                    var bc = bn.TrangThaiHen switch {
+                                        "ChoXacNhan" => "badge--cho-xac-nhan", "DaXacNhan" => "badge--da-xac-nhan",
+                                        "DaCheckIn"  => "badge--da-check-in",  "DaKham"    => "badge--da-kham",
+                                        "DaHuy"      => "badge--da-huy",       "VangHen"   => "badge--vang-hen",
+                                        _ => ""
+                                    };
+                                    var tt = bn.TrangThaiHen switch {
+                                        "ChoXacNhan" => "Chờ xác nhận", "DaXacNhan" => "Đã xác nhận",
+                                        "DaCheckIn"  => "Đã check-in",  "DaKham"    => "Đã khám",
+                                        "DaHuy"      => "Đã hủy",       "VangHen"   => "Vắng hẹn", _ => bn.TrangThaiHen
+                                    };
+                                    <tr @(bn.CoCanhBao ? "class=\"row--canh-bao\"" : "")>
+                                        <td><span class="font-mono">@sttStr</span></td>
+                                        <td><span class="font-mono booking-code">@bn.MaDatHen</span></td>
+                                        <td>
+                                            <strong>@bn.TenBenhNhan</strong>
+                                            @if (bn.CoCanhBao)
+                                            {
+                                                <span class="badge badge--canh-bao" title="Vắng hẹn nhiều lần" style="margin-left:4px">&#9888; Cảnh báo</span>
+                                            }
+                                        </td>
+                                        <td class="font-mono">@bn.GioBatDau.ToString(@"HH\:mm")</td>
+                                        <td style="max-width:180px;font-size:var(--text-xs);color:var(--color-muted)">
+                                            @(string.IsNullOrEmpty(bn.LyDoKhamSoBo) ? "—" : bn.LyDoKhamSoBo)
+                                        </td>
+                                        <td><span class="badge @bc">@tt</span></td>
+                                        <td style="text-align:right">
+                                            @if (bn.TrangThaiHen == "ChoXacNhan")
+                                            {
+                                                <form method="post" action="/BacSi/XacNhanPhieu" style="display:inline;margin:0">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="maPhieuHen" value="@bn.MaPhieuHen" />
+                                                    <button type="submit" class="btn btn-sm btn-success">Xác nhận</button>
+                                                </form>
+                                            }
+                                            else { <span style="color:var(--color-muted)">—</span> }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+}
+
+@section Scripts {
+<script src="~/js/bluetooth-speaker.js"></script>
+@{
+    var initStates = new System.Text.Json.Nodes.JsonObject();
+    foreach (var mp in maPhongList)
+    {
+        var dg3 = hangDoiPhong.GetValueOrDefault(mp)?.FirstOrDefault(h => h.TrangThaiPhieu == "DangGoi");
+        var dk3 = hangDoiPhong.GetValueOrDefault(mp)?.FirstOrDefault(h => h.TrangThaiPhieu == "DangKham");
+        initStates[mp.ToString()] = new System.Text.Json.Nodes.JsonObject
+        {
+            ["maPhieuGoi"]  = dg3?.MaPhieu ?? 0,
+            ["soLanGoi"]    = dg3?.SoLanGoi ?? 0,
+            ["maPhieuKham"] = dk3?.MaPhieu ?? 0,
+            ["tenBenhNhan"] = dg3?.TenBenhNhan ?? "",
+            ["soThuTu"]     = dg3?.SoThuTu ?? "",
+            ["tenPhong"]    = tenPhongMap.GetValueOrDefault(mp, ""),
+        };
+    }
+    var initJson = initStates.ToJsonString();
+    var maPhongArr = "[" + string.Join(",", maPhongList) + "]";
+}
+<script type="application/json" id="bs-init-data">@Html.Raw(initJson)</script>
+<script>
+// ── CSRF token ──────────────────────────────────────────────────────────────
+const _csrf = document.querySelector('input[name=__RequestVerificationToken]')?.value ?? '';
+
+// ── Trạng thái phòng (inject qua JSON, không dùng Razor trong <script>) ─────
+const _initData = JSON.parse(document.getElementById('bs-init-data').textContent);
+const _state = _initData;   // { "maPhong": { maPhieuGoi, soLanGoi, ... } }
+const _maPhongList = @Html.Raw(maPhongArr);
+
+function _setLoading(maPhong, on) {
+    document.getElementById(`loading-${maPhong}`).style.display = on ? '' : 'none';
+}
+function _setBtn(id, enabled) {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.disabled = !enabled;
+    b.setAttribute('aria-disabled', !enabled ? 'true' : 'false');
+}
+function _updateUI(maPhong, d) {
+    // Cập nhật số đang gọi
+    document.getElementById(`num-${maPhong}`).textContent    = d.maSoThuTu ?? '—';
+    document.getElementById(`ten-${maPhong}`).textContent    = d.tenBenhNhan ?? '';
+    document.getElementById(`goi-lan-${maPhong}`).textContent =
+        d.soLanGoi ? `Đã gọi ${d.soLanGoi}/3 lần` : '';
+
+    const soLan = d.soLanGoi ?? 0;
+    _setBtn(`btn-goi-${maPhong}`,      !d.maPhieu || d.maPhieu === 0);
+    _setBtn(`btn-recall-${maPhong}`,   !!d.maPhieu && soLan < 3);
+    _setBtn(`btn-kham-${maPhong}`,     !!d.maPhieu);
+    _setBtn(`btn-hoanthat-${maPhong}`, false);
+    _setBtn(`btn-qualuot-${maPhong}`,  !!d.maPhieu);
+
+    // Nút Qua lượt nổi bật khi đã gọi đủ 3 lần
+    const btnQl = document.getElementById(`btn-qualuot-${maPhong}`);
+    if (btnQl) {
+        btnQl.className = soLan >= 3 ? 'btn btn-danger' : 'btn btn-warning';
+    }
+
+    // Nút Gọi lại hiển thị số lần
+    const btnRc = document.getElementById(`btn-recall-${maPhong}`);
+    if (btnRc) btnRc.textContent = `Gọi lại (${soLan}/3)`;
+}
+
+// ── Gọi số tiếp theo ────────────────────────────────────────────────────────
+async function goiSoTiepTheo(maPhong) {
+    BluetoothSpeaker.unlockAudio(); // Mở khóa âm thanh đồng bộ trong user gesture (iOS Safari / Android Chrome)
+    _setLoading(maPhong, true);
+    try {
+        const res = await fetch('/BacSi/GoiSoTiepTheo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `__RequestVerificationToken=${encodeURIComponent(_csrf)}&maPhong=${maPhong}`,
+        });
+        const d = await res.json();
+        if (!d.ok) { alert(d.message); return; }
+
+        _state[maPhong] = {
+            maPhieuGoi : d.maPhieu,
+            soLanGoi   : d.soLanGoi,
+            tenBenhNhan: d.tenBenhNhan,
+            soThuTu    : d.maSoThuTu,
+            tenPhong   : d.tenPhong,
+        };
+
+        _updateUI(maPhong, { ...d, maPhieu: d.maPhieu, maSoThuTu: d.maSoThuTu });
+        BluetoothSpeaker.phat({ soThuTu: d.maSoThuTu, tenBenhNhan: d.tenBenhNhan, tenPhong: d.tenPhong });
+        await _laiHangDoi(maPhong);
+    } finally {
+        _setLoading(maPhong, false);
+    }
+}
+
+// ── Gọi lại ─────────────────────────────────────────────────────────────────
+async function goiLai(maPhong) {
+    BluetoothSpeaker.unlockAudio(); // Mở khóa âm thanh đồng bộ trong user gesture (iOS Safari / Android Chrome)
+    const st = _state[maPhong];
+    if (!st?.maPhieuGoi) return;
+    _setLoading(maPhong, true);
+    try {
+        const res = await fetch('/BacSi/GoiLai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `__RequestVerificationToken=${encodeURIComponent(_csrf)}&maPhieu=${st.maPhieuGoi}`,
+        });
+        const d = await res.json();
+        if (!d.ok) { alert(d.message); return; }
+
+        _state[maPhong].soLanGoi = d.soLanGoi;
+        _updateUI(maPhong, { ...d, maPhieu: d.maPhieu, maSoThuTu: d.maSoThuTu });
+        BluetoothSpeaker.phat({ soThuTu: d.maSoThuTu, tenBenhNhan: d.tenBenhNhan, tenPhong: d.tenPhong });
+    } finally {
+        _setLoading(maPhong, false);
+    }
+}
+
+// ── Bắt đầu khám ────────────────────────────────────────────────────────────
+async function batDauKham(maPhong) {
+    const st = _state[maPhong];
+    if (!st?.maPhieuGoi) return;
+    _setLoading(maPhong, true);
+    try {
+        const res = await fetch('/BacSi/BatDauKham', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `__RequestVerificationToken=${encodeURIComponent(_csrf)}&maPhieu=${st.maPhieuGoi}`,
+        });
+        const d = await res.json();
+        if (!d.ok) return;
+
+        _state[maPhong].maPhieuKham = _state[maPhong].maPhieuGoi;
+        _state[maPhong].maPhieuGoi  = 0;
+        _setBtn(`btn-hoanthat-${maPhong}`, true);
+        _setBtn(`btn-goi-${maPhong}`, true);
+        _setBtn(`btn-recall-${maPhong}`, false);
+        _setBtn(`btn-kham-${maPhong}`, false);
+        _setBtn(`btn-qualuot-${maPhong}`, false);
+        await _laiHangDoi(maPhong);
+    } finally {
+        _setLoading(maPhong, false);
+    }
+}
+
+// ── Hoàn tất khám ───────────────────────────────────────────────────────────
+async function hoanTat(maPhong) {
+    const maPhieu = _state[maPhong]?.maPhieuKham;
+    if (!maPhieu) return;
+    _setLoading(maPhong, true);
+    try {
+        await fetch('/BacSi/HoanTat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `__RequestVerificationToken=${encodeURIComponent(_csrf)}&maPhieu=${maPhieu}`,
+        });
+        _state[maPhong].maPhieuKham = 0;
+        _setBtn(`btn-hoanthat-${maPhong}`, false);
+        document.getElementById(`num-${maPhong}`).textContent = '—';
+        document.getElementById(`ten-${maPhong}`).textContent = '';
+        await _laiHangDoi(maPhong);
+    } finally {
+        _setLoading(maPhong, false);
+    }
+}
+
+// ── Qua lượt ────────────────────────────────────────────────────────────────
+async function quaLuot(maPhong) {
+    const maPhieu = _state[maPhong]?.maPhieuGoi;
+    if (!maPhieu) return;
+    if (!confirm('Xác nhận qua lượt bệnh nhân này?')) return;
+    _setLoading(maPhong, true);
+    try {
+        await fetch('/BacSi/QuaLuot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `__RequestVerificationToken=${encodeURIComponent(_csrf)}&maPhieu=${maPhieu}`,
+        });
+        _state[maPhong].maPhieuGoi = 0;
+        document.getElementById(`num-${maPhong}`).textContent = '—';
+        document.getElementById(`ten-${maPhong}`).textContent = '';
+        document.getElementById(`goi-lan-${maPhong}`).textContent = '';
+        _setBtn(`btn-goi-${maPhong}`, true);
+        _setBtn(`btn-recall-${maPhong}`, false);
+        _setBtn(`btn-kham-${maPhong}`, false);
+        _setBtn(`btn-qualuot-${maPhong}`, false);
+        await _laiHangDoi(maPhong);
+    } finally {
+        _setLoading(maPhong, false);
+    }
+}
+
+// ── Polling hàng đợi (mỗi 10s) ──────────────────────────────────────────────
+async function _laiHangDoi(maPhong) {
+    try {
+        const res  = await fetch(`/BacSi/LayHangDoi?maPhong=${maPhong}`);
+        const list = await res.json();
+        const container = document.getElementById(`hangdoi-list-${maPhong}`);
+        if (!container) return;
+
+        if (!list.length) { container.innerHTML = '<div class="empty-notice" style="color:var(--color-muted);padding:8px;text-align:center">Hàng đợi trống.</div>'; return; }
+
+        container.innerHTML = list.map(h => {
+            const prefix = h.soThuTu?.[0] ?? 'A';
+            const rowCls = h.trangThaiPhieu === 'DangGoi' ? 'hd-row--goi'
+                         : h.trangThaiPhieu === 'DangKham' ? 'hd-row--kham' : '';
+            return `<div class="hd-row hd-row--${prefix} ${rowCls}">
+                <span class="hd-row__num">${h.soThuTu}</span>
+                <span class="hd-row__ten">${h.tenBenhNhan}</span>
+                <span class="hd-row__gio">${h.gioHen ?? '—'}</span>
+            </div>`;
+        }).join('');
+    } catch (e) { console.warn('Polling lỗi:', e); }
+}
+
+_maPhongList.forEach(mp => setInterval(() => _laiHangDoi(mp), 10000));
+
+document.getElementById('bt-rate').addEventListener('input', function() {
+    document.getElementById('bt-rate-val').textContent = parseFloat(this.value).toFixed(1) + '×';
+});
+document.getElementById('bt-auto').addEventListener('change', function() {
+    document.getElementById('bt-auto-label').textContent = this.checked ? 'Tự động' : 'Tắt';
+});
+</script>
+}

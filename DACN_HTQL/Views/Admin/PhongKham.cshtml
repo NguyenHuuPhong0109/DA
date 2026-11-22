@@ -1,0 +1,110 @@
+﻿@model IEnumerable<DACN_HTQL.Models.Entities.PhongKham>
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "Phòng khám";
+    ViewData["ActiveMenu"] = "PhongKham";
+    var totalCount = Model.Count();
+}
+
+<div class="portal-content__head">
+    <div>
+        <h1 class="portal-content__title">Quản lý Phòng khám</h1>
+        <p class="portal-content__sub">Hiển thị @totalCount phòng khám</p>
+    </div>
+    <div class="btn-list">
+        <a asp-action="TaoPhongKham" class="btn btn-primary">Thêm phòng khám</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
+
+<!-- Table Toolbar: Tìm kiếm nhanh Client-side -->
+<div class="table-toolbar">
+    <input type="text" id="searchBox" class="table-search-input" placeholder="Tìm tên phòng, vị trí, chuyên khoa..." />
+    <span class="text-sm text-muted" id="filterStats">Hiển thị @totalCount dòng</span>
+</div>
+
+<div class="card-table">
+    <table class="table--clean" id="dataTable">
+        <thead>
+            <tr>
+                <th>Phòng khám</th>
+                <th>Vị trí</th>
+                <th>Chuyên khoa</th>
+                <th style="width:160px">Trạng thái</th>
+                <th class="th-actions">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                var isOpening = (p.TrangThai == "HoatDong" || p.TrangThai == "MoKham");
+
+                <tr>
+                    <td>
+                        <strong>@p.TenPhong</strong>
+                        <span class="sub-info font-mono">Mã phòng: #@p.MaPhong</span>
+                    </td>
+                    <td>@(p.ViTri ?? "—")</td>
+                    <td>@(p.ChuyenKhoa?.TenChuyenKhoa ?? "Chưa phân khoa")</td>
+                    <td>
+                        <span class="status-dot @(isOpening ? "status-dot--success" : "status-dot--muted")"></span>
+                        @(isOpening ? "Đang mở" : "Đã đóng")
+                    </td>
+                    <td class="td-actions">
+                        <div class="actions-wrap">
+                            <a asp-action="SuaPhongKham" asp-route-id="@p.MaPhong"
+                               class="btn btn-sm btn-outline-secondary">Sửa</a>
+                            <form method="post" asp-action="XoaPhongKham" asp-route-id="@p.MaPhong"
+                                  onsubmit="return confirm('Xóa phòng «@p.TenPhong»?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr id="emptyRow">
+                    <td colspan="5" style="text-align:center;padding:36px;color:#6B7280">
+                        Chưa có phòng khám nào trong hệ thống.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchBox = document.getElementById("searchBox");
+    const dataTable = document.getElementById("dataTable");
+    const filterStats = document.getElementById("filterStats");
+    if (!searchBox || !dataTable) return;
+
+    const rows = dataTable.querySelectorAll("tbody tr:not(#emptyRow)");
+
+    searchBox.addEventListener("input", function () {
+        const query = this.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(query)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        if (filterStats) {
+            filterStats.textContent = `Hiển thị ${visibleCount} / ${rows.length} dòng`;
+        }
+    });
+});
+</script>
+}

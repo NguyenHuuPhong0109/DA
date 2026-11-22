@@ -1,0 +1,128 @@
+﻿@model DACN_HTQL.Models.ViewModels.PhieuHenDienTuVM
+@{
+    ViewData["Title"] = $"Phiếu hẹn {Model.MaDatHen}";
+
+    string badgeCss = Model.TrangThaiHen switch
+    {
+        "ChoXacNhan" => "badge--cho-xac-nhan",
+        "DaXacNhan"  => "badge--da-xac-nhan",
+        "DaHuy"      => "badge--da-huy",
+        _            => "badge--cho-xac-nhan",
+    };
+    string badgeLabel = Model.TrangThaiHen switch
+    {
+        "ChoXacNhan" => "Chờ xác nhận",
+        "DaXacNhan"  => "Đã xác nhận",
+        "DaHuy"      => "Đã hủy",
+        _            => Model.TrangThaiHen,
+    };
+}
+
+<div class="container" style="padding-block:var(--space-2xl)">
+    <div class="ticket-layout">
+
+        @* Phiếu hẹn điện tử *@
+        <div class="e-ticket" id="phieuHen">
+            <div class="e-ticket__header">
+                <div class="e-ticket__brand">
+                    <span class="e-ticket__cross">+</span>
+                    <span class="e-ticket__clinic">ClinicBook</span>
+                </div>
+                <span class="badge @badgeCss">@badgeLabel</span>
+            </div>
+
+            <div class="e-ticket__code font-mono" id="maDatHen">@Model.MaDatHen</div>
+
+            <div class="e-ticket__qr" id="qrcode" aria-label="Mã QR phiếu hẹn"></div>
+
+            <div class="e-ticket__divider"></div>
+
+            <div class="e-ticket__rows">
+                <div class="e-ticket__row">
+                    <span class="e-ticket__key">Bệnh nhân</span>
+                    <span class="e-ticket__val">@Model.TenBenhNhan</span>
+                </div>
+                <div class="e-ticket__row">
+                    <span class="e-ticket__key">SĐT</span>
+                    <span class="e-ticket__val font-mono">@Model.SoDienThoaiAnPhan</span>
+                </div>
+                <div class="e-ticket__row">
+                    <span class="e-ticket__key">Bác sĩ</span>
+                    <span class="e-ticket__val">@Model.TenBacSi</span>
+                </div>
+                <div class="e-ticket__row">
+                    <span class="e-ticket__key">Chuyên khoa</span>
+                    <span class="e-ticket__val">@Model.TenChuyenKhoa</span>
+                </div>
+                <div class="e-ticket__row">
+                    <span class="e-ticket__key">Phòng</span>
+                    <span class="e-ticket__val">@Model.TenPhong</span>
+                </div>
+                <div class="e-ticket__row">
+                    <span class="e-ticket__key">Ngày khám</span>
+                    <span class="e-ticket__val font-mono">@Model.NgayKham.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="e-ticket__row">
+                    <span class="e-ticket__key">Giờ khám</span>
+                    <span class="e-ticket__val font-mono" style="color:var(--color-primary)">
+                        @Model.GioBatDau.ToString("HH:mm") – @Model.GioKetThuc.ToString("HH:mm")
+                    </span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.LyDoKham))
+                {
+                    <div class="e-ticket__row">
+                        <span class="e-ticket__key">Lý do khám</span>
+                        <span class="e-ticket__val">@Model.LyDoKham</span>
+                    </div>
+                }
+            </div>
+
+            <div class="e-ticket__divider"></div>
+            <div class="e-ticket__footer">
+                Đặt lúc @Model.ThoiGianTao.ToString("HH:mm dd/MM/yyyy")
+                &nbsp;·&nbsp; Vui lòng đến trước 15 phút để check-in
+            </div>
+        </div>
+
+        @* Hành động *@
+        <div class="ticket-actions">
+            @if (Model.CoCanhBao && Model.TrangThaiHen == "ChoXacNhan")
+            {
+                <div class="alert alert--warning">
+                    Hồ sơ của bạn có <strong>@(2)+ lần vắng hẹn</strong>.
+                    Phiếu hẹn này cần được lễ tân xác nhận trước khi có hiệu lực.
+                </div>
+            }
+
+            <div class="btn-list btn-list-column">
+                <button type="button" class="btn btn-primary" onclick="inPhieu()">🖨️ In phiếu hẹn</button>
+                <a asp-action="TraCuu" asp-route-q="@Model.MaDatHen"
+                   class="btn btn-outline-secondary">🔍 Tra cứu trạng thái</a>
+                <a asp-action="Index" class="btn btn-outline-secondary">📅 Đặt lịch khác</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script>
+// Sinh QR code từ MaDatHen
+QRCode.toCanvas(
+    document.getElementById('qrcode'),
+    '@Model.MaDatHen',
+    { width: 160, margin: 1, color: { dark: '#182433', light: '#FFFFFF' } },
+    function(err) { if(err) console.warn('QR error', err); }
+);
+
+function inPhieu() {
+    const el = document.getElementById('phieuHen');
+    const original = document.body.innerHTML;
+    document.body.innerHTML = el.outerHTML;
+    window.print();
+    document.body.innerHTML = original;
+    window.location.reload();
+}
+</script>
+}

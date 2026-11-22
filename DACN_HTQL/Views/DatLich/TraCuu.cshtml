@@ -1,0 +1,197 @@
+﻿@model DACN_HTQL.Models.ViewModels.KetQuaTraCuuVM
+@{
+    ViewData["Title"] = "Tra cứu lịch hẹn";
+}
+
+<div class="container" style="padding-block:var(--space-2xl)">
+    <div class="tracuu-header">
+        <h1 class="page-title">Tra cứu lịch hẹn</h1>
+        <p class="page-sub">Nhập mã đặt hẹn hoặc số điện thoại đã dùng khi đăng ký</p>
+    </div>
+
+    <form method="get" asp-action="TraCuu" class="tracuu-form">
+        <div class="tracuu-input-row">
+            <input type="text" name="q" class="form-control font-mono"
+                   value="@Model.TuKhoa"
+                   placeholder="BK261119-001 hoặc 0901234567"
+                   aria-label="Mã đặt hẹn hoặc số điện thoại" />
+            <button type="submit" class="btn btn-primary">Tra cứu</button>
+        </div>
+    </form>
+
+    @if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+    @if (TempData["Error"]   != null) { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
+
+    @if (Model.DanhSachPhieu.Any())
+    {
+        <div class="appt-list" id="appt-list">
+            @foreach (var p in Model.DanhSachPhieu)
+            {
+                string badgeCss = p.TrangThaiHen switch {
+                    "ChoXacNhan" => "badge--cho-xac-nhan",
+                    "DaXacNhan"  => "badge--da-xac-nhan",
+                    "DaCheckIn"  => "badge--da-check-in",
+                    "DaKham"     => "badge--da-kham",
+                    "DaHuy"      => "badge--da-huy",
+                    "VangHen"    => "badge--vang-hen",
+                    _            => ""
+                };
+                string badgeLabel = p.TrangThaiHen switch {
+                    "ChoXacNhan" => "Chờ xác nhận",
+                    "DaXacNhan"  => "Đã xác nhận",
+                    "DaCheckIn"  => "Đã check-in",
+                    "DaKham"     => "Đã khám",
+                    "DaHuy"      => "Đã hủy",
+                    "VangHen"    => "Vắng hẹn",
+                    _            => p.TrangThaiHen
+                };
+
+                <div class="appt-card" data-phieu="@p.MaPhieuHen" data-phong="@p.MaPhong">
+                    <div class="appt-card__head">
+                        <span class="appt-card__code font-mono">@p.MaDatHen</span>
+                        <span class="badge @badgeCss">@badgeLabel</span>
+                    </div>
+
+                    <div class="appt-card__body">
+                        <div class="appt-card__info">
+                            <div class="appt-row">
+                                <span class="appt-row__key">Bệnh nhân</span>
+                                <span class="appt-row__val">@p.TenBenhNhan</span>
+                            </div>
+                            <div class="appt-row">
+                                <span class="appt-row__key">SĐT</span>
+                                <span class="appt-row__val font-mono">@p.SoDienThoaiAnPhan</span>
+                            </div>
+                            <div class="appt-row">
+                                <span class="appt-row__key">Bác sĩ</span>
+                                <span class="appt-row__val">@p.TenBacSi · @p.TenChuyenKhoa</span>
+                            </div>
+                            <div class="appt-row">
+                                <span class="appt-row__key">Lịch khám</span>
+                                <span class="appt-row__val font-mono">
+                                    @p.NgayKham.ToString("dd/MM/yyyy") &nbsp;@p.GioBatDau.ToString("HH:mm")
+                                    &nbsp;·&nbsp; @p.TenPhong
+                                </span>
+                            </div>
+                        </div>
+
+                        @* Tiến độ hàng đợi nếu đã check-in hôm nay *@
+                        @if (p.SoThuTuBenhNhan.HasValue && p.TienDoHangDoi != null)
+                        {
+                            var td = p.TienDoHangDoi;
+                            <div class="queue-progress"
+                                 data-phong="@p.MaPhong"
+                                 data-stt="@p.SoThuTuBenhNhan"
+                                 id="qp-@p.MaPhieuHen">
+                                <div class="queue-progress__my">
+                                    <div class="queue-progress__label">Số của bạn</div>
+                                    <div class="queue-num font-mono" style="font-size:1.8rem;color:var(--color-primary)">@p.SoThuTuBenhNhan?.ToString("D3")</div>
+                                </div>
+                                <div class="queue-progress__live">
+                                    <div class="queue-progress__item">
+                                        <span class="queue-progress__key">Đang gọi</span>
+                                        <span class="queue-progress__val font-mono" id="dangGoi-@p.MaPhieuHen" style="color:var(--color-info)">
+                                            @(td.SoThuTuDangGoi.HasValue ? td.SoThuTuDangGoi.Value.ToString("D3") : "—")
+                                        </span>
+                                    </div>
+                                    <div class="queue-progress__item">
+                                        <span class="queue-progress__key">Đang khám</span>
+                                        <span class="queue-progress__val font-mono" id="dangKham-@p.MaPhieuHen" style="color:var(--color-success)">
+                                            @(td.SoThuTuDangKham.HasValue ? td.SoThuTuDangKham.Value.ToString("D3") : "—")
+                                        </span>
+                                    </div>
+                                    <div class="queue-progress__item">
+                                        <span class="queue-progress__key">Chờ trước bạn</span>
+                                        <span class="queue-progress__val font-mono" id="soCho-@p.MaPhieuHen">
+                                            @td.SoBenhNhanChoPhamTruoc
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="queue-progress__refresh">
+                                    <span class="queue-progress__hint">Tự cập nhật 15s</span>
+                                    <span class="queue-progress__dot" id="dot-@p.MaPhieuHen"></span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="appt-card__footer">
+                        <div class="btn-list">
+                            <a asp-action="PhieuHen" asp-route-maDatHen="@p.MaDatHen"
+                               class="btn btn-sm btn-outline-secondary">Xem phiếu</a>
+
+                            @if (p.CoTheHuy)
+                            {
+                                <form method="post" asp-action="HuyPhieu"
+                                      style="display:inline;margin:0"
+                                      onsubmit="return confirm('Hủy lịch hẹn @p.MaDatHen?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="maPhieuHen" value="@p.MaPhieuHen" />
+                                    <input type="hidden" name="returnUrl" value="/DatLich/TraCuu?q=@Model.TuKhoa" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hủy lịch</button>
+                                </form>
+                            }
+                            else if (!string.IsNullOrEmpty(p.LyDoKhongTheHuy)
+                                && p.TrangThaiHen is "ChoXacNhan" or "DaXacNhan")
+                            {
+                                <span class="text-muted text-sm">@p.LyDoKhongTheHuy</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (Model.TuKhoa != null)
+    {
+        <div class="card" style="margin-top:var(--space-lg);text-align:center;padding:var(--space-2xl);color:var(--color-muted)">
+            Không tìm thấy lịch hẹn nào với từ khóa "<strong>@Model.TuKhoa</strong>".
+        </div>
+    }
+    else if (!User.Identity!.IsAuthenticated)
+    {
+        <div class="card" style="margin-top:var(--space-lg);text-align:center;padding:var(--space-2xl);color:var(--color-muted)">
+            Nhập mã đặt hẹn hoặc số điện thoại để tra cứu, hoặc
+            <a asp-controller="TaiKhoan" asp-action="DangNhap" style="color:var(--color-primary);font-weight:600">đăng nhập</a>
+            để xem tất cả lịch hẹn của bạn.
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+// AJAX poll tiến độ hàng đợi mỗi 15 giây
+(function() {
+    const panels = document.querySelectorAll('.queue-progress');
+    if (!panels.length) return;
+
+    async function refreshAll() {
+        for (const panel of panels) {
+            const maPhong = panel.dataset.phong;
+            const stt     = panel.dataset.stt;
+            const id      = panel.id.replace('qp-', '');
+            const dot     = document.getElementById('dot-' + id);
+
+            try {
+                const res = await fetch(`/DatLich/TienDoHangDoi?maPhong=${maPhong}&soThuTu=${stt}`);
+                const d = await res.json();
+                if (!d) continue;
+
+                document.getElementById('dangGoi-'  + id).textContent =
+                    d.soThuTuDangGoi  != null ? String(d.soThuTuDangGoi).padStart(3,'0')  : '—';
+                document.getElementById('dangKham-' + id).textContent =
+                    d.soThuTuDangKham != null ? String(d.soThuTuDangKham).padStart(3,'0') : '—';
+                document.getElementById('soCho-'    + id).textContent =
+                    d.soBenhNhanChoPhamTruoc ?? '0';
+
+                if (dot) { dot.textContent = '●'; dot.style.color = 'var(--color-success)'; }
+            } catch {
+                if (dot) { dot.textContent = '○'; }
+            }
+        }
+    }
+
+    setInterval(refreshAll, 15000);
+})();
+</script>
+}

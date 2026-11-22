@@ -1,0 +1,198 @@
+﻿@model IEnumerable<DACN_HTQL.Models.Entities.TaiKhoan>
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    var nhomHienTai = (string?)ViewBag.NhomHienTai;
+    var pageTitle = nhomHienTai switch {
+        "BenhNhan" => "Tài khoản Bệnh nhân",
+        "NhanSu"   => "Tài khoản Bác sĩ & Lễ tân",
+        _          => "Quản lý Tài khoản"
+    };
+    ViewData["Title"] = pageTitle;
+    ViewData["ActiveMenu"] = "TaiKhoan";
+    var totalCount = Model.Count();
+    var benhNhanMap = ViewBag.BenhNhanMap as Dictionary<string, string> ?? new Dictionary<string, string>();
+}
+
+<div class="portal-content__head">
+    <div>
+        <h1 class="portal-content__title">@pageTitle</h1>
+        <p class="portal-content__sub">Hiển thị @totalCount tài khoản người dùng</p>
+    </div>
+    <div class="btn-list">
+        <a asp-action="TaoTaiKhoan" asp-route-nhom="@nhomHienTai" class="btn btn-primary">Tạo tài khoản</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
+
+<!-- Tabs chuyển đổi nhóm tài khoản: Bác sĩ & Lễ tân | Bệnh nhân | Tất cả -->
+<div style="border-bottom:1px solid #E5E7EB;margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div class="nav-tabs" style="border-bottom:none">
+        <a asp-action="TaiKhoan" asp-route-nhom="NhanSu"
+           class="nav-link @(nhomHienTai == "NhanSu" || string.IsNullOrEmpty(nhomHienTai) ? "active" : "")">
+            Bác sĩ &amp; Lễ tân (@ViewBag.SoNhanSu)
+        </a>
+        <a asp-action="TaiKhoan" asp-route-nhom="BenhNhan"
+           class="nav-link @(nhomHienTai == "BenhNhan" ? "active" : "")">
+            Bệnh nhân (@ViewBag.SoBenhNhan)
+        </a>
+        <a asp-action="TaiKhoan"
+           class="nav-link @(nhomHienTai == null ? "text-muted" : "")" style="font-size:13px">
+            Tất cả (@ViewBag.SoTatCa)
+        </a>
+    </div>
+
+    @if (nhomHienTai == "NhanSu" || string.IsNullOrEmpty(nhomHienTai))
+    {
+        <div class="btn-list" style="gap:4px">
+            <button type="button" class="btn btn-sm btn-outline-secondary role-filter-btn active" data-role="all" style="height:28px">Tất cả nhân sự</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary role-filter-btn" data-role="BacSi" style="height:28px">Bác sĩ</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary role-filter-btn" data-role="LeTan" style="height:28px">Lễ tân</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary role-filter-btn" data-role="Admin" style="height:28px">Quản trị viên</button>
+        </div>
+    }
+</div>
+
+<!-- Table Toolbar: Tìm kiếm nhanh Client-side -->
+<div class="table-toolbar">
+    <input type="text" id="searchBox" class="table-search-input" placeholder="Tìm tài khoản, số điện thoại, họ tên, vai trò..." />
+    <span class="text-sm text-muted" id="filterStats">Hiển thị @totalCount dòng</span>
+</div>
+
+<div class="card-table">
+    <table class="table--clean" id="dataTable">
+        <thead>
+            <tr>
+                <th style="width:90px">Mã TK</th>
+                <th>Tên tài khoản</th>
+                <th>Họ và tên</th>
+                <th>Số điện thoại</th>
+                <th>Vai trò</th>
+                <th style="width:140px">Trạng thái</th>
+                <th class="th-actions">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tk in Model)
+            {
+                var roleName = tk.VaiTro?.TenVaiTro ?? "";
+                var roleText = roleName switch {
+                    "Admin"    => "Quản trị viên",
+                    "BacSi"    => "Bác sĩ",
+                    "LeTan"    => "Lễ tân",
+                    "BenhNhan" => "Bệnh nhân",
+                    _          => roleName
+                };
+                var hoTen = tk.BacSi != null ? $"BS. {tk.BacSi.HoTenBacSi}" :
+                            (!string.IsNullOrEmpty(tk.SoDienThoai) && benhNhanMap.ContainsKey(tk.SoDienThoai)) ? benhNhanMap[tk.SoDienThoai] : "—";
+
+                var isHoatDong = (tk.TrangThai == "HoatDong");
+
+                <tr data-role="@roleName">
+                    <td class="font-mono" style="color:#6B7280">#TK-@tk.MaTaiKhoan.ToString("D3")</td>
+                    <td>
+                        <strong class="font-mono">@tk.TenTaiKhoan</strong>
+                    </td>
+                    <td>
+                        @hoTen
+                    </td>
+                    <td class="font-mono">
+                        @(tk.SoDienThoai ?? "—")
+                    </td>
+                    <td>
+                        <span>@roleText</span>
+                    </td>
+                    <td>
+                        <span class="status-dot @(isHoatDong ? "status-dot--success" : "status-dot--danger")"></span>
+                        @(isHoatDong ? "Hoạt động" : "Đã khóa")
+                    </td>
+                    <td class="td-actions">
+                        <div class="actions-wrap">
+                            @if (tk.TenTaiKhoan == "admin")
+                            {
+                                <span class="text-muted text-xs">Admin gốc</span>
+                            }
+                            else if (isHoatDong)
+                            {
+                                <form method="post" asp-action="KhoaTaiKhoan" asp-route-id="@tk.MaTaiKhoan" asp-route-nhom="@nhomHienTai"
+                                      onsubmit="return confirm('Khóa tài khoản «@tk.TenTaiKhoan»?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Khóa</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form method="post" asp-action="MoKhoaTaiKhoan" asp-route-id="@tk.MaTaiKhoan" asp-route-nhom="@nhomHienTai">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Mở khóa</button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr id="emptyRow">
+                    <td colspan="7" style="text-align:center;padding:36px;color:#6B7280">
+                        Chưa có tài khoản nào trong nhóm này.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchBox = document.getElementById("searchBox");
+    const dataTable = document.getElementById("dataTable");
+    const filterStats = document.getElementById("filterStats");
+    if (!searchBox || !dataTable) return;
+
+    const rows = dataTable.querySelectorAll("tbody tr:not(#emptyRow)");
+    let currentRoleFilter = "all";
+
+    function applyFilter() {
+        const query = searchBox.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const role = row.getAttribute("data-role");
+            const roleMatch = (currentRoleFilter === "all" || role === currentRoleFilter);
+            const text = row.textContent.toLowerCase();
+            const textMatch = text.includes(query);
+
+            if (roleMatch && textMatch) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        if (filterStats) {
+            filterStats.textContent = `Hiển thị ${visibleCount} / ${rows.length} dòng`;
+        }
+    }
+
+    searchBox.addEventListener("input", applyFilter);
+
+    const roleBtns = document.querySelectorAll(".role-filter-btn");
+    roleBtns.forEach(btn => {
+        btn.addEventListener("click", function () {
+            roleBtns.forEach(b => {
+                b.classList.remove("btn-primary");
+                b.classList.add("btn-outline-secondary");
+            });
+            this.classList.remove("btn-outline-secondary");
+            this.classList.add("btn-primary");
+            currentRoleFilter = this.getAttribute("data-role");
+            applyFilter();
+        });
+    });
+});
+</script>
+}

@@ -1,0 +1,648 @@
+﻿@model DACN_HTQL.Models.ViewModels.BaoCaoDashboardVM
+@{
+    Layout = "~/Views/Shared/_PortalLayout.cshtml";
+    ViewData["Title"] = "BI Dashboard & Thống kê KPI";
+    ViewData["ActiveMenu"] = "Dashboard";
+}
+
+@section Styles {
+<style>
+/* ── BI Dashboard Styles (Chuẩn Tabler Light) ── */
+.bi-filter-form-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.bi-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bi-filter-item label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #667382;
+  letter-spacing: 0.04em;
+}
+.bi-filter-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.bi-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+.bi-kpi-card-v2 {
+  background: #ffffff;
+  border: 1px solid #DCE1E7;
+  border-radius: var(--radius-card);
+  padding: 14px 18px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+}
+.dashboard-charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-md);
+}
+
+@@media (max-width: 991px) {
+  .bi-kpi-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .dashboard-charts-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+@@media (max-width: 575px) {
+  .bi-kpi-row {
+    grid-template-columns: 1fr !important;
+  }
+  .bi-filter-form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bi-filter-actions {
+    margin-top: 8px;
+  }
+}
+</style>
+}
+
+<!-- ══════════════════════════════════════════════════════════════
+     TẦNG 1: HEADER & BỘ LỌC THU GỌN
+     ══════════════════════════════════════════════════════════════ -->
+<div class="portal-content__head" style="margin-bottom:var(--space-md);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-sm)">
+    <div style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap">
+        <h1 class="portal-content__title" style="margin:0;font-size:1.375rem">BI Dashboard</h1>
+        <span class="badge bg-secondary-lt font-mono">
+            @(Model.Filter.TuNgay?.ToString("dd/MM/yyyy") ?? "—") — @(Model.Filter.DenNgay?.ToString("dd/MM/yyyy") ?? "—")
+        </span>
+    </div>
+    <div class="btn-list">
+        <form asp-action="QuetQuaHanNgay" method="post" style="display:inline;margin:0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Quét ngay các lịch hẹn quá 30 phút chưa check-in và gửi nhắc lịch">
+                Quét quá hạn
+            </button>
+        </form>
+        <a asp-action="ExportBaoCaoCsv"
+           asp-route-TuNgay="@Model.Filter.TuNgay?.ToString("yyyy-MM-dd")"
+           asp-route-DenNgay="@Model.Filter.DenNgay?.ToString("yyyy-MM-dd")"
+           asp-route-MaChuyenKhoa="@Model.Filter.MaChuyenKhoa"
+           asp-route-MaBacSi="@Model.Filter.MaBacSi"
+           class="btn btn-sm btn-outline-secondary" title="Xuất báo cáo định dạng CSV hỗ trợ mở bằng Microsoft Excel tiếng Việt">
+            Xuất CSV
+        </a>
+        <button type="button" class="btn btn-sm btn-outline-secondary d-md-none" id="btnToggleFilter" onclick="toggleFilterBar()" title="Đóng/Mở bộ lọc">
+            Bộ lọc
+        </button>
+    </div>
+</div>
+
+<!-- Thanh bộ lọc 1 hàng ngang duy nhất -->
+<div class="card" id="biFilterBar" style="margin-bottom:var(--space-md);padding:12px 16px;background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);box-shadow:var(--shadow-card)">
+    <form method="get" asp-action="Index" class="bi-filter-form-row">
+        <div class="bi-filter-item">
+            <label for="TuNgay">Từ ngày</label>
+            <input type="date" id="TuNgay" name="TuNgay" class="form-control form-control--sm font-mono"
+                   value="@Model.Filter.TuNgay?.ToString("yyyy-MM-dd")" style="height:36px" />
+        </div>
+        <div class="bi-filter-item">
+            <label for="DenNgay">Đến ngày</label>
+            <input type="date" id="DenNgay" name="DenNgay" class="form-control form-control--sm font-mono"
+                   value="@Model.Filter.DenNgay?.ToString("yyyy-MM-dd")" style="height:36px" />
+        </div>
+        <div class="bi-filter-item" style="min-width:180px;flex:1">
+            <label for="MaChuyenKhoa">Chuyên khoa</label>
+            <select id="MaChuyenKhoa" name="MaChuyenKhoa" class="form-control form-control--sm" style="height:36px">
+                <option value="">— Tất cả chuyên khoa —</option>
+                @foreach (var ck in Model.DanhSachChuyenKhoa)
+                {
+                    if (Model.Filter.MaChuyenKhoa == ck.MaChuyenKhoa)
+                    {
+                        <option value="@ck.MaChuyenKhoa" selected>@ck.TenChuyenKhoa</option>
+                    }
+                    else
+                    {
+                        <option value="@ck.MaChuyenKhoa">@ck.TenChuyenKhoa</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="bi-filter-item" style="min-width:200px;flex:1">
+            <label for="MaBacSi">Bác sĩ</label>
+            <select id="MaBacSi" name="MaBacSi" class="form-control form-control--sm" style="height:36px">
+                <option value="">— Tất cả bác sĩ —</option>
+                @foreach (var bs in Model.DanhSachBacSi)
+                {
+                    if (Model.Filter.MaBacSi == bs.MaBacSi)
+                    {
+                        <option value="@bs.MaBacSi" selected>@bs.HoTenBacSi (@bs.ChuyenKhoa?.TenChuyenKhoa)</option>
+                    }
+                    else
+                    {
+                        <option value="@bs.MaBacSi">@bs.HoTenBacSi (@bs.ChuyenKhoa?.TenChuyenKhoa)</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="bi-filter-actions">
+            <button type="submit" class="btn btn-sm btn-primary" style="height:36px">Lọc</button>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary" style="height:36px">Đặt lại</a>
+        </div>
+    </form>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TẦNG 2: 4 THẺ KPI TỐI GIẢN TRÊN 1 HÀNG
+     ══════════════════════════════════════════════════════════════ -->
+<div class="bi-kpi-row">
+    <!-- KPI 1: Tỷ lệ vắng hẹn -->
+    <div class="bi-kpi-card-v2">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#667382">Tỷ lệ vắng hẹn</span>
+            <span title="Công thức: Số ca vắng / (Đã xác nhận + Đã check-in + Đã khám + Vắng hẹn)" style="cursor:help;color:#94A3B8;font-size:12px;font-weight:bold">(?)</span>
+        </div>
+        <div style="font-size:28px;font-weight:700;line-height:1.2;font-family:var(--font-outlier);color:#D97706">
+            @Model.KPI.TyLeVangHen%
+        </div>
+        <div style="font-size:12px;color:#667382;margin-top:4px" class="font-mono">
+            <strong>@Model.KPI.SoPhieuVangHen</strong> / @Model.KPI.TongPhieuVangHenMauSo ca hợp lệ
+        </div>
+    </div>
+
+    <!-- KPI 2: Tỷ lệ hoàn tất khám -->
+    <div class="bi-kpi-card-v2">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#667382">Hoàn tất khám</span>
+            <span title="Công thức: Số ca đã khám / Tổng phiếu đặt hẹn trong kỳ" style="cursor:help;color:#94A3B8;font-size:12px;font-weight:bold">(?)</span>
+        </div>
+        <div style="font-size:28px;font-weight:700;line-height:1.2;font-family:var(--font-outlier);color:#15803D">
+            @Model.KPI.TyLeHoanThanh%
+        </div>
+        <div style="font-size:12px;color:#667382;margin-top:4px" class="font-mono">
+            <strong>@Model.KPI.SoPhieuDaKham</strong> / @Model.KPI.TongPhieuDatHenTrongKy ca đã khám
+        </div>
+    </div>
+
+    <!-- KPI 3: Thời gian chờ trung bình -->
+    <div class="bi-kpi-card-v2">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#667382">Thời gian chờ TB</span>
+            <span title="Tính từ lúc Bệnh nhân Check-in đến khi Bác sĩ gọi số vào phòng khám" style="cursor:help;color:#94A3B8;font-size:12px;font-weight:bold">(?)</span>
+        </div>
+        <div style="font-size:28px;font-weight:700;line-height:1.2;font-family:var(--font-outlier);color:#0F766E">
+            @Model.KPI.ThoiGianChoTrungBinh <span style="font-size:15px;font-weight:500">phút</span>
+        </div>
+        <div style="font-size:12px;color:#667382;margin-top:4px" class="font-mono">
+            <strong>@Model.KPI.SoLuotDaGoiSo</strong> lượt gọi số
+        </div>
+    </div>
+
+    <!-- KPI 4: Tỷ lệ lấp đầy khung hẹn -->
+    <div class="bi-kpi-card-v2">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#667382">Lấp đầy khung hẹn</span>
+            <span title="Công thức: Số slot đã đặt / Tổng slot mở trong các ca trực" style="cursor:help;color:#94A3B8;font-size:12px;font-weight:bold">(?)</span>
+        </div>
+        <div style="font-size:28px;font-weight:700;line-height:1.2;font-family:var(--font-outlier);color:#182433">
+            @Model.KPI.TyLeLapDay%
+        </div>
+        <div style="font-size:12px;color:#667382;margin-top:4px" class="font-mono">
+            <strong>@Model.KPI.SoKhungGioDaDat</strong> / @Model.KPI.TongKhungGioDatHen slot mở
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TẦNG 3: BOOTSTRAP 5 TABS CHUẨN TABLER
+     ══════════════════════════════════════════════════════════════ -->
+<ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-charts-link" data-bs-toggle="tab" data-bs-target="#tab-charts" type="button" role="tab" aria-controls="tab-charts" aria-selected="true">
+            Biểu đồ &amp; Xu hướng
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-performance-link" data-bs-toggle="tab" data-bs-target="#tab-performance" type="button" role="tab" aria-controls="tab-performance" aria-selected="false">
+            Hiệu suất Bác sĩ &amp; Chuyên khoa
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-alerts-link" data-bs-toggle="tab" data-bs-target="#tab-alerts" type="button" role="tab" aria-controls="tab-alerts" aria-selected="false">
+            Cảnh báo vắng hẹn
+            <span class="badge badge--pill @(Model.DanhSachCanhBao.Count > 0 ? "bg-danger-lt" : "bg-secondary-lt")" style="font-weight:700">
+                @Model.DanhSachCanhBao.Count
+            </span>
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="dashboardTabContent">
+    <!-- TAB 1: Biểu đồ & Xu hướng -->
+    <div class="tab-pane fade show active" id="tab-charts" role="tabpanel" aria-labelledby="tab-charts-link">
+        <div class="dashboard-charts-row">
+            <!-- Cột trái: Lưu lượng theo giờ (col-lg-8) -->
+            <div class="card" style="padding:16px 20px;background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);box-shadow:var(--shadow-card)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <span style="font-weight:600;font-size:14px;color:#182433">Lưu lượng bệnh nhân theo khung giờ</span>
+                    <span style="font-size:12px;color:#667382">Giờ cao điểm khám</span>
+                </div>
+                <div style="position:relative;height:300px;width:100%">
+                    <canvas id="chartLuuLuong"></canvas>
+                </div>
+            </div>
+
+            <!-- Cột phải: Cơ cấu trạng thái khám (col-lg-4) -->
+            <div class="card" style="padding:16px 20px;background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);box-shadow:var(--shadow-card)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <span style="font-weight:600;font-size:14px;color:#182433">Cơ cấu trạng thái khám</span>
+                    <span style="font-size:12px;color:#667382">Tỷ trọng</span>
+                </div>
+                <div style="position:relative;height:300px;width:100%">
+                    <canvas id="chartCoCau"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Hiệu suất Bác sĩ & Chuyên khoa -->
+    <div class="tab-pane fade" id="tab-performance" role="tabpanel" aria-labelledby="tab-performance-link">
+        <!-- Resource Stats Mini Bar -->
+        <div class="stats-mini-bar" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px;margin-bottom:var(--space-md)">
+            <div class="stats-mini-item" style="background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);padding:10px 14px;box-shadow:var(--shadow-card)">
+                <span class="font-mono" style="font-size:20px;font-weight:700;color:#0F766E">@ViewBag.SoChuyenKhoa</span>
+                <span style="font-size:12px;color:#667382">Chuyên khoa</span>
+            </div>
+            <div class="stats-mini-item" style="background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);padding:10px 14px;box-shadow:var(--shadow-card)">
+                <span class="font-mono" style="font-size:20px;font-weight:700;color:#0F766E">@ViewBag.SoPhongKham</span>
+                <span style="font-size:12px;color:#667382">Phòng khám</span>
+            </div>
+            <div class="stats-mini-item" style="background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);padding:10px 14px;box-shadow:var(--shadow-card)">
+                <span class="font-mono" style="font-size:20px;font-weight:700;color:#0F766E">@ViewBag.SoBacSi</span>
+                <span style="font-size:12px;color:#667382">Bác sĩ trực</span>
+            </div>
+            <div class="stats-mini-item" style="background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);padding:10px 14px;box-shadow:var(--shadow-card)">
+                <span class="font-mono" style="font-size:20px;font-weight:700;color:#0F766E">@ViewBag.SoTaiKhoan</span>
+                <span style="font-size:12px;color:#667382">Tài khoản</span>
+            </div>
+            <div class="stats-mini-item" style="background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);padding:10px 14px;box-shadow:var(--shadow-card)">
+                <span class="font-mono" style="font-size:20px;font-weight:700;color:#0F766E">@ViewBag.SoCaTrucHomNay</span>
+                <span style="font-size:12px;color:#667382">Ca trực hôm nay</span>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns: 1fr 1fr;gap:var(--space-md)">
+            <!-- Biểu đồ vắng hẹn theo Bác sĩ -->
+            <div class="card" style="padding:16px 20px;background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);box-shadow:var(--shadow-card)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <span style="font-weight:600;font-size:14px;color:#182433">Tỷ lệ vắng hẹn theo Bác sĩ</span>
+                    <span style="font-size:12px;color:#667382">So sánh No-show rate (%)</span>
+                </div>
+                <div style="position:relative;height:300px;width:100%">
+                    <canvas id="chartVangHenBacSi"></canvas>
+                </div>
+            </div>
+
+            <!-- Bảng phân rã chi tiết Bác sĩ & Chuyên khoa -->
+            <div class="card" style="padding:16px 20px;background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);box-shadow:var(--shadow-card);overflow-x:auto">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <span style="font-weight:600;font-size:14px;color:#182433">Chi tiết hiệu suất ca hẹn</span>
+                    <span style="font-size:12px;color:#667382">@Model.VangHenTheoBacSi.Count bác sĩ</span>
+                </div>
+                <table class="table--clean" style="font-size:13px">
+                    <thead>
+                        <tr>
+                            <th>Bác sĩ</th>
+                            <th>Khoa</th>
+                            <th class="text-end">Tổng hẹn</th>
+                            <th class="text-end">Vắng</th>
+                            <th class="text-end">Tỷ lệ vắng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.VangHenTheoBacSi)
+                        {
+                            <tr>
+                                <td><strong>@v.HoTenBacSi</strong></td>
+                                <td style="color:#667382">@v.TenChuyenKhoa</td>
+                                <td class="text-end font-mono">@v.TongHen</td>
+                                <td class="text-end font-mono text-danger">@v.SoVangHen</td>
+                                <td class="text-end">
+                                    <span class="font-mono" style="font-weight:600;color:@(v.TyLeVangHen > 20 ? "#DC2626" : v.TyLeVangHen > 0 ? "#D97706" : "#16A34A")">
+                                        @v.TyLeVangHen%
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.VangHenTheoBacSi.Any())
+                        {
+                            <tr>
+                                <td colspan="5" style="text-align:center;padding:24px;color:#667382">Chưa có dữ liệu bác sĩ trong kỳ báo cáo.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: Cảnh báo vắng hẹn -->
+    <div class="tab-pane fade" id="tab-alerts" role="tabpanel" aria-labelledby="tab-alerts-link">
+        <div class="card" style="padding:16px 20px;background:#ffffff;border:1px solid #DCE1E7;border-radius:var(--radius-card);box-shadow:var(--shadow-card)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-weight:600;font-size:14px;color:#DC2626">Danh sách Bệnh nhân có Cảnh báo Vắng hẹn</span>
+                    <span class="badge bg-danger-lt font-mono">@Model.DanhSachCanhBao.Count bệnh nhân</span>
+                </div>
+                <span style="font-size:12px;color:#667382">
+                    Quy tắc BR-06: Vắng hẹn &ge; 2 lần &rarr; Chuyển <em>Chờ xác nhận</em>
+                </span>
+            </div>
+
+            @if (!Model.DanhSachCanhBao.Any())
+            {
+                <p style="padding:32px;text-align:center;color:#667382;margin:0">
+                    Hiện không có bệnh nhân nào có cờ cảnh báo vắng hẹn trong kỳ này.
+                </p>
+            }
+            else
+            {
+                <div style="overflow-x:auto">
+                    <table class="table--clean">
+                        <thead>
+                            <tr>
+                                <th style="width:100px">Mã BN</th>
+                                <th>Họ và tên</th>
+                                <th>Số điện thoại</th>
+                                <th class="text-end" style="width:120px">Số lần vắng</th>
+                                <th style="width:140px">Mức cảnh báo</th>
+                                <th>Lần vắng gần nhất</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bn in Model.DanhSachCanhBao)
+                            {
+                                <tr class="row--canh-bao">
+                                    <td class="font-mono">BN-@bn.MaBenhNhan.ToString("D4")</td>
+                                    <td><strong>@bn.TenBenhNhan</strong></td>
+                                    <td class="font-mono">@bn.SoDienThoai</td>
+                                    <td class="text-end font-mono" style="font-weight:600;color:#DC2626">
+                                        @bn.SoLanVangHen lần
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger-lt">
+                                            Cảnh báo cao
+                                        </span>
+                                    </td>
+                                    <td class="font-mono" style="color:#667382">
+                                        @(bn.LanVangGanNhat.HasValue ? bn.LanVangGanNhat.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+function toggleFilterBar() {
+    const fb = document.getElementById('biFilterBar');
+    if (fb) {
+        fb.style.display = fb.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Cấu hình chung cho Chart.js chuẩn Tabler Light
+    Chart.defaults.color = '#667382';
+    Chart.defaults.font.family = '"Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+    // 1. Biểu đồ Lưu lượng theo giờ (Tab 1 - Cột trái)
+    const rawLuuLuong = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LuuLuongTheoGio));
+    const labelsLuuLuong = rawLuuLuong.map(x => x.KhungGio);
+    const dataLuuLuong = rawLuuLuong.map(x => x.SoLuongBenhNhan);
+
+    const ctxLuuLuong = document.getElementById('chartLuuLuong')?.getContext('2d');
+    if (ctxLuuLuong) {
+        window.chartLuuLuongInstance = new Chart(ctxLuuLuong, {
+            type: 'bar',
+            data: {
+                labels: labelsLuuLuong,
+                datasets: [{
+                    label: 'Số lượng bệnh nhân',
+                    data: dataLuuLuong,
+                    backgroundColor: 'rgba(15, 118, 110, 0.85)',
+                    borderColor: '#0F766E',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#182433',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        borderColor: '#DCE1E7',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 6,
+                        callbacks: {
+                            label: function (context) {
+                                return ` Lượt khám: ${context.parsed.y} bệnh nhân`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#667382',
+                            font: { family: 'JetBrains Mono', size: 11 }
+                        },
+                        grid: { color: '#E6E7E9' }
+                    },
+                    x: {
+                        ticks: { color: '#667382', font: { size: 10 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Biểu đồ Cơ cấu trạng thái (Tab 1 - Cột phải Doughnut)
+    const soDaKham = @Model.KPI.SoPhieuDaKham;
+    const soVangHen = @Model.KPI.SoPhieuVangHen;
+    const tongHen = @Model.KPI.TongPhieuDatHenTrongKy;
+    const soKhac = Math.max(0, tongHen - soDaKham - soVangHen);
+
+    const ctxCoCau = document.getElementById('chartCoCau')?.getContext('2d');
+    if (ctxCoCau) {
+        window.chartCoCauInstance = new Chart(ctxCoCau, {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã khám', 'Vắng hẹn', 'Chờ khám / Khác'],
+                datasets: [{
+                    data: [soDaKham, soVangHen, soKhac],
+                    backgroundColor: ['#0F766E', '#D97706', '#CBD5E1'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 12,
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#182433',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        padding: 10,
+                        cornerRadius: 6,
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.parsed;
+                                const pct = tongHen > 0 ? Math.round((val / tongHen) * 100) : 0;
+                                return ` ${context.label}: ${val} ca (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 3. Biểu đồ Tỷ lệ vắng hẹn theo Bác sĩ (Tab 2)
+    const rawVangHen = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.VangHenTheoBacSi));
+    const labelsVangHen = rawVangHen.map(x => x.HoTenBacSi);
+    const dataTyLeVang = rawVangHen.map(x => x.TyLeVangHen);
+    const dataTongHen = rawVangHen.map(x => x.TongHen);
+    const dataSoVang = rawVangHen.map(x => x.SoVangHen);
+
+    const ctxVangHen = document.getElementById('chartVangHenBacSi')?.getContext('2d');
+    if (ctxVangHen) {
+        window.chartVangHenBacSiInstance = new Chart(ctxVangHen, {
+            type: 'bar',
+            data: {
+                labels: labelsVangHen,
+                datasets: [{
+                    label: 'Tỷ lệ vắng hẹn (%)',
+                    data: dataTyLeVang,
+                    backgroundColor: 'rgba(217, 119, 6, 0.85)',
+                    borderColor: '#D97706',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Biểu đồ ngang
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#182433',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        borderColor: '#DCE1E7',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 6,
+                        callbacks: {
+                            label: function (context) {
+                                const idx = context.dataIndex;
+                                return ` Vắng hẹn: ${dataTyLeVang[idx]}% (${dataSoVang[idx]}/${dataTongHen[idx]} ca)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: Math.max(50, Math.ceil(Math.max(...dataTyLeVang, 10) / 10) * 10),
+                        ticks: {
+                            callback: function(val) { return val + '%'; },
+                            color: '#667382',
+                            font: { family: 'JetBrains Mono', size: 11 }
+                        },
+                        grid: { color: '#E6E7E9' }
+                    },
+                    y: {
+                        ticks: { color: '#182433', font: { size: 11, weight: '500' } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // 4. Tab switching logic + Chart.js resize on tab switch
+    const tabButtons = document.querySelectorAll('#dashboardTabs button[data-bs-toggle="tab"]');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetSelector = this.getAttribute('data-bs-target');
+            if (!targetSelector) return;
+
+            // Update nav link active state
+            tabButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update tab pane active state
+            document.querySelectorAll('#dashboardTabContent .tab-pane').forEach(p => {
+                p.classList.remove('active', 'show');
+            });
+            const targetPane = document.querySelector(targetSelector);
+            if (targetPane) {
+                targetPane.classList.add('active', 'show');
+            }
+
+            // Trigger resize for Chart.js
+            setTimeout(() => {
+                if (window.chartLuuLuongInstance) window.chartLuuLuongInstance.resize();
+                if (window.chartCoCauInstance) window.chartCoCauInstance.resize();
+                if (window.chartVangHenBacSiInstance) window.chartVangHenBacSiInstance.resize();
+            }, 60);
+        });
+    });
+
+    // Support standard Bootstrap shown.bs.tab event
+    document.addEventListener('shown.bs.tab', function () {
+        if (window.chartLuuLuongInstance) window.chartLuuLuongInstance.resize();
+        if (window.chartCoCauInstance) window.chartCoCauInstance.resize();
+        if (window.chartVangHenBacSiInstance) window.chartVangHenBacSiInstance.resize();
+    });
+});
+</script>
+}

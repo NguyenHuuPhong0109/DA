@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DACN_HTQL.Tests/DACN_HTQL.Tests.csproj" />
+  <Project Path="DACN_HTQL/DACN_HTQL.csproj" />
+</Solution>

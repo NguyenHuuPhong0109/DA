@@ -1,0 +1,97 @@
+﻿@model List<DACN_HTQL.Models.Entities.CaTruc>
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"]      = "Lịch sử ca trực";
+    ViewData["ActiveMenu"] = "BacSi";
+    var tuanBD    = (DateOnly)ViewBag.TuanBatDau;
+    var tuanKT    = (DateOnly)ViewBag.TuanKetThuc;
+    int tuanOffset = (int)ViewBag.TuanOffset;
+    string hoTen  = ViewBag.HoTenBacSi ?? "";
+}
+
+<div class="page-header" style="margin-bottom:var(--space-lg)">
+    <div>
+        <h1 class="page-title">Lịch sử ca trực</h1>
+        <p class="page-sub">Bác sĩ: <strong>@hoTen</strong></p>
+    </div>
+    <div class="btn-list">
+        <a href="/BacSi" class="btn btn-sm btn-outline-secondary">← Về trang hôm nay</a>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:var(--space-lg);padding:10px 16px">
+    <div class="btn-list" style="align-items:center">
+        <a href="/BacSi/LichSuCa?tuan=@(tuanOffset - 1)" class="btn btn-sm btn-outline-secondary">← Tuần trước</a>
+        <span class="font-mono text-muted text-sm" style="padding:0 var(--space-xs);font-weight:600">
+            @tuanBD.ToString("dd/MM") — @tuanKT.ToString("dd/MM/yyyy")
+        </span>
+        @if (tuanOffset < 0)
+        {
+            <a href="/BacSi/LichSuCa?tuan=@(tuanOffset + 1)" class="btn btn-sm btn-outline-secondary">Tuần sau →</a>
+        }
+        else
+        {
+            <span class="btn btn-sm btn-outline-secondary disabled" style="opacity:.4;cursor:not-allowed">Tuần sau →</span>
+        }
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card" style="text-align:center;padding:var(--space-2xl);color:var(--color-muted)">
+        Không có ca trực nào trong khoảng thời gian tuần này.
+    </div>
+}
+else
+{
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Ca làm việc</th>
+                    <th>Phòng</th>
+                    <th>Giờ bắt đầu</th>
+                    <th>Giờ kết thúc</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ca in Model)
+                {
+                    var caLabel = ca.CaLamViec switch
+                    {
+                        "Sang"  => "Ca sáng",
+                        "Chieu" => "Ca chiều",
+                        "Toi"   => "Ca tối",
+                        _       => ca.CaLamViec
+                    };
+                    var ttLabel  = ca.TrangThaiCa switch
+                    {
+                        "MoKham"  => "Mở khám",
+                        "TamDong" => "Tạm đóng",
+                        "DaKham"  => "Đã khám",
+                        "Huy"     => "Hủy",
+                        _         => ca.TrangThaiCa
+                    };
+                    var ttBadge = ca.TrangThaiCa switch
+                    {
+                        "MoKham"  => "badge--da-xac-nhan",
+                        "DaKham"  => "badge--da-kham",
+                        "TamDong" => "badge--cho-xac-nhan",
+                        "Huy"     => "badge--da-huy",
+                        _         => "badge--cho-xac-nhan"
+                    };
+                    <tr>
+                        <td class="font-mono">@ca.NgayTruc.ToString("dd/MM/yyyy")</td>
+                        <td><strong>@caLabel</strong></td>
+                        <td>@ca.PhongKham?.TenPhong</td>
+                        <td class="font-mono">@ca.GioBatDauCa.ToString(@"HH\:mm")</td>
+                        <td class="font-mono">@ca.GioKetThucCa.ToString(@"HH\:mm")</td>
+                        <td><span class="badge @ttBadge">@ttLabel</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
