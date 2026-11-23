@@ -1,13 +1,9 @@
 ﻿@model IEnumerable<DACN_HTQL.Models.Entities.TaiKhoan>
 @{
     Layout = "~/Views/Shared/_PortalLayout.cshtml";
-    var nhomHienTai = (string?)ViewBag.NhomHienTai;
-    var pageTitle = nhomHienTai switch {
-        "BenhNhan" => "Tài khoản Bệnh nhân",
-        "NhanSu"   => "Tài khoản Bác sĩ & Lễ tân",
-        _          => "Quản lý Tài khoản"
-    };
-    ViewData["Title"] = pageTitle;
+    var nhomHienTai = (string?)ViewBag.NhomHienTai ?? "NhanSu";
+    ViewData["Title"] = "Quản lý tài khoản";
+    ViewData["Breadcrumb"] = "<span>Quản lý tài khoản</span>";
     ViewData["ActiveMenu"] = "TaiKhoan";
     var totalCount = Model.Count();
     var benhNhanMap = ViewBag.BenhNhanMap as Dictionary<string, string> ?? new Dictionary<string, string>();
@@ -15,7 +11,7 @@
 
 <div class="portal-content__head">
     <div>
-        <h1 class="portal-content__title">@pageTitle</h1>
+        <h1 class="portal-content__title">Quản lý tài khoản</h1>
         <p class="portal-content__sub">Hiển thị @totalCount tài khoản người dùng</p>
     </div>
     <div class="btn-list">
@@ -30,20 +26,20 @@
 <div style="border-bottom:1px solid #E5E7EB;margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
     <div class="nav-tabs" style="border-bottom:none">
         <a asp-action="TaiKhoan" asp-route-nhom="NhanSu"
-           class="nav-link @(nhomHienTai == "NhanSu" || string.IsNullOrEmpty(nhomHienTai) ? "active" : "")">
+           class="nav-link @(nhomHienTai == "NhanSu" ? "active" : "")">
             Bác sĩ &amp; Lễ tân (@ViewBag.SoNhanSu)
         </a>
         <a asp-action="TaiKhoan" asp-route-nhom="BenhNhan"
            class="nav-link @(nhomHienTai == "BenhNhan" ? "active" : "")">
             Bệnh nhân (@ViewBag.SoBenhNhan)
         </a>
-        <a asp-action="TaiKhoan"
-           class="nav-link @(nhomHienTai == null ? "text-muted" : "")" style="font-size:13px">
+        <a asp-action="TaiKhoan" asp-route-nhom="TatCa"
+           class="nav-link @(nhomHienTai == "TatCa" ? "active" : "")">
             Tất cả (@ViewBag.SoTatCa)
         </a>
     </div>
 
-    @if (nhomHienTai == "NhanSu" || string.IsNullOrEmpty(nhomHienTai))
+    @if (nhomHienTai == "NhanSu")
     {
         <div class="btn-list" style="gap:4px">
             <button type="button" class="btn btn-sm btn-outline-secondary role-filter-btn active" data-role="all" style="height:28px">Tất cả nhân sự</button>

@@ -287,7 +287,9 @@ public class TC03_NgoaiLeVaHangDoiTests
         await db.SaveChangesAsync();
 
         // Tạo ca trực và khung giờ có giờ hẹn cách đây 20 phút (trễ trong khoảng 16 - 30 phút)
-        var gioHenTre20Phut = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(-20));
+        var thoiDiemHenTre20Phut = DateTime.Now.AddMinutes(-20);
+        var ngayTrucCaTre = DateOnly.FromDateTime(thoiDiemHenTre20Phut);
+        var gioHenTre20Phut = TimeOnly.FromDateTime(thoiDiemHenTre20Phut);
         var gioKetThucCa = gioHenTre20Phut.AddHours(1);
         if (gioKetThucCa <= gioHenTre20Phut) gioKetThucCa = new TimeOnly(23, 59, 59);
 
@@ -295,7 +297,7 @@ public class TC03_NgoaiLeVaHangDoiTests
         {
             MaBacSi = bacSi.MaBacSi,
             MaPhong = testPhong.MaPhong,
-            NgayTruc = today,
+            NgayTruc = ngayTrucCaTre,
             CaLamViec = "CaTre_" + Guid.NewGuid().ToString("N")[..6],
             GioBatDauCa = gioHenTre20Phut,
             GioKetThucCa = gioKetThucCa,
@@ -454,7 +456,9 @@ public class TC03_NgoaiLeVaHangDoiTests
         await db.SaveChangesAsync();
 
         // Tạo ca trực và khung giờ có giờ hẹn cách đây 45 phút (> 30 phút so với giờ hẹn)
-        var gioHenQuaHan = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(-45));
+        var thoiDiemHenQuaHan = DateTime.Now.AddMinutes(-45);
+        var ngayTrucCaVang = DateOnly.FromDateTime(thoiDiemHenQuaHan);
+        var gioHenQuaHan = TimeOnly.FromDateTime(thoiDiemHenQuaHan);
         var gioKetThucCa = gioHenQuaHan.AddHours(1);
         if (gioKetThucCa <= gioHenQuaHan) gioKetThucCa = new TimeOnly(23, 59, 59);
 
@@ -462,7 +466,7 @@ public class TC03_NgoaiLeVaHangDoiTests
         {
             MaBacSi = bacSi.MaBacSi,
             MaPhong = testPhong.MaPhong,
-            NgayTruc = today,
+            NgayTruc = ngayTrucCaVang,
             CaLamViec = "CaVang_" + Guid.NewGuid().ToString("N")[..6],
             GioBatDauCa = gioHenQuaHan,
             GioKetThucCa = gioKetThucCa,

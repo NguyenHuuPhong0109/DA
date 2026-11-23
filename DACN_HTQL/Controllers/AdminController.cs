@@ -400,6 +400,12 @@ public class AdminController : Controller
     // ─── TÀI KHOẢN ───────────────────────────────────────────────────────────
     public async Task<IActionResult> TaiKhoan(string? nhom = null)
     {
+        if (string.IsNullOrEmpty(nhom))
+        {
+            nhom = "NhanSu"; // Mặc định chọn tab đầu tiên: Bác sĩ & Lễ tân
+        }
+
+        ViewData["Title"]      = "Quản lý tài khoản";
         ViewData["ActiveMenu"] = "TaiKhoan";
 
         var allAccounts = await _db.TaiKhoans
@@ -421,17 +427,14 @@ public class AdminController : Controller
         List<TaiKhoan> list;
         if (nhom == "BenhNhan")
         {
-            ViewData["Title"] = "Tài khoản Bệnh nhân";
             list = allAccounts.Where(t => t.VaiTro?.TenVaiTro == "BenhNhan").ToList();
         }
         else if (nhom == "NhanSu")
         {
-            ViewData["Title"] = "Tài khoản Bác sĩ & Lễ tân";
             list = allAccounts.Where(t => t.VaiTro?.TenVaiTro != "BenhNhan").ToList();
         }
         else
         {
-            ViewData["Title"] = "Quản lý Tài khoản";
             list = allAccounts;
         }
 

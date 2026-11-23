@@ -1496,3 +1496,34 @@ html, body {
   .portal-content { padding: var(--space-md) var(--space-sm); }
   .stats-grid { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════
+   BI DASHBOARD FILTER DRAWER
+══════════════════════════════════════ */
+.bi-filter-drawer {
+  display: grid !important;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  pointer-events: none;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+
+.bi-filter-drawer.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bi-filter-drawer-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+#btnToggleBiFilter.is-active {
+  border-color: #0F766E;
+  background-color: #F0FDFA;
+  color: #0F766E;
+}
