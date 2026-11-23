@@ -146,7 +146,7 @@ async function traCuuBenhNhan(sdt) {
             const data = await res.json();
             if (data) {
                 document.getElementById('tenBenhNhan').value = data.tenBenhNhan ?? '';
-                statusEl.textContent = '✓ Khách quen';
+                statusEl.textContent = 'Khách quen';
                 statusEl.className = 'input-status input-status--ok';
             } else {
                 statusEl.textContent = 'Bệnh nhân mới';

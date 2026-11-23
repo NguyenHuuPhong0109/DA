@@ -58,16 +58,41 @@ DACN_HTQL/
 
 ---
 
-## 👥 Danh Sách Tài Khoản Kiểm Thử Mẫu
+## 👥 Danh Sách Tài Khoản Kiểm Thử Mẫu (Mật khẩu chung: `123456`)
 
-| Tên tài khoản | Mật khẩu | Vai trò | Chức năng chính |
-| :--- | :---: | :---: | :--- |
-| `admin` | `123456` | **Quản trị viên (Admin)** | Quản lý danh mục, Lịch làm việc, Quản lý tài khoản (Bệnh nhân / Bác sĩ & Lễ tân), Dashboard KPI BI |
-| `letan01` | `123456` | **Lễ tân (LeTan)** | Tiếp nhận check-in, Cấp số thứ tự khám trực tiếp tại quầy |
-| `bacsi01` | `123456` | **Bác sĩ (BacSi)** | Gọi số khám, Khám bệnh, Chuyển khám, Loa phát thanh gọi tên (TTS) |
-| `benhnhan01` | `123456` | **Bệnh nhân (BenhNhan)** | Đặt lịch khám trực tuyến, Tra cứu phiếu hẹn, Xem lịch sử |
+| Tên tài khoản | Vai trò | Chức danh / Mô tả | SĐT liên hệ |
+| :--- | :---: | :--- | :---: |
+| `admin` | **Admin** | Quản trị viên hệ thống | `0900000001` |
+| `letan01` | **LeTan** | Nhân viên tiếp đón & điều phối quầy | `0900000002` |
+| `bacsi01` | **BacSi** | BS.CKI Nguyễn Văn An (Nội tổng quát - P101) | `0901234561` |
+| `bacsi02` | **BacSi** | ThS.BS Trần Thị Bình (Tai Mũi Họng - P102) | `0901234562` |
+| `bacsi03` | **BacSi** | BS.CKI Lê Hoàng Cường (Da liễu - P103) | `0901234563` |
+| `bacsi04` | **BacSi** | ThS.BS Phạm Minh Đức (Nhi khoa - P104) | `0901234564` |
+| `bacsi05` | **BacSi** | BS.CKII Võ Quốc Hưng (Tim mạch - P105) | `0901234565` |
+| `bacsi06` | **BacSi** | ThS.BS Đặng Thùy Linh (Cơ xương khớp - P106) | `0901234566` |
+| `bacsi07` | **BacSi** | BS.CKI Hoàng Tuấn Kiệt (Tiêu hóa - Gan mật - P107) | `0901234567` |
+| `bacsi08` | **BacSi** | BS.CKII Nguyễn Mai Phương (Sản phụ khoa - P108) | `0901234568` |
+| `bacsi09` | **BacSi** | ThS.BS Bùi Quang Huy (Mắt - P109) | `0901234569` |
+| `bacsi10` | **BacSi** | BS.CKI Đỗ Thanh Thảo (Răng Hàm Mặt - P110) | `0901234570` |
+| `benhnhan01` | **BenhNhan** | Bệnh nhân mẫu 01 (Lịch hẹn hoạt động) | `0912345671` |
+| `benhnhan02` | **BenhNhan** | Bệnh nhân mẫu 02 | `0912345672` |
+| `benhnhan03` | **BenhNhan** | Bệnh nhân mẫu 03 | `0912345673` |
 
-*(Ngoài ra hệ thống còn có các tài khoản `bacsi02`–`bacsi04` và `benhnhan02`–`benhnhan05` với mật khẩu mặc định `123456`).*
+---
+
+## 🏥 Quy Mô Dữ Liệu & Điểm Nổi Bật
+
+- **Quy mô danh mục chuẩn:** 10 chuyên khoa lâm sàng, 10 phòng khám khang trang (Phòng 101 – 110), 10 bác sĩ chuyên khoa với đầy đủ ca trực sáng/chiều/tối.
+- **Bộ nhận diện hình ảnh y khoa SVG Duotone xanh lá:** Toàn bộ 10 chuyên khoa được tích hợp hình minh họa SVG duotone chuẩn `healthicons` tối ưu màu sắc xanh lá (#16A34A / #DCFCE7), phong cách tối giản phẳng và không gây rối mắt.
+- **Kiến trúc Hàng đợi 3 luồng thông minh (Priority Queue):**
+  - `A-xxx` (Lượt đúng giờ): Dành cho bệnh nhân đặt trước check-in đúng giờ hoặc trễ $\le 15$ phút (Mức ưu tiên 1).
+  - `L-xxx` (Lượt đến trễ): Dành cho bệnh nhân đặt trước đến trễ 16–30 phút, bảo lưu lượt nhưng xếp sau lượt đúng giờ và vãng lai (Mức ưu tiên 3).
+  - `W-xxx` (Lượt vãng lai): Dành cho bệnh nhân đăng ký trực tiếp tại quầy chưa đặt trước (Mức ưu tiên 2).
+  - Khách đến sớm $> 30$ phút được bảo vệ không nhảy cóc trước khách vãng lai đã chờ sẵn.
+- **Quy tắc cảnh báo vắng hẹn (BR-06):**
+  - Quá 30 phút sau giờ hẹn chưa check-in: Hệ thống tự động chuyển trạng thái `VangHen` và tăng bộ đếm vắng hẹn.
+  - Bệnh nhân vắng hẹn $\ge 2$ lần bị gắn cờ đỏ `CoCanhBao`. Khi đặt lịch mới, phiếu sẽ rơi vào trạng thái `ChoXacNhan` và yêu cầu lễ tân hoặc bác sĩ duyệt trước khi có hiệu lực.
+- **Giao diện chuẩn Tabler Light Mode:** Thiết kế tinh giản, phong cách phẳng không viền bo màu mè, 100% nút bấm không chứa icon hay emoji rối mắt, căn lề bảng thẳng thớm và footer dính đáy màn hình (Sticky Footer).
 
 ---
 
@@ -107,7 +132,7 @@ Hệ thống sẽ tự động khởi động server và cấp một đường l
 ```powershell
 .\scripts\test_integration.ps1
 ```
-*(Kiểm tra tự động 11/11 luồng: Trang chủ, Đăng nhập 4 vai trò, RBAC, Đặt lịch, Tiếp nhận, Gọi số & API TTS, Dashboard & Xuất CSV).*
+*(Kiểm tra tự động 12/12 luồng: Trang chủ, Đăng nhập 4 vai trò, RBAC, Đặt lịch, Tiếp nhận, 11/11 ảnh SVG duotone chuyên khoa, Gọi số & API TTS, Dashboard & Xuất CSV).*
 
 ---
 

@@ -110,7 +110,7 @@ input[type=range].bt-slider {
 
 @* ── Thanh công cụ Loa Bluetooth ── *@
 <div class="bt-toolbar" id="bt-toolbar" aria-label="Điều khiển loa">
-    <span class="bt-label" style="font-weight:700;color:var(--color-ink)">🔊 Loa gọi số</span>
+    <span class="bt-label" style="font-weight:700;color:var(--color-ink)">Loa gọi số</span>
 
     <div class="bt-toolbar__group">
         <label class="bt-toggle" title="Bật/Tắt tự động đọc">
@@ -151,7 +151,7 @@ input[type=range].bt-slider {
         <h1 class="page-title">
             @(!string.IsNullOrEmpty(Model.HocVi) ? Model.HocVi + " " : "")@Model.HoTenBacSi
         </h1>
-        <p class="page-sub font-mono">📅 Ngày khám: @Model.NgayHomNay.ToString("dd/MM/yyyy")</p>
+        <p class="page-sub font-mono">Ngày khám: @Model.NgayHomNay.ToString("dd/MM/yyyy")</p>
     </div>
     <div class="btn-list">
         <a href="/BacSi/LichSuCa" class="btn btn-sm btn-outline-secondary">Lịch sử ca trực</a>
@@ -338,7 +338,7 @@ input[type=range].bt-slider {
                 }
                 else
                 {
-                    <div class="table-wrap">
+                    <div class="table-wrap table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>

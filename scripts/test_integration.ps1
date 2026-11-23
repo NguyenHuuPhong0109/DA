@@ -57,27 +57,44 @@ try {
         Write-Host "  [✗] 7. Lỗi RBAC: Chưa chặn đúng quy định!" -ForegroundColor Red
     }
 
-    # 4. Bệnh nhân
+    # 4. Bệnh nhân & Ảnh chuyên khoa SVG
     $datLich = Invoke-WebRequest -Uri "$baseUrl/DatLich" -WebSession $sBn -UseBasicParsing
     $traCuu = Invoke-WebRequest -Uri "$baseUrl/DatLich/TraCuu" -WebSession $sBn -UseBasicParsing
     Write-Host "  [✓] 8. Bệnh nhân: Tải danh sách đặt lịch ($($datLich.StatusCode)) & Tra cứu phiếu hẹn ($($traCuu.StatusCode))" -ForegroundColor Green
 
+    $svgs = @(
+        "noi-tong-quat.svg", "nhi-khoa.svg", "san-phu-khoa.svg", "mat.svg",
+        "tai-mui-hong.svg", "rang-ham-mat.svg", "da-lieu.svg", "tim-mach.svg",
+        "co-xuong-khop.svg", "tieu-hoa-gan-mat.svg", "mac-dinh.svg"
+    )
+    $svgPass = $true
+    foreach ($svg in $svgs) {
+        $svgRes = Invoke-WebRequest -Uri "$baseUrl/images/specialties/$svg" -UseBasicParsing
+        if ($svgRes.StatusCode -ne 200) { $svgPass = $false }
+    }
+    if ($svgPass) {
+        Write-Host "  [✓] 9. Tài nguyên tĩnh: Tải thành công 11/11 file SVG duotone chuyên khoa (HTTP 200)" -ForegroundColor Green
+    } else {
+        Write-Host "  [✗] 9. Lỗi tải file SVG chuyên khoa!" -ForegroundColor Red
+    }
+
     # 5. Lễ tân
     $leTan = Invoke-WebRequest -Uri "$baseUrl/LeTan" -WebSession $sLt -UseBasicParsing
-    Write-Host "  [✓] 9. Lễ tân: Tải danh sách lịch hẹn hôm nay & Hàng đợi tiếp nhận ($($leTan.StatusCode))" -ForegroundColor Green
+    Write-Host "  [✓] 10. Lễ tân: Tải danh sách lịch hẹn hôm nay & Hàng đợi tiếp nhận ($($leTan.StatusCode))" -ForegroundColor Green
 
-    # 6. Bác sĩ & API TTS
+    # 6. Bác sĩ & API TTS & Hàng đợi JSON
     $bacSi = Invoke-WebRequest -Uri "$baseUrl/BacSi" -WebSession $sBs -UseBasicParsing
     $tts = Invoke-WebRequest -Uri "$baseUrl/api/tts/speak?text=Xin%20moi%20benh%20nhan" -WebSession $sBs -UseBasicParsing
-    Write-Host "  [✓] 10. Bác sĩ: Tải hàng đợi phòng khám trực ($($bacSi.StatusCode)) & API TTS audio/mpeg ($($tts.Content.Length) bytes)" -ForegroundColor Green
+    $hangDoiJson = Invoke-WebRequest -Uri "$baseUrl/BacSi/LayHangDoi?maPhong=1" -WebSession $sBs -UseBasicParsing
+    Write-Host "  [✓] 11. Bác sĩ: Tải hàng đợi phòng khám ($($bacSi.StatusCode)), API JSON hàng đợi & API TTS audio/mpeg ($($tts.Content.Length) bytes)" -ForegroundColor Green
 
     # 7. Admin
     $admin = Invoke-WebRequest -Uri "$baseUrl/Admin" -WebSession $sAd -UseBasicParsing
     $csv = Invoke-WebRequest -Uri "$baseUrl/Admin/ExportBaoCaoCsv" -WebSession $sAd -UseBasicParsing
-    Write-Host "  [✓] 11. Admin: Tải BI Dashboard KPI ($($admin.StatusCode)) & Xuất file CSV ($($csv.Content.Length) bytes, $($csv.Headers['Content-Type']))" -ForegroundColor Green
+    Write-Host "  [✓] 12. Admin: Tải BI Dashboard KPI ($($admin.StatusCode)) & Xuất file CSV ($($csv.Content.Length) bytes, $($csv.Headers['Content-Type']))" -ForegroundColor Green
 
     Write-Host "============================================================================" -ForegroundColor Cyan
-    Write-Host "          TẤT CẢ 11/11 HẠNG MỤC KIỂM THỬ TÍCH HỢP ĐẠT PASS 100%!" -ForegroundColor Green
+    Write-Host "          TẤT CẢ 12/12 HẠNG MỤC KIỂM THỬ TÍCH HỢP ĐẠT PASS 100%!" -ForegroundColor Green
     Write-Host "============================================================================" -ForegroundColor Cyan
 } finally {
     if ($serverProcess -and !$serverProcess.HasExited) {

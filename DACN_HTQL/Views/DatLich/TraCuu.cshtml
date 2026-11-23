@@ -19,6 +19,10 @@
         </div>
     </form>
 
+    <div class="alert alert--info" style="margin-top:var(--space-md);margin-bottom:var(--space-lg);font-size:var(--text-xs);line-height:1.5">
+        <strong>Quy định tiếp nhận:</strong> Trễ &le; 15 phút được xếp lượt đúng giờ (A-xxx); trễ 16–30 phút chuyển sang lượt trễ (L-xxx); quá 30 phút chưa check-in sẽ tự động tính vắng hẹn.
+    </div>
+
     @if (TempData["Success"] != null) { <div class="alert alert--success" style="margin-bottom:var(--space-md)">@TempData["Success"]</div> }
     @if (TempData["Error"]   != null) { <div class="alert alert--error" style="margin-bottom:var(--space-md)">@TempData["Error"]</div> }
 

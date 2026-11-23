@@ -15,23 +15,23 @@
         <p class="page-sub">Bác sĩ: <strong>@hoTen</strong></p>
     </div>
     <div class="btn-list">
-        <a href="/BacSi" class="btn btn-sm btn-outline-secondary">← Về trang hôm nay</a>
+        <a href="/BacSi" class="btn btn-sm btn-outline-secondary">Về trang hôm nay</a>
     </div>
 </div>
 
 <div class="card" style="margin-bottom:var(--space-lg);padding:10px 16px">
     <div class="btn-list" style="align-items:center">
-        <a href="/BacSi/LichSuCa?tuan=@(tuanOffset - 1)" class="btn btn-sm btn-outline-secondary">← Tuần trước</a>
+        <a href="/BacSi/LichSuCa?tuan=@(tuanOffset - 1)" class="btn btn-sm btn-outline-secondary">Tuần trước</a>
         <span class="font-mono text-muted text-sm" style="padding:0 var(--space-xs);font-weight:600">
             @tuanBD.ToString("dd/MM") — @tuanKT.ToString("dd/MM/yyyy")
         </span>
         @if (tuanOffset < 0)
         {
-            <a href="/BacSi/LichSuCa?tuan=@(tuanOffset + 1)" class="btn btn-sm btn-outline-secondary">Tuần sau →</a>
+            <a href="/BacSi/LichSuCa?tuan=@(tuanOffset + 1)" class="btn btn-sm btn-outline-secondary">Tuần sau</a>
         }
         else
         {
-            <span class="btn btn-sm btn-outline-secondary disabled" style="opacity:.4;cursor:not-allowed">Tuần sau →</span>
+            <span class="btn btn-sm btn-outline-secondary disabled" style="opacity:.4;cursor:not-allowed">Tuần sau</span>
         }
     </div>
 </div>
@@ -44,7 +44,7 @@
 }
 else
 {
-    <div class="table-wrap">
+    <div class="table-wrap table-responsive">
         <table class="table">
             <thead>
                 <tr>
@@ -68,7 +68,7 @@ else
                     };
                     var ttLabel  = ca.TrangThaiCa switch
                     {
-                        "MoKham"  => "Mở khám",
+                        "MoKham"  => "Đang mở",
                         "TamDong" => "Tạm đóng",
                         "DaKham"  => "Đã khám",
                         "Huy"     => "Hủy",

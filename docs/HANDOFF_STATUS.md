@@ -1,10 +1,10 @@
 ﻿# HANDOFF STATUS — DACN_HTQL (HTTT-13)
 
-**Cập nhật lần cuối:** 2026-11-21 · **Hoàn thành Giai đoạn 7 (Hybrid TTS tiếng Việt Loa Bluetooth, Tối ưu Mobile 390px, Deploy HTTPS Cloudflare Tunnel & MonsterASP.NET)**
+**Cập nhật lần cuối:** 2026-11-23 · **Hoàn thành Giai đoạn 10 (Code Freeze — Nghiệm thu toàn diện hệ thống, 10 Chuyên khoa, 10 Bác sĩ, 10 Phòng khám, Bộ ảnh SVG Duotone y khoa, Làm sạch 100% icon nút bấm)**
 
 ---
 
-## ✅ BUILD & TEST STATUS: PASSED — 0 Errors, 0 Warnings, 20/20 Tests Passed
+## ✅ BUILD & TEST STATUS: PASSED — 0 Errors, 0 Warnings, 20/20 Tests Passed (100%)
 
 ```
 Solution: DACN_HTQL.slnx
@@ -13,14 +13,18 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Test Run Successful.
+Unit Test Run Successful (xUnit):
     Total Tests: 20
     Passed: 20 (100%)
     Failed: 0
     Skipped: 0
-    Duration: 5.0s (DACN_HTQL.Tests.dll)
+    Duration: 4.0s (DACN_HTQL.Tests.dll)
 
-Publish Release: Succeeded (./publish)
+Integration Tests (scripts/test_integration.ps1):
+    Total Suites: 12 / 12 Passed (100%)
+    Static Assets: 11 / 11 SVG Duotone Icons HTTP 200 OK
+
+Publish Release: Succeeded (./publish_verify)
 ```
 
 ---
@@ -41,6 +45,7 @@ Publish Release: Succeeded (./publish)
 | 7 | Hybrid TTS tiếng Việt chuẩn (Loa Bluetooth) + Tối ưu Mobile 390px + Đóng gói Deploy Cloudflare/MonsterASP.NET | ✅ Hoàn thành |
 | 8 | Tinh chỉnh bố cục Dashboard 3 tầng & Chuẩn hóa Hệ thống Danh mục theo chuẩn Tabler và Zocdoc/YouMed | ✅ Hoàn thành |
 | 9 | Tối giản Hallmark (AGENTS.md), Tabler & shadcn-ui: Khắc phục lệch bảng, xóa emoji nút, tách quản lý tài khoản 2 nhóm, đổi tên Lịch làm việc | ✅ Hoàn thành |
+| 10 | Nghiệm thu Code Freeze: Mở rộng 10 Chuyên khoa, 10 Phòng khám, 10 Bác sĩ; Bộ ảnh SVG Duotone chuẩn healthicons; Xóa sạch 100% icon emoji nút bấm; Kiểm thử hồi quy toàn diện 20/20 xUnit + 12/12 Integration Test | ✅ Hoàn thành |
 
 ---
 

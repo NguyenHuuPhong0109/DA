@@ -13,15 +13,32 @@ dotnet run --project DACN_HTQL -- --reseed
 | Tên bảng dữ liệu | Tổng số bản ghi | Ghi chú & Mục đích kiểm thử |
 | :--- | :---: | :--- |
 | **`VaiTro`** | **4** | 4 vai trò chuẩn: `Admin`, `LeTan`, `BacSi`, `BenhNhan` |
-| **`TaiKhoan`** | **9** | Mật khẩu chung `123456`: `admin`, `letan01`, `bacsi01`..`bacsi04`, `benhnhan01`..`benhnhan03` |
-| **`ChuyenKhoa`** | **4** | Nội tổng quát, Tai Mũi Họng, Da liễu, Nhi khoa |
-| **`PhongKham`** | **4** | Phòng 101 (Nội), Phòng 102 (TMH), Phòng 103 (Da liễu), Phòng 104 (Nhi khoa) |
-| **`BacSi`** | **4** | BS.CKI Nguyễn Văn An, ThS.BS Trần Thị Bình, BS.CKI Lê Hoàng Cường, ThS.BS Phạm Minh Đức |
+| **`TaiKhoan`** | **15** | Mật khẩu chung `123456`: `admin`, `letan01`, `bacsi01`..`bacsi10`, `benhnhan01`..`benhnhan03` |
+| **`ChuyenKhoa`** | **10** | Nội tổng quát, Tai Mũi Họng, Da liễu, Nhi khoa, Tim mạch, Cơ xương khớp, Tiêu hóa - Gan mật, Sản phụ khoa, Mắt, Răng Hàm Mặt |
+| **`PhongKham`** | **10** | Phòng 101 $\rightarrow$ Phòng 110 (Tầng 1 Khu A, Tầng 2 Khu B, Tầng 3 Khu C) |
+| **`BacSi`** | **10** | 10 Bác sĩ chuyên khoa hoạt động: BS An, ThS Bình, BS Cường, ThS Đức, BS Hưng, ThS Linh, BS Kiệt, BS Phương, ThS Huy, BS Thảo |
 | **`BenhNhan`** | **75** | 3 BN gắn tài khoản + 10 BN cảnh báo vắng hẹn (`CoCanhBao = 1`) + 62 BN đa dạng |
 | **`CaTruc`** | **76** | 28 ca lịch sử (14 ngày trước) + **48 ca dày đặc** (4 ngày: `Today` đến `Today + 3`, mỗi ngày đủ 3 ca Sáng/Chiều/Tối) |
 | **`KhungGio`** | **1.056** | 808 slot `DatHen`, 248 slot `KhungDem` (tỷ lệ chuẩn 3 Đặt hẹn : 1 Khung đệm) |
 | **`PhieuDatHen`** | **489** | Phủ dày 75%–85% các ca; đầy đủ các trạng thái `DaKham`, `VangHen`, `DaHuy`, `ChoXacNhan`, `DaXacNhan`, `DaCheckIn` |
 | **`PhieuSoThuTu`** | **215** | Đầy đủ hàng đợi thực tế đang hoạt động hôm nay và lịch sử hoàn tất để tính KPI |
+
+---
+
+## 1.1. BẢNG DANH MỤC 10 CHUYÊN KHOA, PHÒNG KHÁM & BÁC SĨ PHỤ TRÁCH
+
+| STT | Chuyên khoa | Tên phòng | Vị trí | Bác sĩ phụ trách | Học vị | Tài khoản | SĐT liên hệ | Icon SVG Duotone |
+| :---: | :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
+| 1 | **Nội tổng quát** | Phòng 101 | Tầng 1 - Khu A | Nguyễn Văn An | BS.CKI | `bacsi01` | `0901234561` | `noi-tong-quat.svg` |
+| 2 | **Tai Mũi Họng** | Phòng 102 | Tầng 1 - Khu A | Trần Thị Bình | ThS.BS | `bacsi02` | `0901234562` | `tai-mui-hong.svg` |
+| 3 | **Da liễu** | Phòng 103 | Tầng 2 - Khu B | Lê Hoàng Cường | BS.CKI | `bacsi03` | `0901234563` | `da-lieu.svg` |
+| 4 | **Nhi khoa** | Phòng 104 | Tầng 2 - Khu B | Phạm Minh Đức | ThS.BS | `bacsi04` | `0901234564` | `nhi-khoa.svg` |
+| 5 | **Tim mạch** | Phòng 105 | Tầng 2 - Khu B | Võ Quốc Hưng | BS.CKII | `bacsi05` | `0901234565` | `tim-mach.svg` |
+| 6 | **Cơ xương khớp** | Phòng 106 | Tầng 2 - Khu B | Đặng Thùy Linh | ThS.BS | `bacsi06` | `0901234566` | `co-xuong-khop.svg` |
+| 7 | **Tiêu hóa - Gan mật** | Phòng 107 | Tầng 3 - Khu C | Hoàng Tuấn Kiệt | BS.CKI | `bacsi07` | `0901234567` | `tieu-hoa-gan-mat.svg` |
+| 8 | **Sản phụ khoa** | Phòng 108 | Tầng 3 - Khu C | Nguyễn Mai Phương | BS.CKII | `bacsi08` | `0901234568` | `san-phu-khoa.svg` |
+| 9 | **Mắt** | Phòng 109 | Tầng 3 - Khu C | Bùi Quang Huy | ThS.BS | `bacsi09` | `0901234569` | `mat.svg` |
+| 10 | **Răng Hàm Mặt** | Phòng 110 | Tầng 3 - Khu C | Đỗ Thanh Thảo | BS.CKI | `bacsi10` | `0901234570` | `rang-ham-mat.svg` |
 
 ---
 

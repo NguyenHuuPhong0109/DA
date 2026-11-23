@@ -33,7 +33,7 @@
                     }
                 </select>
                 <span class="font-mono text-muted text-sm">
-                    📅 @Model.NgayHienTai.ToString("dd/MM/yyyy")
+                    @Model.NgayHienTai.ToString("dd/MM/yyyy")
                 </span>
             </div>
         </form>
@@ -51,7 +51,7 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="maPhong" value="@Model.MaPhongDangChon" />
                 <button type="submit" class="btn btn-sm btn-outline-secondary" title="Quét vắng hẹn quá 30 phút và gửi nhắc lịch">
-                    ⏱️ Quét quá hạn ngay
+                    Quét quá hạn ngay
                 </button>
             </form>
         </div>
@@ -130,7 +130,7 @@ else
             }
             else
             {
-                <div class="table-wrap">
+                <div class="table-wrap table-responsive">
                     <table class="table" id="tbl-hangdoi">
                         <thead>
                             <tr>
@@ -220,7 +220,7 @@ else
                                                     <input type="hidden" name="maPhong" value="@maPhong" />
                                                     <button type="submit" class="btn btn-sm btn-warning"
                                                             title="Đưa bệnh nhân về cuối hàng chờ">
-                                                        ↩ Khôi phục
+                                                        Khôi phục
                                                     </button>
                                                 </form>
                                             }
@@ -332,6 +332,18 @@ else
                     ? `<span class="badge badge--canh-bao" title="Đã vắng hẹn ${d.soLanVangHen} lần">&#9888; Cảnh báo</span>`
                     : '';
 
+                const mapStatus = {
+                    'ChoCheckIn': 'Chờ tiếp nhận',
+                    'DaCheckIn': 'Đã check-in',
+                    'DangKham': 'Đang khám',
+                    'HoanThanh': 'Hoàn thành',
+                    'VangHen': 'Vắng hẹn',
+                    'DaHuy': 'Đã hủy',
+                    'ChoXacNhan': 'Chờ xác nhận',
+                    'DaXacNhan': 'Đã xác nhận'
+                };
+                const tenTrangThai = mapStatus[d.trangThaiHen] || d.trangThaiHen;
+
                 box.innerHTML = `
                     <div class="checkin-popup__head">
                         <strong>${d.tenBenhNhan}</strong> ${canh}
@@ -340,7 +352,7 @@ else
                     <div style="font-size:var(--text-xs);color:var(--color-muted);margin:4px 0">
                         ${d.gioHen} · ${d.tenBacSi} · ${d.tenPhong}
                     </div>
-                    <div class="checkin-popup__status">Trạng thái: <strong>${d.trangThaiHen}</strong></div>
+                    <div class="checkin-popup__status">Trạng thái: <strong>${tenTrangThai}</strong></div>
                     ${d.trangThaiHen !== 'DaCheckIn' && d.trangThaiHen !== 'DaKham' ? `
                     <form method="post" action="/LeTan/CheckIn" style="margin-top:8px">
                         <input type="hidden" name="__RequestVerificationToken" value="${document.querySelector('input[name=__RequestVerificationToken]').value}" />
@@ -369,7 +381,7 @@ else
                 const d   = await res.json();
 
                 if (d) {
-                    statusEl.textContent = '✓ Khách quen';
+                    statusEl.textContent = 'Khách quen';
                     statusEl.className   = 'input-status input-status--ok';
                     const soLanVang = d.soLanVangHen > 0
                         ? `<span class="badge badge--canh-bao" style="margin-left:4px">&#9888; Vắng ${d.soLanVangHen} lần</span>`
@@ -382,7 +394,7 @@ else
                         </div>`;
                     infoEl.style.display = '';
                 } else {
-                    statusEl.textContent = '+ Khách mới';
+                    statusEl.textContent = 'Khách mới';
                     statusEl.className   = 'input-status input-status--new';
                     infoEl.style.display = 'none';
                 }
